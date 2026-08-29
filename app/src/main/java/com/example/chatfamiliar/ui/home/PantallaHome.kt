@@ -1,71 +1,76 @@
 package com.example.chatfamiliar.ui.home
-import androidx.compose.foundation.layout.*
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Forum
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+
+@Composable
+fun PantallaHome(viewModel: HomeViewModel = viewModel(), alCerrarSesion: () -> Unit) {
+    ContenidoHome(
+        alCerrarSesion = {
+            viewModel.cerrarSesion()
+            alCerrarSesion()
+        }
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaHome(
+fun ContenidoHome(
     alCerrarSesion: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "FamiliaChat",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                actions = {
-                    IconButton(onClick = {
-                        FirebaseAuth.getInstance().signOut()
-                        alCerrarSesion()
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.ExitToApp,
-                            contentDescription = "Cerrar sesión",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
+                title = { Text(text = "FamiliaChat", fontWeight = FontWeight.Bold) },
+                actions = { IconButton(onClick = alCerrarSesion) { Icon(imageVector = Icons.Filled.Logout, contentDescription = "Cerrar sesión") } }
             )
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Forum,
-                contentDescription = "Chats vacíos",
-                modifier = Modifier.size(100.dp),
-                tint = MaterialTheme.colorScheme.surfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "¡Bienvenido a la familia!",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "Tus chats aparecerán aquí.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(24.dp), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Icon(imageVector = Icons.Filled.Chat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+
+                Text(text = "¡Bienvenido a FamiliaChat!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
+
+                Text(text = "Tu cuenta está lista. Más adelante aquí aparecerán tus conversaciones familiares.", style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
+            }
         }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true
+)
+@Composable
+private fun PantallaHomePreview() {
+    MaterialTheme {
+        ContenidoHome(
+            alCerrarSesion = {}
+        )
     }
 }

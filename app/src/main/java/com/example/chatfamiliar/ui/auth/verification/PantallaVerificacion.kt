@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -58,7 +59,7 @@ fun ContenidoVerificacion(
         Icon(imageVector = Icons.Filled.Email, contentDescription = null,
             tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 16.dp))
 
-        Text(text = "Revisa tu correo", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
+        Text(text = "!Falta tu verificacion, revisa tu correo¡", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -87,7 +88,7 @@ fun ContenidoVerificacion(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(onClick = alReenviarCorreo, enabled = !cargando) { Text(text = "Reenviar correo de verificación") }
+        OutlinedButton(onClick = alReenviarCorreo, enabled = !cargando) { Text(text = "Reenviar correo de verificación") }
 
         TextButton(onClick = alCambiarCuenta, enabled = !cargando) { Text(text = "Cambiar de cuenta") }
     }

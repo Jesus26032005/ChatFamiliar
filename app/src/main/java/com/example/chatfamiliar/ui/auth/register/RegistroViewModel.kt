@@ -25,7 +25,6 @@ class RegistroViewModel : ViewModel() {
     var cargando by mutableStateOf(false)
         private set
 
-
     fun actualizarCorreo(nuevoCorreo: String) { correo = nuevoCorreo }
 
     fun actualizarPassword(nuevoPassword: String) { password = nuevoPassword }
@@ -42,7 +41,6 @@ class RegistroViewModel : ViewModel() {
 
         authRepository.crearUsuario(correo = correoLimpio, password = password) { resultado ->
             cargando = false
-
             resultado
                 .onSuccess { alTenerExito() }
                 .onFailure { excepcion -> errorVisual = obtenerMensajeError(excepcion) }

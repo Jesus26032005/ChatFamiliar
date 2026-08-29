@@ -17,11 +17,8 @@ class AuthRepository {
                         alCompletar(Result.failure(IllegalStateException("No se pudo obtener el usuario creado.")))
                     }
                 } else {
-                    val excepcion = tarea.exception
-                        ?: Exception("No se pudo crear la cuenta.")
-                    alCompletar(
-                        Result.failure(excepcion)
-                    )
+                    val excepcion = tarea.exception ?: Exception("No se pudo crear la cuenta.")
+                    alCompletar(Result.failure(excepcion))
                 }
             }
     }
@@ -44,7 +41,6 @@ class AuthRepository {
 
     fun comprobarCorreoVerificado(alCompletar: (Result<Boolean>) -> Unit) {
         val usuario = auth.currentUser
-
         if (usuario == null) {
             alCompletar(Result.failure(IllegalStateException("No existe un usuario autenticado.")))
             return
@@ -78,6 +74,5 @@ class AuthRepository {
 
     fun cerrarSesion() { auth.signOut() }
     fun obtenerUsuarioActual(): FirebaseUser? { return auth.currentUser }
-    fun correoEstaVerificado(): Boolean { return auth.currentUser?.isEmailVerified == true }
     fun obtenerCorreoActual(): String? { return auth.currentUser?.email }
 }

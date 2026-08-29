@@ -26,7 +26,6 @@ class LoginViewModel : ViewModel() {
     var cargando by mutableStateOf(false)
         private set
 
-
     fun actualizarCorreo(nuevoCorreo: String) { correo = nuevoCorreo }
 
     fun actualizarPassword(nuevoPassword: String) { password = nuevoPassword }
@@ -41,11 +40,8 @@ class LoginViewModel : ViewModel() {
 
         authRepository.iniciarSesion(correo = correoLimpio, password = password) { resultado ->
             cargando = false
-
             resultado
-                .onSuccess { usuario ->
-                    if (usuario.isEmailVerified) { alTenerExito()
-                    } else { alRequerirVerificacion() } }
+                .onSuccess { usuario -> if (usuario.isEmailVerified) { alTenerExito() } else { alRequerirVerificacion() } }
                 .onFailure { excepcion -> errorVisual = obtenerMensajeError(excepcion) }
         }
     }

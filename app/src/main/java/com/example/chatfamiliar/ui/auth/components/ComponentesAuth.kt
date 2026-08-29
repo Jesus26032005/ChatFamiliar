@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -71,7 +72,7 @@ fun CampoPassword(valor: String, alCambiarValor: (String) -> Unit, etiqueta: Str
 @Composable
 fun MensajeError(mensaje: String?, modifier: Modifier = Modifier) {
     AnimatedVisibility(visible = mensaje != null, enter = fadeIn(), exit = fadeOut()) {
-        Text(text = mensaje.orEmpty(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = modifier.padding(bottom = 16.dp))
+        Text(text = mensaje.orEmpty(), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = modifier.padding(bottom = 16.dp))
     }
 }
 

@@ -51,7 +51,6 @@ fun PantallaLogin(
                 alRequerirVerificacion = alNavegarVerificacion
             )
         },
-
         alNavegarRegistro = alNavegarRegistro
     )
 }
@@ -69,76 +68,32 @@ fun ContenidoLogin(
     alNavegarRegistro: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
 
-        Icon(
-            imageVector = Icons.Filled.Forum,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Icon(imageVector = Icons.Filled.Forum, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 16.dp))
 
-        Text(
-            text = "FamiliaChat",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
+        Text(text = "FamiliaChat", style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
-        Text(
-            text = "Un chat solo para la familia",
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Text(text = "Un chat solo para la familia", style = MaterialTheme.typography.bodyLarge)
 
-        Spacer(
-            modifier = Modifier.height(32.dp)
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
-        CampoCorreo(
-            valor = correo,
-            alCambiarValor = alCambiarCorreo,
-            habilitado = !cargando,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        CampoCorreo(valor = correo, alCambiarValor = alCambiarCorreo,
+            habilitado = !cargando, modifier = Modifier.padding(bottom = 16.dp))
 
-        CampoPassword(
-            valor = password,
-            alCambiarValor = alCambiarPassword,
-            etiqueta = "Contraseña",
-            habilitado = !cargando,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        CampoPassword(valor = password, alCambiarValor = alCambiarPassword, etiqueta = "Contraseña",
+            habilitado = !cargando, modifier = Modifier.padding(bottom = 16.dp))
 
-        MensajeError(
-            mensaje = errorVisual
-        )
+        MensajeError(mensaje = errorVisual)
 
-        BotonAuth(
-            texto = "Iniciar sesión",
-            cargando = cargando,
-            onClick = alIniciarSesion
-        )
+        BotonAuth(texto = "Iniciar sesión", cargando = cargando, onClick = alIniciarSesion)
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(
-            onClick = alNavegarRegistro,
-            enabled = !cargando
-        ) {
-            Text(
-                text = "¿No tienes cuenta? Regístrate aquí"
-            )
-        }
+        TextButton(onClick = alNavegarRegistro, enabled = !cargando) { Text(text = "¿No tienes cuenta? Regístrate aquí") }
     }
 }
 
@@ -151,14 +106,8 @@ fun ContenidoLogin(
 private fun PantallaLoginPreview() {
     MaterialTheme {
         ContenidoLogin(
-            correo = "familia@correo.com",
-            password = "12345678",
-            errorVisual = null,
-            cargando = false,
-            alCambiarCorreo = {},
-            alCambiarPassword = {},
-            alIniciarSesion = {},
-            alNavegarRegistro = {}
+            correo = "familia@correo.com", password = "12345678", errorVisual = null, cargando = false,
+            alCambiarCorreo = {}, alCambiarPassword = {}, alIniciarSesion = {}, alNavegarRegistro = {}
         )
     }
 }

@@ -28,7 +28,6 @@ import com.example.chatfamiliar.ui.auth.components.CampoCorreo
 import com.example.chatfamiliar.ui.auth.components.CampoPassword
 import com.example.chatfamiliar.ui.auth.components.MensajeError
 
-
 @Composable
 fun PantallaRegistro(viewModel: RegistroViewModel = viewModel(), alNavegarVerificacion: () -> Unit, alNavegarLogin: () -> Unit) {
     ContenidoRegistro(

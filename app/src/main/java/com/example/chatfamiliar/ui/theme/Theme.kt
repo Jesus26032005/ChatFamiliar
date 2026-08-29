@@ -11,48 +11,84 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val LightColorScheme = lightColorScheme(
+    primary = FamiliaPrimary,
+    onPrimary = FamiliaOnPrimary,
+    primaryContainer = FamiliaPrimaryContainer,
+    onPrimaryContainer = FamiliaOnPrimaryContainer,
+
+    secondary = FamiliaSecondary,
+    onSecondary = FamiliaOnSecondary,
+    secondaryContainer = FamiliaSecondaryContainer,
+    onSecondaryContainer = FamiliaOnSecondaryContainer,
+
+    tertiary = FamiliaTertiary,
+    onTertiary = FamiliaOnTertiary,
+    tertiaryContainer = FamiliaTertiaryContainer,
+    onTertiaryContainer = FamiliaOnTertiaryContainer,
+
+    background = FamiliaBackground,
+    onBackground = FamiliaOnBackground,
+
+    surface = FamiliaSurface,
+    onSurface = FamiliaOnSurface,
+
+    surfaceVariant = FamiliaSurfaceVariant,
+    onSurfaceVariant = FamiliaOnSurfaceVariant,
+
+    outline = FamiliaOutline,
+
+    error = FamiliaError,
+    onError = FamiliaOnError,
+    errorContainer = FamiliaErrorContainer,
+    onErrorContainer = FamiliaOnErrorContainer
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+private val DarkColorScheme = darkColorScheme(
+    primary = FamiliaPrimaryDark,
+    onPrimary = FamiliaOnPrimaryDark,
+    primaryContainer = FamiliaPrimaryContainerDark,
+    onPrimaryContainer = FamiliaOnPrimaryContainerDark,
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = FamiliaSecondaryDark,
+    onSecondary = FamiliaOnSecondaryDark,
+    secondaryContainer = FamiliaSecondaryContainerDark,
+    onSecondaryContainer = FamiliaOnSecondaryContainerDark,
+
+    tertiary = FamiliaTertiaryDark,
+    onTertiary = FamiliaOnTertiaryDark,
+    tertiaryContainer = FamiliaTertiaryContainerDark,
+    onTertiaryContainer = FamiliaOnTertiaryContainerDark,
+
+    background = FamiliaBackgroundDark,
+    onBackground = FamiliaOnBackgroundDark,
+
+    surface = FamiliaSurfaceDark,
+    onSurface = FamiliaOnSurfaceDark,
+
+    surfaceVariant = FamiliaSurfaceVariantDark,
+    onSurfaceVariant = FamiliaOnSurfaceVariantDark,
+
+    outline = FamiliaOutlineDark,
+
+    error = FamiliaErrorDark,
+    onError = FamiliaOnErrorDark,
+    errorContainer = FamiliaErrorContainerDark,
+    onErrorContainer = FamiliaOnErrorContainerDark
 )
 
 @Composable
-fun ChatFamiliarTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
+fun ChatFamiliarTheme(darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = false,
+                      content: @Composable () -> Unit) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) { dynamicDarkColorScheme(context)
+            } else { dynamicLightColorScheme(context)
+            }
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
 }

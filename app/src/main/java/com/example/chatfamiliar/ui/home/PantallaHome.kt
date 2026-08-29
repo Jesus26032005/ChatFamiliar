@@ -53,10 +53,10 @@ fun ContenidoHome(
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Icon(imageVector = Icons.Filled.Chat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
 
-                Text(text = "¡Bienvenido a FamiliaChat!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
+                Text(text = "Bienvenido a FamiliaChat", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
 
-                Text(text = "Tu cuenta está lista. Más adelante aquí aparecerán tus conversaciones familiares.", style = MaterialTheme.typography.bodyLarge,
+                Text(text = "Tu cuenta está lista. Más adelante aquí aparecerán tus conversaciones.", style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
             }
         }

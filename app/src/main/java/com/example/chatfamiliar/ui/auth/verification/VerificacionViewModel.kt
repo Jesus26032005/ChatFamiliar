@@ -27,7 +27,6 @@ class VerificacionViewModel : ViewModel() {
 
     fun prepararPantalla() {
         correoUsuario = authRepository.obtenerCorreoActual().orEmpty()
-
         if (!correoInicialEnviado) {
             enviarCorreoVerificacion()
             correoInicialEnviado = true
@@ -48,8 +47,7 @@ class VerificacionViewModel : ViewModel() {
         authRepository.comprobarCorreoVerificado { resultado ->
             cargando = false
             resultado
-                .onSuccess { estaVerificado ->
-                    if (estaVerificado) { alEstarVerificado()
+                .onSuccess { estaVerificado -> if (estaVerificado) { alEstarVerificado()
                     } else { mensajeVisual = "Tu correo todavía no ha sido verificado. Abre el enlace que enviamos a tu correo e inténtalo nuevamente." } }
                 .onFailure { excepcion ->
                     errorVisual = obtenerMensajeError(excepcion)

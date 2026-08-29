@@ -59,7 +59,10 @@ fun ContenidoVerificacion(
         Icon(imageVector = Icons.Filled.Email, contentDescription = null,
             tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 16.dp))
 
-        Text(text = "!Falta tu verificacion, revisa tu correo¡", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
+        Text(text = "!Falta tu verificacion¡", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
+
+        Text(text = "Checa tu bandeja de spam", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
 
         Spacer(modifier = Modifier.height(12.dp))

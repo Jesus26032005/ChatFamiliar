@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "287486518718",
+    "project_id": "chatfamiliarlb",
+    "storage_bucket": "chatfamiliarlb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287486518718:android:a178e29bac8e277f6645ef",
+        "android_client_info": {
+          "package_name": "com.example.chatfamiliar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdw9tMegqdEM8e-e44wOPCbPXL2oiEwbI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

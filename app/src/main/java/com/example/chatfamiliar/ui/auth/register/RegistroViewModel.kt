@@ -74,7 +74,7 @@ class RegistroViewModel : ViewModel() {
             is FirebaseNetworkException -> "Sin conexión a internet. Verifica tu red e inténtalo de nuevo."
             is FirebaseTooManyRequestsException -> "Demasiados intentos. Espera un momento e inténtalo de nuevo."
             is FirebaseAuthUserCollisionException -> "Este correo ya está registrado. Inicia sesión o utiliza otro."
-            is FirebaseAuthWeakPasswordException -> "La contraseña es demasiado débil. Utiliza una contraseña más segura."
+            is FirebaseAuthWeakPasswordException ->  "La contraseña es demasiado débil. Utiliza una contraseña más segura."
             is FirebaseAuthInvalidCredentialsException -> "El formato del correo electrónico no es válido."
             else -> "No se pudo crear la cuenta. Inténtalo de nuevo."
         }

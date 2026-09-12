@@ -34,12 +34,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CampoCorreo(valor: String, alCambiarValor: (String) -> Unit, habilitado: Boolean, modifier: Modifier = Modifier) {
+fun CampoCorreo(valor: String,
+                alCambiarValor: (String) -> Unit,
+                habilitado: Boolean,
+                modifier: Modifier = Modifier) {
     OutlinedTextField(
         value = valor, onValueChange = alCambiarValor,
         label = { Text(text = "Correo electrónico") },
-        leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = null) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        leadingIcon = { Icon(imageVector =
+            Icons.Filled.Email,
+            contentDescription = null) },
+        keyboardOptions = KeyboardOptions(keyboardType =
+            KeyboardType.Email),
         singleLine = true,
         enabled = habilitado,
         shape = RoundedCornerShape(16.dp),
@@ -48,20 +54,35 @@ fun CampoCorreo(valor: String, alCambiarValor: (String) -> Unit, habilitado: Boo
 }
 
 @Composable
-fun CampoPassword(valor: String, alCambiarValor: (String) -> Unit, etiqueta: String, habilitado: Boolean, modifier: Modifier = Modifier) {
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-
+fun CampoPassword(valor: String,
+                  alCambiarValor: (String) -> Unit,
+                  etiqueta: String, habilitado: Boolean,
+                  modifier: Modifier = Modifier) {
+    var passwordVisible by rememberSaveable {
+        mutableStateOf(false) }
     OutlinedTextField(
         value = valor,
         onValueChange = alCambiarValor,
         label = { Text(text = etiqueta) },
-        leadingIcon = { Icon(imageVector = Icons.Filled.Lock, contentDescription = null) },
+        leadingIcon = { Icon(imageVector =
+            Icons.Filled.Lock, contentDescription = null) },
         trailingIcon = {
-            val imagen = if (passwordVisible) { Icons.Filled.Visibility } else { Icons.Filled.VisibilityOff }
-            val descripcion = if (passwordVisible) { "Ocultar contraseña" } else { "Mostrar contraseña" }
-            IconButton(onClick = { passwordVisible = !passwordVisible }, enabled = habilitado) { Icon(imageVector = imagen, contentDescription = descripcion) }},
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        visualTransformation = if (passwordVisible) { VisualTransformation.None } else { PasswordVisualTransformation() },
+            val imagen = if (passwordVisible) {
+                Icons.Filled.Visibility } else {
+                    Icons.Filled.VisibilityOff }
+            val descripcion = if (passwordVisible) {
+                "Ocultar contraseña" } else {
+                    "Mostrar contraseña" }
+            IconButton(onClick = {
+                passwordVisible = !passwordVisible },
+                enabled = habilitado) {
+                Icon(imageVector = imagen,
+                    contentDescription = descripcion) }},
+        keyboardOptions = KeyboardOptions(keyboardType =
+            KeyboardType.Password),
+        visualTransformation = if (passwordVisible) {
+            VisualTransformation.None } else {
+                PasswordVisualTransformation() },
         singleLine = true,
         enabled = habilitado,
         shape = RoundedCornerShape(16.dp),
@@ -70,19 +91,35 @@ fun CampoPassword(valor: String, alCambiarValor: (String) -> Unit, etiqueta: Str
 }
 
 @Composable
-fun MensajeError(mensaje: String?, modifier: Modifier = Modifier) {
-    AnimatedVisibility(visible = mensaje != null, enter = fadeIn(), exit = fadeOut()) {
-        Text(text = mensaje.orEmpty(), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, modifier = modifier.padding(bottom = 16.dp))
+fun MensajeError(mensaje: String?,
+                 modifier: Modifier = Modifier) {
+    AnimatedVisibility(visible = mensaje != null,
+        enter = fadeIn(),
+        exit = fadeOut()) {
+        Text(text = mensaje.orEmpty(),
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.fillMaxWidth().padding(bottom = 16.dp))
     }
 }
 
 @Composable
-fun BotonAuth(texto: String, cargando: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Button(onClick = onClick, enabled = !cargando, shape = RoundedCornerShape(16.dp), modifier = modifier.fillMaxWidth().height(55.dp)) {
+fun BotonAuth(texto: String,
+              cargando: Boolean,
+              onClick: () -> Unit,
+              modifier: Modifier = Modifier) {
+    Button(onClick = onClick,
+        enabled = !cargando,
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.fillMaxWidth().height(55.dp)) {
         if (cargando) {
-            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+            CircularProgressIndicator(modifier =
+                Modifier.size(24.dp),
+                strokeWidth = 2.dp)
         } else {
-            Text(text = texto, style = MaterialTheme.typography.titleMedium)
+            Text(text = texto,
+                style = MaterialTheme.typography.titleMedium)
         }
     }
 }

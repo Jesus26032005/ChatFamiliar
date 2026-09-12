@@ -24,12 +24,12 @@ class RegistroViewModel : ViewModel() {
         private set
     var cargando by mutableStateOf(false)
         private set
-
-    fun actualizarCorreo(nuevoCorreo: String) { correo = nuevoCorreo }
-
-    fun actualizarPassword(nuevoPassword: String) { password = nuevoPassword }
-
-    fun actualizarConfirmarPassword(nuevoPassword: String) { confirmarPassword = nuevoPassword }
+    fun actualizarCorreo(nuevoCorreo: String) {
+        correo = nuevoCorreo }
+    fun actualizarPassword(nuevoPassword: String) {
+        password = nuevoPassword }
+    fun actualizarConfirmarPassword(nuevoPassword: String) {
+        confirmarPassword = nuevoPassword }
 
     fun crearCuenta(alTenerExito: () -> Unit) {
         if (cargando) return
@@ -38,32 +38,36 @@ class RegistroViewModel : ViewModel() {
 
         cargando = true
         errorVisual = null
-
-        authRepository.crearUsuario(correo = correoLimpio, password = password) { resultado ->
+        authRepository.crearUsuario(correo = correoLimpio,
+            password = password) { resultado ->
             cargando = false
             resultado
                 .onSuccess { alTenerExito() }
-                .onFailure { excepcion -> errorVisual = obtenerMensajeError(excepcion) }
+                .onFailure { excepcion -> errorVisual =
+                    obtenerMensajeError(excepcion) }
         }
     }
     private fun validarFormulario(correo: String): Boolean {
-        if (correo.isBlank() || password.isBlank() || confirmarPassword.isBlank()) {
-            errorVisual = "Por favor, completa todos los campos."
+        if (correo.isBlank() || password.isBlank()
+            || confirmarPassword.isBlank()) {
+            errorVisual = "Por favor, completa" +
+                    " todos los campos."
             return false
         }
-
-        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
-            errorVisual = "Por favor, ingresa un correo electrónico válido."
+        if (!Patterns.EMAIL_ADDRESS.matcher(correo)
+            .matches()) {
+            errorVisual = "Por favor, ingresa " +
+                    "un correo electrónico válido."
             return false
         }
-
         if (password.length < 6) {
-            errorVisual = "La contraseña debe tener al menos 6 caracteres."
+            errorVisual = "La contraseña debe tener al " +
+                    "menos 6 caracteres."
             return false
         }
-
         if (password != confirmarPassword) {
-            errorVisual = "Las contraseñas no coinciden."
+            errorVisual =
+                "Las contraseñas no coinciden."
             return false
         }
         return true
@@ -71,11 +75,20 @@ class RegistroViewModel : ViewModel() {
 
     private fun obtenerMensajeError(excepcion: Throwable): String {
         return when (excepcion) {
-            is FirebaseNetworkException -> "Sin conexión a internet. Verifica tu red e inténtalo de nuevo."
-            is FirebaseTooManyRequestsException -> "Demasiados intentos. Espera un momento e inténtalo de nuevo."
-            is FirebaseAuthUserCollisionException -> "Este correo ya está registrado. Inicia sesión o utiliza otro."
-            is FirebaseAuthWeakPasswordException ->  "La contraseña es demasiado débil. Utiliza una contraseña más segura."
-            is FirebaseAuthInvalidCredentialsException -> "El formato del correo electrónico no es válido."
+            is FirebaseNetworkException ->
+                "Sin conexión a internet. Verifica tu red " +
+                        "e inténtalo de nuevo."
+            is FirebaseTooManyRequestsException ->
+                "Demasiados intentos. Espera un momento " +
+                        "e inténtalo de nuevo."
+            is FirebaseAuthUserCollisionException ->
+                "Este correo ya está registrado. Inicia sesión" +
+                        " o utiliza otro."
+            is FirebaseAuthWeakPasswordException ->
+                "La contraseña es demasiado débil. Utiliza una " +
+                        "contraseña más segura."
+            is FirebaseAuthInvalidCredentialsException ->
+                "El formato del correo electrónico no es válido."
             else -> "No se pudo crear la cuenta. Inténtalo de nuevo."
         }
     }

@@ -17,7 +17,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ChatFamiliarTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme
+                        .colorScheme
+                        .background) {
                     AppNavigation()
                 }
             }

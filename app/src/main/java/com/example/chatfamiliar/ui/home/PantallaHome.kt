@@ -26,16 +26,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @Composable
-fun PantallaHome(viewModel: HomeViewModel = viewModel(), alCerrarSesion: () -> Unit) {
+fun PantallaHome(viewModel: HomeViewModel = viewModel(),
+                 alCerrarSesion: () -> Unit) {
     ContenidoHome(
         alCerrarSesion = {
             viewModel.cerrarSesion()
             alCerrarSesion()
-        }
-    )
-}
-
-
+        }) }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContenidoHome(
@@ -44,24 +41,36 @@ fun ContenidoHome(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "FamiliaChat", fontWeight = FontWeight.Bold) },
-                actions = { IconButton(onClick = alCerrarSesion) { Icon(imageVector = Icons.Filled.Logout, contentDescription = "Cerrar sesión") } }
-            )
-        }
+                title = { Text(text = "FamiliaChat",
+                    fontWeight = FontWeight.Bold) },
+                actions = { IconButton(onClick =
+                    alCerrarSesion) {
+                    Icon(imageVector =
+                        Icons.Filled.Logout,
+                        contentDescription =
+                            "Cerrar sesión") } }) }
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(24.dp), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Icon(imageVector = Icons.Filled.Chat, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-
-                Text(text = "Bienvenido a FamiliaChat", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center, modifier = Modifier.padding(top = 16.dp))
-
-                Text(text = "Tu cuenta está lista. Más adelante aquí aparecerán tus conversaciones.", style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
-            }
-        }
-    }
-}
+        Box(modifier = Modifier.fillMaxSize()
+            .padding(innerPadding)
+            .padding(24.dp),
+            contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment =
+                Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                Icon(imageVector = Icons.Filled.Chat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary)
+                Text(text = "Bienvenido a FamiliaChat",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 16.dp))
+                Text(text = "Tu cuenta está lista. Más adelante" +
+                        " aquí aparecerán tus conversaciones.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 8.dp))
+            } } } }
 
 
 @Preview(showBackground = true, showSystemUi = true

@@ -29,7 +29,10 @@ import com.example.chatfamiliar.ui.auth.components.CampoPassword
 import com.example.chatfamiliar.ui.auth.components.MensajeError
 
 @Composable
-fun PantallaRegistro(viewModel: RegistroViewModel = viewModel(), alNavegarVerificacion: () -> Unit, alNavegarLogin: () -> Unit) {
+fun PantallaRegistro(viewModel: RegistroViewModel
+                     = viewModel(),
+                     alNavegarVerificacion: () -> Unit,
+                     alNavegarLogin: () -> Unit) {
     ContenidoRegistro(
         correo = viewModel.correo,
         password = viewModel.password,
@@ -39,58 +42,77 @@ fun PantallaRegistro(viewModel: RegistroViewModel = viewModel(), alNavegarVerifi
 
         alCambiarCorreo = viewModel::actualizarCorreo,
         alCambiarPassword = viewModel::actualizarPassword,
-        alCambiarConfirmarPassword = viewModel::actualizarConfirmarPassword,
+        alCambiarConfirmarPassword =
+            viewModel::actualizarConfirmarPassword,
 
-        alRegistrar = { viewModel.crearCuenta(alTenerExito = alNavegarVerificacion) },
+        alRegistrar = { viewModel.crearCuenta(alTenerExito =
+            alNavegarVerificacion) },
         alNavegarLogin = alNavegarLogin
     )
 }
 
 @Composable
 fun ContenidoRegistro(
-    correo: String, password: String, confirmarPassword: String, errorVisual: String?, cargando: Boolean, alCambiarCorreo: (String) -> Unit,
-    alCambiarPassword: (String) -> Unit, alCambiarConfirmarPassword: (String) -> Unit, alRegistrar: () -> Unit, alNavegarLogin: () -> Unit) {
+    correo: String, password: String,
+    confirmarPassword: String, errorVisual: String?,
+    cargando: Boolean, alCambiarCorreo: (String) -> Unit,
+    alCambiarPassword: (String) -> Unit,
+    alCambiarConfirmarPassword: (String) -> Unit,
+    alRegistrar: () -> Unit, alNavegarLogin: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
+        modifier = Modifier.fillMaxSize()
+            .safeDrawingPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(imageVector = Icons.Filled.PersonAdd, contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 16.dp))
-
-        Text(text = "Únete a FamiliaChat", style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-
-        Text(text = "Crea tu cuenta para mantenerte en contacto con tu familia", style = MaterialTheme.typography.bodyLarge)
+        Icon(imageVector = Icons.Filled.PersonAdd,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 16.dp))
+        Text(text = "Únete a FamiliaChat",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary)
+        Text(text = "Crea tu cuenta para mantenerte en " +
+                "contacto con tu familia",
+            style = MaterialTheme.typography.bodyLarge)
 
         Spacer(modifier = Modifier.height(32.dp))
-
-        CampoCorreo(valor = correo, alCambiarValor = alCambiarCorreo, habilitado = !cargando,
+        CampoCorreo(valor = correo,
+            alCambiarValor = alCambiarCorreo,
+            habilitado = !cargando,
             modifier = Modifier.padding(bottom = 16.dp))
-
-        CampoPassword(valor = password, alCambiarValor = alCambiarPassword, etiqueta = "Contraseña",
-            habilitado = !cargando, modifier = Modifier.padding(bottom = 16.dp))
-
-        CampoPassword(valor = confirmarPassword, alCambiarValor = alCambiarConfirmarPassword, etiqueta = "Confirmar contraseña",
-            habilitado = !cargando, modifier = Modifier.padding(bottom = 16.dp))
-
+        CampoPassword(valor = password,
+            alCambiarValor = alCambiarPassword,
+            etiqueta = "Contraseña", habilitado = !cargando,
+            modifier = Modifier.padding(bottom = 16.dp))
+        CampoPassword(valor = confirmarPassword,
+            alCambiarValor = alCambiarConfirmarPassword,
+            etiqueta = "Confirmar contraseña",
+            habilitado = !cargando,
+            modifier = Modifier.padding(bottom = 16.dp))
         MensajeError(mensaje = errorVisual)
-
-        BotonAuth(texto = "Registrarse", cargando = cargando, onClick = alRegistrar)
-
+        BotonAuth(texto = "Registrarse",
+            cargando = cargando,
+            onClick = alRegistrar)
         Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(onClick = alNavegarLogin, enabled = !cargando) {
+        TextButton(onClick = alNavegarLogin,
+            enabled = !cargando) {
             Text(text = "¿Ya tienes cuenta? Inicia sesión") }
-    }
-}
+    } }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun PantallaRegistroPreview() {
     MaterialTheme {
         ContenidoRegistro(
-            correo = "familia@correo.com", password = "12345678", confirmarPassword = "12345678", errorVisual = null, cargando = false,
-            alCambiarCorreo = {}, alCambiarPassword = {}, alCambiarConfirmarPassword = {}, alRegistrar = {}, alNavegarLogin = {})
-    }
-}
+            correo = "familia@correo.com",
+            password = "12345678", confirmarPassword = "12345678",
+            errorVisual = null, cargando = false,
+            alCambiarCorreo = {}, alCambiarPassword = {},
+            alCambiarConfirmarPassword = {}, alRegistrar = {},
+            alNavegarLogin = {})
+    } }

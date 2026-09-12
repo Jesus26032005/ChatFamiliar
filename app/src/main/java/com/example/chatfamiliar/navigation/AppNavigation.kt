@@ -14,47 +14,58 @@ import com.example.chatfamiliar.ui.home.PantallaHome
 
 @Composable
 fun AppNavigation() {
-    val navController = rememberNavController()
-    val authRepository = remember { AuthRepository() }
+    val navController =
+        rememberNavController()
+    val authRepository = remember {
+        AuthRepository() }
 
     val rutaInicial = remember {
-        val usuarioActual = authRepository.obtenerUsuarioActual()
+        val usuarioActual = authRepository
+            .obtenerUsuarioActual()
         when {
-            usuarioActual == null -> Rutas.LOGIN
-            usuarioActual.isEmailVerified -> Rutas.HOME
+            usuarioActual == null
+                -> Rutas.LOGIN
+            usuarioActual.isEmailVerified
+                -> Rutas.HOME
             else -> Rutas.VERIFICACION
         }
     }
 
-    NavHost(navController = navController, startDestination = rutaInicial) {
+    NavHost(navController = navController,
+        startDestination = rutaInicial) {
         composable(route = Rutas.LOGIN) {
             PantallaLogin(
-                alNavegarHome = { navController.navigate(Rutas.HOME) {
-                        popUpTo(Rutas.LOGIN) { inclusive = true }
+                alNavegarHome = { navController
+                    .navigate(Rutas.HOME) {
+                        popUpTo(Rutas.LOGIN) {
+                            inclusive = true }
                         launchSingleTop = true
                     } },
-                alNavegarRegistro = { navController.navigate(Rutas.REGISTRO) { launchSingleTop = true } },
-                alNavegarVerificacion = { navController.navigate(Rutas.VERIFICACION) {
-                        popUpTo(Rutas.LOGIN) { inclusive = true }
+                alNavegarRegistro = { navController
+                    .navigate(Rutas.REGISTRO) {
+                        launchSingleTop = true } },
+                alNavegarVerificacion = { navController
+                    .navigate(Rutas.VERIFICACION) {
+                        popUpTo(Rutas.LOGIN) {
+                            inclusive = true }
                         launchSingleTop = true
-                    } }
-            )
-        }
+                    } }) }
 
         composable(route = Rutas.REGISTRO) {
             PantallaRegistro(
-                alNavegarVerificacion = { navController.navigate(Rutas.VERIFICACION) {
-                        popUpTo(Rutas.LOGIN) { inclusive = true }
+                alNavegarVerificacion = { navController
+                    .navigate(Rutas.VERIFICACION) {
+                        popUpTo(Rutas.LOGIN) {
+                            inclusive = true }
                         launchSingleTop = true
                     } },
-
                 alNavegarLogin = {
-                    navController.navigate(Rutas.LOGIN) {
-                        popUpTo(Rutas.REGISTRO) { inclusive = true }
+                    navController
+                        .navigate(Rutas.LOGIN) {
+                        popUpTo(Rutas.REGISTRO) {
+                            inclusive = true }
                         launchSingleTop = true
-                    } }
-            )
-        }
+                    } }) }
 
         composable(route = Rutas.VERIFICACION) {
             PantallaVerificacion(

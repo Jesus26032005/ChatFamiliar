@@ -32,6 +32,7 @@ private val LightColorScheme = lightColorScheme(
 
     surface = FamiliaSurface,
     onSurface = FamiliaOnSurface,
+    surfaceContainer = FamiliaSurfaceContainer,
 
     surfaceVariant = FamiliaSurfaceVariant,
     onSurfaceVariant = FamiliaOnSurfaceVariant,
@@ -65,6 +66,7 @@ private val DarkColorScheme = darkColorScheme(
 
     surface = FamiliaSurfaceDark,
     onSurface = FamiliaOnSurfaceDark,
+    surfaceContainer = FamiliaSurfaceContainerDark,
 
     surfaceVariant = FamiliaSurfaceVariantDark,
     onSurfaceVariant = FamiliaOnSurfaceVariantDark,
@@ -78,10 +80,12 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun ChatFamiliarTheme(darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = false,
+fun ChatFamiliarTheme(darkTheme: Boolean = isSystemInDarkTheme(),
+                      dynamicColor: Boolean = false,
                       content: @Composable () -> Unit) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        dynamicColor && Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) { dynamicDarkColorScheme(context)
             } else { dynamicLightColorScheme(context)
@@ -90,5 +94,6 @@ fun ChatFamiliarTheme(darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    MaterialTheme(colorScheme = colorScheme,
+        typography = Typography, content = content)
 }

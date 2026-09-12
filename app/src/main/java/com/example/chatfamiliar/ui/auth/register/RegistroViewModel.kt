@@ -1,10 +1,12 @@
 package com.example.chatfamiliar.ui.auth.register
 
 import android.util.Patterns
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.chatfamiliar.R
 import com.example.chatfamiliar.data.auth.AuthRepository
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -12,84 +14,97 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 
+
 class RegistroViewModel : ViewModel() {
-    private val authRepository = AuthRepository()
+    private val authRepository =
+        AuthRepository()
+
     var correo by mutableStateOf("")
         private set
+
     var password by mutableStateOf("")
         private set
+
     var confirmarPassword by mutableStateOf("")
         private set
-    var errorVisual by mutableStateOf<String?>(null)
+
+    @get:StringRes
+    var errorRecurso by mutableStateOf<Int?>(null)
         private set
+
     var cargando by mutableStateOf(false)
         private set
-    fun actualizarCorreo(nuevoCorreo: String) {
-        correo = nuevoCorreo }
+
+    fun actualizarCorreo(nuevoCorreo: String) { correo = nuevoCorreo
+        errorRecurso = null
+    }
+
     fun actualizarPassword(nuevoPassword: String) {
-        password = nuevoPassword }
+        password = nuevoPassword
+        errorRecurso = null
+    }
+
     fun actualizarConfirmarPassword(nuevoPassword: String) {
-        confirmarPassword = nuevoPassword }
+        confirmarPassword = nuevoPassword
+        errorRecurso = null
+    }
 
     fun crearCuenta(alTenerExito: () -> Unit) {
-        if (cargando) return
+        if (cargando) { return }
         val correoLimpio = correo.trim()
-        if (!validarFormulario(correoLimpio)) return
 
+        if (!validarFormulario(correoLimpio)) { return }
         cargando = true
-        errorVisual = null
+        errorRecurso = null
+
         authRepository.crearUsuario(correo = correoLimpio,
             password = password) { resultado ->
             cargando = false
             resultado
-                .onSuccess { alTenerExito() }
-                .onFailure { excepcion -> errorVisual =
-                    obtenerMensajeError(excepcion) }
+                .onSuccess {
+                    alTenerExito()
+                }
+                .onFailure { excepcion ->
+                    errorRecurso = obtenerMensajeError(excepcion
+                    )
+                }
         }
     }
-    private fun validarFormulario(correo: String): Boolean {
-        if (correo.isBlank() || password.isBlank()
-            || confirmarPassword.isBlank()) {
-            errorVisual = "Por favor, completa" +
-                    " todos los campos."
+
+    private fun validarFormulario(
+        correo: String
+    ): Boolean {
+        if (correo.isBlank() || password.isBlank() ||
+            confirmarPassword.isBlank()) {
+            errorRecurso = R.string.register_error_empty_fields
             return false
         }
-        if (!Patterns.EMAIL_ADDRESS.matcher(correo)
-            .matches()) {
-            errorVisual = "Por favor, ingresa " +
-                    "un correo electrónico válido."
+        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+            errorRecurso = R.string.register_error_invalid_email
             return false
         }
         if (password.length < 6) {
-            errorVisual = "La contraseña debe tener al " +
-                    "menos 6 caracteres."
+            errorRecurso = R.string.register_error_short_password
             return false
         }
         if (password != confirmarPassword) {
-            errorVisual =
-                "Las contraseñas no coinciden."
+            errorRecurso = R.string.register_error_password_mismatch
             return false
         }
         return true
     }
 
-    private fun obtenerMensajeError(excepcion: Throwable): String {
+    @StringRes
+    private fun obtenerMensajeError(
+        excepcion: Throwable
+    ): Int {
         return when (excepcion) {
-            is FirebaseNetworkException ->
-                "Sin conexión a internet. Verifica tu red " +
-                        "e inténtalo de nuevo."
-            is FirebaseTooManyRequestsException ->
-                "Demasiados intentos. Espera un momento " +
-                        "e inténtalo de nuevo."
-            is FirebaseAuthUserCollisionException ->
-                "Este correo ya está registrado. Inicia sesión" +
-                        " o utiliza otro."
-            is FirebaseAuthWeakPasswordException ->
-                "La contraseña es demasiado débil. Utiliza una " +
-                        "contraseña más segura."
-            is FirebaseAuthInvalidCredentialsException ->
-                "El formato del correo electrónico no es válido."
-            else -> "No se pudo crear la cuenta. Inténtalo de nuevo."
+            is FirebaseNetworkException -> { R.string.register_error_network }
+            is FirebaseTooManyRequestsException -> { R.string.register_error_too_many_requests }
+            is FirebaseAuthUserCollisionException -> { R.string.register_error_email_in_use }
+            is FirebaseAuthWeakPasswordException -> { R.string.register_error_weak_password}
+            is FirebaseAuthInvalidCredentialsException -> { R.string.register_error_invalid_email_firebase }
+            else -> { R.string.register_error_generic }
         }
     }
 }

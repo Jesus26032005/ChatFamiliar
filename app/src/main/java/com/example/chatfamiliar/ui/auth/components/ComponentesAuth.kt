@@ -32,61 +32,64 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.chatfamiliar.R
 
 @Composable
-fun CampoCorreo(valor: String,
-                alCambiarValor: (String) -> Unit,
-                habilitado: Boolean,
-                modifier: Modifier = Modifier) {
+fun CampoCorreo(
+    valor: String,
+    alCambiarValor: (String) -> Unit,
+    etiqueta: String,
+    habilitado: Boolean,
+    modifier: Modifier = Modifier
+) {
     OutlinedTextField(
-        value = valor, onValueChange = alCambiarValor,
-        label = { Text(text = "Correo electrónico") },
-        leadingIcon = { Icon(imageVector =
-            Icons.Filled.Email,
-            contentDescription = null) },
-        keyboardOptions = KeyboardOptions(keyboardType =
-            KeyboardType.Email),
-        singleLine = true,
+        value = valor,
+        onValueChange = alCambiarValor,
+        modifier = modifier.fillMaxWidth(),
         enabled = habilitado,
-        shape = RoundedCornerShape(16.dp),
-        modifier = modifier.fillMaxWidth()
+        singleLine = true,
+        label = { Text(text = etiqueta) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
     )
 }
 
 @Composable
-fun CampoPassword(valor: String,
-                  alCambiarValor: (String) -> Unit,
-                  etiqueta: String, habilitado: Boolean,
-                  modifier: Modifier = Modifier) {
-    var passwordVisible by rememberSaveable {
-        mutableStateOf(false) }
+fun CampoPassword(
+    valor: String,
+    alCambiarValor: (String) -> Unit,
+    etiqueta: String,
+    descripcionMostrar: String,
+    descripcionOcultar: String,
+    habilitado: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
     OutlinedTextField(
-        value = valor,
-        onValueChange = alCambiarValor,
+        value = valor, onValueChange = alCambiarValor,
+        modifier = modifier.fillMaxWidth(),
+        enabled = habilitado, singleLine = true,
         label = { Text(text = etiqueta) },
-        leadingIcon = { Icon(imageVector =
-            Icons.Filled.Lock, contentDescription = null) },
-        trailingIcon = {
-            val imagen = if (passwordVisible) {
-                Icons.Filled.Visibility } else {
-                    Icons.Filled.VisibilityOff }
-            val descripcion = if (passwordVisible) {
-                "Ocultar contraseña" } else {
-                    "Mostrar contraseña" }
-            IconButton(onClick = {
-                passwordVisible = !passwordVisible },
-                enabled = habilitado) {
-                Icon(imageVector = imagen,
-                    contentDescription = descripcion) }},
-        keyboardOptions = KeyboardOptions(keyboardType =
-            KeyboardType.Password),
         visualTransformation = if (passwordVisible) {
-            VisualTransformation.None } else {
-                PasswordVisualTransformation() },
-        singleLine = true,
-        enabled = habilitado,
-        shape = RoundedCornerShape(16.dp),
-        modifier = modifier.fillMaxWidth()
+            VisualTransformation.None
+        } else { PasswordVisualTransformation()},
+        trailingIcon = {
+            val icono = if (passwordVisible) {
+                Icons.Filled.VisibilityOff
+            } else { Icons.Filled.Visibility }
+            val descripcion = if (passwordVisible) {
+                descripcionOcultar
+            } else { descripcionMostrar }
+            IconButton(
+                onClick = { passwordVisible = !passwordVisible },
+                enabled = habilitado
+            ) {
+                Icon(
+                    imageVector = icono,
+                    contentDescription = descripcion
+                )
+            }
+        }
     )
 }
 

@@ -1,3 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Aplicación -->
     <string name="app_name">ChatFamiliar</string>
+    <string name="brand_name">FamiliaChat</string>
+
+
+    <!-- Componentes comunes de autenticación -->
+    <string name="auth_email_label">Correo electrónico</string>
+    <string name="auth_password_label">Contraseña</string>
+    <string name="auth_show_password">Mostrar contraseña</string>
+    <string name="auth_hide_password">Ocultar contraseña</string>
+
+
+    <!-- Login -->
+    <string name="login_subtitle">Un chat solo para la familia</string>
+    <string name="login_family_message">Mantente conectado con los tuyos</string>
+
+    <string name="login_title">Inicia sesión</string>
+    <string name="login_description">Ingresa tus datos para continuar</string>
+
+    <string name="login_button">Iniciar sesión</string>
+    <string name="login_secure">Inicio de sesión seguro</string>
+
+    <string name="login_no_account">¿No tienes una cuenta?</string>
+    <string name="login_register">Regístrate</string>
+
+
+    <!-- Registro -->
+    <string name="register_title">Únete a FamiliaChat</string>
+
+    <string name="register_description">
+        Crea tu cuenta para mantenerte en contacto con tu familia
+    </string>
+
+    <string name="register_confirm_password">Confirmar contraseña</string>
+    <string name="register_button">Registrarse</string>
+
+    <string name="register_have_account">
+        ¿Ya tienes cuenta? Inicia sesión
+    </string>
+
+
+    <!-- Verificación de correo -->
+    <string name="verification_title">¡Falta tu verificación!</string>
+
+    <string name="verification_spam">
+        Checa tu bandeja de spam
+    </string>
+
+    <string name="verification_sent_to">
+        Enviamos un enlace de verificación a:
+    </string>
+
+    <string name="verification_email_placeholder">
+        Tu correo electrónico
+    </string>
+
+    <string name="verification_instructions">
+        Abre el correo y pulsa el enlace para verificar tu cuenta. Después vuelve a la aplicación y presiona el botón de abajo.
+    </string>
+
+    <string name="verification_check_button">
+        Ya verifiqué mi correo
+    </string>
+
+    <string name="verification_resend_button">
+        Reenviar correo de verificación
+    </string>
+
+    <string name="verification_change_account">
+        Cambiar de cuenta
+    </string>
+
+
+    <!-- Home -->
+    <string name="home_title">FamiliaChat</string>
+
+    <string name="home_welcome">
+        Bienvenido a FamiliaChat
+    </string>
+
+    <string name="home_description">
+        Tu cuenta está lista. Más adelante aquí aparecerán tus conversaciones.
+    </string>
+
+    <string name="home_logout">Cerrar sesión</string>
+
+
+    <!-- Configuración e idioma -->
+    <string name="settings_title">Configuración</string>
+
+    <string name="language_title">Idioma</string>
+    <string name="language_description">Idioma de la aplicación</string>
+
+    <string name="language_system">Sistema</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_english">English</string>
+
+    <string name="language_select">Seleccionar idioma</string>
+    <string name="language_cancel">Cancelar</string>
+
+    <string name="language_system_description">
+        Usar idioma del sistema
+    </string>
+
+
+    <!-- Errores de Login -->
+    <string name="login_error_empty_fields">
+        Por favor, ingresa tu correo y contraseña.
+    </string>
+
+    <string name="login_error_invalid_email">
+        Por favor, ingresa un correo electrónico válido.
+    </string>
+
+    <string name="login_error_network">
+        Sin conexión a internet. Verifica tu red e inténtalo de nuevo.
+    </string>
+
+    <string name="login_error_too_many_requests">
+        Demasiados intentos. Espera un momento e inténtalo de nuevo.
+    </string>
+
+    <string name="login_error_invalid_credentials">
+        Correo o contraseña incorrectos. Verifica tus datos.
+    </string>
+
+    <string name="login_error_generic">
+        Ocurrió un error al iniciar sesión. Inténtalo de nuevo.
+    </string>
+
+
+    <!-- Errores de Registro -->
+    <string name="register_error_empty_fields">
+        Por favor, completa todos los campos.
+    </string>
+
+    <string name="register_error_invalid_email">
+        Por favor, ingresa un correo electrónico válido.
+    </string>
+
+    <string name="register_error_short_password">
+        La contraseña debe tener al menos 6 caracteres.
+    </string>
+
+    <string name="register_error_password_mismatch">
+        Las contraseñas no coinciden.
+    </string>
+
+    <string name="register_error_network">
+        Sin conexión a internet. Verifica tu red e inténtalo de nuevo.
+    </string>
+
+    <string name="register_error_too_many_requests">
+        Demasiados intentos. Espera un momento e inténtalo de nuevo.
+    </string>
+
+    <string name="register_error_email_in_use">
+        Este correo ya está registrado. Inicia sesión o utiliza otro.
+    </string>
+
+    <string name="register_error_weak_password">
+        La contraseña es demasiado débil. Utiliza una contraseña más segura.
+    </string>
+
+    <string name="register_error_invalid_email_firebase">
+        El formato del correo electrónico no es válido.
+    </string>
+
+    <string name="register_error_generic">
+        No se pudo crear la cuenta. Inténtalo de nuevo.
+    </string>
+
+
+    <!-- Mensajes de Verificación -->
+    <string name="verification_message_not_verified">
+        Tu correo todavía no ha sido verificado. Abre el enlace que enviamos a tu correo e inténtalo nuevamente.
+    </string>
+
+    <string name="verification_message_email_sent">
+        Enviamos un enlace de verificación a tu correo electrónico.
+    </string>
+
+    <string name="verification_error_network">
+        Sin conexión a internet. Verifica tu red e inténtalo de nuevo.
+    </string>
+
+    <string name="verification_error_too_many_requests">
+        Se realizaron demasiados intentos. Espera un momento antes de volver a intentarlo.
+    </string>
+
+    <string name="verification_error_no_session">
+        No existe una sesión activa. Inicia sesión nuevamente.
+    </string>
+
+    <string name="verification_error_generic">
+        Ocurrió un error al verificar tu cuenta. Inténtalo de nuevo.
+    </string>
+
+    <!-- Mensajes de selecctor de idioma -->
+    <string name="language_dialog_description">Elige cómo quieres ver ChatFamiliar</string>
+
+    <string name="language_system_option_description">Seguir automáticamente el idioma del dispositivo</string>
+
+    <string name="language_spanish_description">Mostrar la aplicación en español</string>
+
+    <string name="language_english_description">Mostrar la aplicación en inglés</string>
+
+    <string name="language_current">Actual</string>
+
+    <string name="language_italian">Italiano</string>
+
+    <string name="language_italian_description">Mostrar la aplicación en italiano</string>
+
+    <string name="language_french">Italiano</string>
+
+    <string name="language_french_description">Mostrar la aplicación en frances</string>
+
+    <string name="language_preparing">Preparando idioma…</string>
+
 </resources>

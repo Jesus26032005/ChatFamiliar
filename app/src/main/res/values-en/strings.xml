@@ -219,5 +219,5 @@
 
     <string name="language_french_description">Display the application in French</string>
 
-    <string name="language_preparing">Preparando idioma…</string>
+    <string name="language_preparing">Preparando idioma(machine translation)…</string>
 </resources>

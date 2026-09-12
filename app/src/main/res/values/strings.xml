@@ -218,6 +218,6 @@
 
     <string name="language_french_description">Mostrar la aplicación en frances</string>
 
-    <string name="language_preparing">Preparando idioma…</string>
+    <string name="language_preparing">Preparando idioma (traducción automática)…</string>
 
 </resources>

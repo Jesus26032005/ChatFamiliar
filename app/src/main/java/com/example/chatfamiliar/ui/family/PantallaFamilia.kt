@@ -297,18 +297,6 @@ private fun ContenidoFamilia(
                     alLimpiarErrorMiembros()
                     uidExpulsarMiembro = miembro.uid })
             Spacer(modifier = Modifier.height(20.dp))
-            AccionesFamilia(textoCrear =
-                textos.texto(R.string
-                    .home_family_create_another),
-                textoUnirse = textos.texto(
-                    R.string.home_family_join_another),
-                alCrearFamilia = {
-                    alLimpiarErrorFamilia()
-                    mostrarCrearFamilia = true },
-                alUnirseFamilia = {
-                    alLimpiarErrorFamilia()
-                    mostrarUnirseFamilia = true })
-            Spacer(modifier = Modifier.height(20.dp))
             PanelGestionFamilia(
                 esAdministrador = membresiaActiva?.rol ==
                         MiembroFamilia.ROL_ADMINISTRADOR,
@@ -332,6 +320,18 @@ private fun ContenidoFamilia(
                     alLimpiarErrorFamilia()
                     mostrarEliminarFamilia = true })
         }
+        Spacer(modifier = Modifier.height(20.dp))
+        AccionesFamilia(textoCrear =
+            textos.texto(R.string
+                .home_family_create_another),
+            textoUnirse = textos.texto(
+                R.string.home_family_join_another),
+            alCrearFamilia = {
+                alLimpiarErrorFamilia()
+                mostrarCrearFamilia = true },
+            alUnirseFamilia = {
+                alLimpiarErrorFamilia()
+                mostrarUnirseFamilia = true })
         if (mensajeErrorFamilia != null) {
             Spacer(modifier = Modifier.height(16.dp))
             Surface(modifier = Modifier.fillMaxWidth(),
@@ -363,7 +363,6 @@ private fun ContenidoFamilia(
             alLimpiarErrorFamilia()
         }
     )
-
     DialogoUnirseFamilia(
         visible = mostrarUnirseFamilia,
         codigo = codigoInvitacion,

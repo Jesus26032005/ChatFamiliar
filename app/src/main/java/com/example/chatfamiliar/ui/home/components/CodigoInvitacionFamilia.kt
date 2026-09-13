@@ -40,47 +40,35 @@ fun CodigoInvitacionFamilia(
     val context = LocalContext.current
     Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors =
-            CardDefaults.cardColors(
+        colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        Column(
-            modifier = Modifier.padding(18.dp)
+        Column(modifier = Modifier.padding(18.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(imageVector = Icons.Filled.Key,
+            Row(verticalAlignment = Alignment.CenterVertically
+            ) { Icon(imageVector = Icons.Filled.Key,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                    tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = titulo,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold)
-            }
-
+                    fontWeight = FontWeight.Bold) }
             Spacer(modifier = Modifier.padding(6.dp))
             Text(text = codigo,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+                color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.padding(6.dp))
             OutlinedButton(
-                onClick = {
-                    copiarCodigo(context = context, codigo = codigo)
+                onClick = { copiarCodigo(context = context, codigo = codigo)
                     Toast.makeText(context,
-                        textoCopiado, Toast.LENGTH_SHORT).show()
-                },
+                        textoCopiado, Toast.LENGTH_SHORT).show() },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Icon(imageVector = Icons.Filled.ContentCopy,
-                    contentDescription = null)
+                Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = textoCopiar,
-                    fontWeight = FontWeight.SemiBold)
+                Text(text = textoCopiar, fontWeight = FontWeight.SemiBold)
             }
         }
     }

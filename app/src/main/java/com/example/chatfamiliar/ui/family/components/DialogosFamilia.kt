@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -49,7 +49,6 @@ fun DialogoCrearFamilia(
         alConfirmar = alConfirmar,
         alCancelar = alCancelar)
 }
-
 
 @Composable
 fun DialogoUnirseFamilia(
@@ -115,10 +114,8 @@ private fun DialogoEntradaFamilia(
                 if (mensajeError != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = mensajeError,
-                        color = MaterialTheme
-                                .colorScheme
-                                .error
-                    )
+                        color = MaterialTheme.colorScheme
+                                .error)
                 }
             }
         },
@@ -316,14 +313,13 @@ private fun DialogoCrearFamiliaPreview() {
 )
 @Composable
 private fun DialogoUnirseFamiliaPreview() {
-
     MaterialTheme {
-
         DialogoUnirseFamilia(
             visible = true,
             codigo = "FAM-A1B2C3",
             titulo = "Unirme a una familia",
-            descripcion = "Ingresa el código de invitación proporcionado por un integrante de la familia.",
+            descripcion = "Ingresa el código de invitación proporcionado" +
+                    " por un integrante de la familia.",
             etiqueta = "Código de invitación",
             textoConfirmar = "Unirme con código",
             textoCancelar = "Cancelar",
@@ -369,9 +365,7 @@ private fun DialogoEditarFamiliaPreview() {
 )
 @Composable
 private fun DialogoAbandonarFamiliaPreview() {
-
     MaterialTheme {
-
         DialogoAbandonarFamilia(
             visible = true,
             nombreFamilia = "Familia Martínez",

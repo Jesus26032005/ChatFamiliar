@@ -55,9 +55,7 @@ fun DialogoNombreInicial(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = mensajeError, style =
                         MaterialTheme.typography.bodySmall,
-                        color =
-                            MaterialTheme.colorScheme.error)
-                }
+                        color = MaterialTheme.colorScheme.error) }
             }
         },
         confirmButton = {
@@ -68,9 +66,7 @@ fun DialogoNombreInicial(
                         strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text(text = textoGuardar)
-            }
-        },
+                Text(text = textoGuardar) } },
         shape = RoundedCornerShape(28.dp)
     )
 }

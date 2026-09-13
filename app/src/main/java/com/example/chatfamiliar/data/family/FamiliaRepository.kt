@@ -6,7 +6,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-
+import android.util.Log
 
 class FamiliaRepository {
     private val firestore =
@@ -68,10 +68,20 @@ class FamiliaRepository {
 
         batch.commit()
             .addOnSuccessListener {
+                Log.d(
+                    "FamiliaRepository",
+                    "Familia creada correctamente: ${familia.id}"
+                )
                 alCompletar(Result.success(familia))
             }
             .addOnFailureListener { excepcion ->
                 alCompletar(Result.failure(excepcion))
+
+                Log.e(
+                    "FamiliaRepository",
+                    "ERROR AL CREAR FAMILIA",
+                    excepcion
+                )
             }
     }
 

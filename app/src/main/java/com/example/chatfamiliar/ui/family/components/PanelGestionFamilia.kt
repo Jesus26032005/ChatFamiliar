@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,15 +48,13 @@ fun PanelGestionFamilia(
         ) {
             Text(text = titulo,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+                fontWeight = FontWeight.Bold)
             if (esAdministrador) {
                 Spacer(modifier = Modifier.height(14.dp))
                 OutlinedButton(
                     onClick = alEditar,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
+                    shape = RoundedCornerShape(16.dp)) {
                     Icon(imageVector = Icons.Filled.Edit,
                         contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -67,8 +65,7 @@ fun PanelGestionFamilia(
             OutlinedButton(
                 onClick = alAbandonar,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
+                shape = RoundedCornerShape(16.dp)) {
                 Icon(imageVector = Icons.Filled.ExitToApp,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error)
@@ -76,7 +73,6 @@ fun PanelGestionFamilia(
                 Text(text = textoAbandonar,
                     color = MaterialTheme.colorScheme.error)
             }
-
             if (esAdministradorPrincipal) {
                 Spacer(modifier = Modifier.height(10.dp))
                 OutlinedButton(onClick = alEliminar,
@@ -85,13 +81,11 @@ fun PanelGestionFamilia(
                 ) {
                     Icon(imageVector = Icons.Filled.DeleteForever,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                        tint = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = textoEliminar,
                         color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                        fontWeight = FontWeight.SemiBold)
                 }
             }
         }

@@ -51,21 +51,17 @@ fun SelectorFamiliaActiva(
     ) {
         Card(modifier = Modifier.fillMaxWidth()
             .clickable(
-                enabled = familias.size > 1 && !cargando) {
-                    expandido = true },
+                enabled = familias.size > 1 && !cargando) { expandido = true },
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme
-                    .surfaceContainer)
+                containerColor = MaterialTheme.colorScheme.surfaceContainer)
         ) {
-            Row(modifier = Modifier.fillMaxWidth()
-                    .padding(18.dp),
+            Row(modifier = Modifier.fillMaxWidth().padding(18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(modifier = Modifier.size(48.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme
-                            .primaryContainer
+                    color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Box(contentAlignment = Alignment.Center
                     ) {
@@ -79,36 +75,25 @@ fun SelectorFamiliaActiva(
                 Column(modifier = Modifier.weight(1f)
                 ) {
                     Text(text = titulo,
-                        style = MaterialTheme.typography
-                                .labelMedium,
-                        color = MaterialTheme.colorScheme
-                                .onSurfaceVariant)
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(text = familiaActiva.nombre,
-                        style = MaterialTheme.typography
-                                .titleMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold)
-
                     if (textoRol != null && !cargando) {
                         Text(text = textoRol,
-                            style = MaterialTheme.typography
-                                    .bodySmall,
-                            color = MaterialTheme.colorScheme
-                                    .primary,
-                            fontWeight = FontWeight.SemiBold)
-                    }
-                }
-
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold) } }
                 if (cargando) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(22.dp),
                         strokeWidth = 2.dp)
                 } else if (familias.size > 1) {
                     Icon(imageVector = Icons.Filled.KeyboardArrowDown,
-                        contentDescription = null)
-                }
+                        contentDescription = null) }
             }
         }
-
         DropdownMenu(expanded = expandido,
             onDismissRequest = { expandido = false }
         ) {
@@ -117,16 +102,12 @@ fun SelectorFamiliaActiva(
                     DropdownMenuItem(
                         text = {
                             Text(text = familia.nombre,
-                                fontWeight =
-                                if (familia.id == familiaActiva.id
+                                fontWeight = if (familia.id == familiaActiva.id
                                 ) { FontWeight.Bold
-                                } else {
-                                    FontWeight.Normal })
-                    },
+                                } else { FontWeight.Normal }) },
                     onClick = {
                         expandido = false
-                        alSeleccionarFamilia(familia) }
-                    )
+                        alSeleccionarFamilia(familia) })
             }
         }
     }
@@ -144,20 +125,13 @@ private fun SelectorFamiliaActivaPreview() {
             codigoInvitacion = "FAM-A1B2C3",
             creadoPor = "uid_zaddkiel"
         )
-
     val familiaLopez =
-        Familia(id = "familia_2",
-            nombre = "Familia López",
+        Familia(id = "familia_2", nombre = "Familia López",
             codigoInvitacion = "FAM-D4E5F6",
-            creadoPor = "uid_maria"
-        )
-
+            creadoPor = "uid_maria")
     MaterialTheme {
-
         SelectorFamiliaActiva(
-            familias = listOf(familiaMartinez,
-                familiaLopez
-            ),
+            familias = listOf(familiaMartinez, familiaLopez),
             familiaActiva = familiaMartinez,
             titulo = "Familia activa",
             textoRol = "Administrador",
@@ -174,33 +148,21 @@ private fun SelectorFamiliaActivaPreview() {
 )
 @Composable
 private fun SelectorFamiliaMiembroPreview() {
-
     val familia =
         Familia(
             id = "familia_1",
             nombre = "Familia Martínez",
             codigoInvitacion = "FAM-A1B2C3",
-            creadoPor = "uid_admin"
-        )
-
-
+            creadoPor = "uid_admin")
     MaterialTheme {
-
         SelectorFamiliaActiva(
-            familias =
-                listOf(familia),
-            familiaActiva =
-                familia,
-            titulo =
-                "Familia activa",
-            textoRol =
-                "Miembro",
-            cargando =
-                false,
-            alSeleccionarFamilia =
-                {},
-            modifier =
-                Modifier.padding(16.dp)
+            familias = listOf(familia),
+            familiaActiva = familia,
+            titulo = "Familia activa",
+            textoRol = "Miembro",
+            cargando = false,
+            alSeleccionarFamilia = {},
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

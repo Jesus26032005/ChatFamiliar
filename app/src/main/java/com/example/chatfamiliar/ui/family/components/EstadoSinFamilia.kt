@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

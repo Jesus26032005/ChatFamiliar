@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,7 +51,8 @@ fun ItemMiembroFamilia(
     modifier: Modifier = Modifier
 ) {
 
-    val mostrarAcciones = puedeGestionar && !esUsuarioActual && !esAdministradorPrincipal
+    val mostrarAcciones = puedeGestionar && !esUsuarioActual
+            && !esAdministradorPrincipal
 
     Surface(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
@@ -95,19 +96,15 @@ fun ItemMiembroFamilia(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(text = "- $textoTu",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                                color = MaterialTheme.colorScheme.primary)
                         }
                     }
-
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(text = correo,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-
             Spacer(modifier = Modifier.height(10.dp))
             Surface(shape = RoundedCornerShape(50),
                 color = if (esAdministrador) {
@@ -122,9 +119,7 @@ fun ItemMiembroFamilia(
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold
-                )
-            }
-
+                ) }
             if (mostrarAcciones) {
                 Spacer(modifier = Modifier.height(12.dp))
                 if (!esAdministrador) {
@@ -139,10 +134,8 @@ fun ItemMiembroFamilia(
                                 modifier = Modifier.size(18.dp),
                                 strokeWidth = 2.dp
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-                        Text(text = textoHacerAdministrador)
-                        }
+                            Spacer(modifier = Modifier.width(8.dp)) }
+                        Text(text = textoHacerAdministrador) }
                     } else {
                         OutlinedButton(onClick = alQuitarAdministrador,
                             enabled = !actualizandoRol && !expulsando,
@@ -153,8 +146,7 @@ fun ItemMiembroFamilia(
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(18.dp),
                                     strokeWidth = 2.dp)
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
+                                Spacer(modifier = Modifier.width(8.dp)) }
                             Text(text = textoQuitarAdministrador)
                         }
                     }
@@ -172,8 +164,7 @@ fun ItemMiembroFamilia(
                         } else {
                             Icon(imageVector = Icons.Filled.DeleteOutline,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error)
-                        }
+                                tint = MaterialTheme.colorScheme.error) }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = textoExpulsar,
                             color = MaterialTheme.colorScheme.error

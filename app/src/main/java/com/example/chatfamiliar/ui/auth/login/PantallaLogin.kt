@@ -187,7 +187,7 @@ fun ContenidoLogin(
                         habilitado = !cargando)
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                         textos.texto(recurso) })
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     BotonAuth(
                         texto = textos.texto(R.string.login_button),
                         cargando = cargando,

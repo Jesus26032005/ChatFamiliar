@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +23,6 @@ fun AccionesFamilia(
     alUnirseFamilia: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Column(modifier = modifier.fillMaxWidth())
     {
         OutlinedButton(
@@ -51,16 +50,11 @@ fun AccionesFamilia(
 private fun AccionesFamiliaPreview() {
     MaterialTheme {
         AccionesFamilia(
-            textoCrear =
-                "Crear otra familia",
-            textoUnirse =
-                "Unirme a otra familia",
-            alCrearFamilia =
-                {},
-            alUnirseFamilia =
-                {},
-            modifier =
-                Modifier.padding(16.dp)
+            textoCrear = "Crear otra familia",
+            textoUnirse = "Unirme a otra familia",
+            alCrearFamilia = {},
+            alUnirseFamilia = {},
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

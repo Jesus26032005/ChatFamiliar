@@ -354,4 +354,15 @@
     <string name="home_error_delete_family_owner_only">Only the primary administrator can delete the family.</string>
 
     <string name="home_error_delete_family">Unable to delete the family. Please try again.</string>
+
+    <!-- Home loading -->
+    <string name="home_loading_title">Preparing your space</string>
+    <string name="home_loading_description">We are loading your profile and families.</string>
+    <string name="home_refresh">Refresh</string>
+    <string name="home_refreshing">Refreshing information…</string>
+
+    <!-- Family management -->
+    <string name="home_manage_family">Manage family</string>
+    <string name="family_management_title">Family management</string>
+    <string name="family_management_description">Manage members, permissions, and family options.</string>
 </resources>

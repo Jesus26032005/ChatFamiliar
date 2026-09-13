@@ -182,7 +182,7 @@ fun ContenidoRegistro(
                     // Mensaje de error traducido.
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                             textos.texto(recurso) })
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     // Registrar
                     BotonAuth(
                         texto = textos.texto(R.string.register_button),

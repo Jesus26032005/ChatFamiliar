@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.chatfamiliar.ui.family.components.EstadoSinFamilia
 
 @Composable
 fun TarjetaPerfilUsuario(
@@ -77,9 +78,7 @@ fun TarjetaPerfilUsuario(
 )
 @Composable
 private fun EstadoSinFamiliaPreview() {
-
     MaterialTheme {
-
         EstadoSinFamilia(
             titulo = "Aún no perteneces a una familia",
             descripcion = "Crea una nueva familia o únete a una existente mediante su código de invitación.",

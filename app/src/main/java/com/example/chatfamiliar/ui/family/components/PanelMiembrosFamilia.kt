@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -62,17 +62,14 @@ fun PanelMiembrosFamilia(
                 CircularProgressIndicator(
                     modifier = Modifier.size(26.dp)
                         .align(Alignment.CenterHorizontally),
-                    strokeWidth = 2.dp
-                )
+                    strokeWidth = 2.dp)
             } else if (miembros.isEmpty()) {
                 Text(text = textoVacio,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 miembros.forEachIndexed { indice, miembro ->
                     val esPrincipal = miembro.uid == uidAdministradorPrincipal
                     val esActual = miembro.uid == uidUsuarioActual
-
                     ItemMiembroFamilia(
                         nombre = miembro.nombre,
                         correo = miembro.correo,
@@ -93,22 +90,16 @@ fun PanelMiembrosFamilia(
                         expulsando = expulsandoMiembroUid == miembro.uid,
                         alHacerAdministrador = { alHacerAdministrador(miembro) },
                         alQuitarAdministrador = { alQuitarAdministrador(miembro) },
-                        alExpulsar = { alExpulsar(miembro)
-                        }
+                        alExpulsar = { alExpulsar(miembro) }
                     )
-
-
                     if (indice != miembros.lastIndex) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-                }
+                        Spacer(modifier = Modifier.height(10.dp)) } }
             }
             if (mensajeError != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(text = mensajeError,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
+                    color = MaterialTheme.colorScheme.error)
             }
         }
     }

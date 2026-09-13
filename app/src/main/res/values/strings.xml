@@ -347,4 +347,15 @@
 
     <string name="home_error_delete_family">No fue posible eliminar la familia. Intenta nuevamente.</string>
 
+    <!-- Carga de Home -->
+    <string name="home_loading_title">Preparando tu espacio</string>
+    <string name="home_loading_description">Estamos cargando tu perfil y tus familias.</string>
+    <string name="home_refresh">Actualizar</string>
+    <string name="home_refreshing">Actualizando información…</string>
+
+    <!-- Navegación y gestión familiar -->
+    <string name="home_manage_family">Gestionar familia</string>
+    <string name="family_management_title">Gestión familiar</string>
+    <string name="family_management_description">Administra integrantes, permisos y opciones de tus familias.</string>
+
 </resources>

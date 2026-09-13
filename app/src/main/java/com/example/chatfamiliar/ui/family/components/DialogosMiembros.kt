@@ -1,4 +1,4 @@
-package com.example.chatfamiliar.ui.home.components
+package com.example.chatfamiliar.ui.family.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,53 +23,26 @@ import androidx.compose.ui.Modifier
 fun DialogoQuitarAdministrador(
     visible: Boolean,
     nombreMiembro: String,
-
     titulo: String,
     descripcion: String,
-
     textoConfirmar: String,
     textoCancelar: String,
-
     mensajeError: String?,
-
     cargando: Boolean,
-
     alConfirmar: () -> Unit,
     alCancelar: () -> Unit
 ) {
-
-    if (!visible) {
-        return
-    }
-
-
+    if (!visible) { return }
     DialogoConfirmacionMiembro(
-        nombreMiembro =
-            nombreMiembro,
-
-        titulo =
-            titulo,
-
-        descripcion =
-            descripcion,
-
-        textoConfirmar =
-            textoConfirmar,
-
-        textoCancelar =
-            textoCancelar,
-
-        mensajeError =
-            mensajeError,
-
-        cargando =
-            cargando,
-
-        alConfirmar =
-            alConfirmar,
-
-        alCancelar =
-            alCancelar
+        nombreMiembro = nombreMiembro,
+        titulo = titulo,
+        descripcion = descripcion,
+        textoConfirmar = textoConfirmar,
+        textoCancelar = textoCancelar,
+        mensajeError = mensajeError,
+        cargando = cargando,
+        alConfirmar = alConfirmar,
+        alCancelar = alCancelar
     )
 }
 
@@ -78,53 +51,29 @@ fun DialogoQuitarAdministrador(
 fun DialogoExpulsarMiembro(
     visible: Boolean,
     nombreMiembro: String,
-
     titulo: String,
     descripcion: String,
-
     textoConfirmar: String,
     textoCancelar: String,
-
     mensajeError: String?,
-
     cargando: Boolean,
-
     alConfirmar: () -> Unit,
     alCancelar: () -> Unit
 ) {
-
     if (!visible) {
         return
     }
 
-
     DialogoConfirmacionMiembro(
-        nombreMiembro =
-            nombreMiembro,
-
-        titulo =
-            titulo,
-
-        descripcion =
-            descripcion,
-
-        textoConfirmar =
-            textoConfirmar,
-
-        textoCancelar =
-            textoCancelar,
-
-        mensajeError =
-            mensajeError,
-
-        cargando =
-            cargando,
-
-        alConfirmar =
-            alConfirmar,
-
-        alCancelar =
-            alCancelar
+        nombreMiembro = nombreMiembro,
+        titulo = titulo,
+        descripcion = descripcion,
+        textoConfirmar = textoConfirmar,
+        textoCancelar = textoCancelar,
+        mensajeError = mensajeError,
+        cargando = cargando,
+        alConfirmar = alConfirmar,
+        alCancelar = alCancelar
     )
 }
 
@@ -141,7 +90,6 @@ private fun DialogoConfirmacionMiembro(
     alConfirmar: () -> Unit,
     alCancelar: () -> Unit
 ) {
-
     AlertDialog(
         onDismissRequest = { if (!cargando) { alCancelar() } },
         title = { Text(text = titulo, fontWeight = FontWeight.Bold) },
@@ -157,8 +105,7 @@ private fun DialogoConfirmacionMiembro(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(text = mensajeError,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                        color = MaterialTheme.colorScheme.error)
                 }
             }
         },
@@ -178,9 +125,7 @@ private fun DialogoConfirmacionMiembro(
             OutlinedButton(
                 onClick = alCancelar,
                 enabled = !cargando
-            ) {
-                Text(text = textoCancelar)
-            }
+            ) { Text(text = textoCancelar) }
         },
         shape = RoundedCornerShape(28.dp)
     )
@@ -192,27 +137,20 @@ private fun DialogoConfirmacionMiembro(
 )
 @Composable
 private fun DialogoQuitarAdministradorPreview() {
-
     MaterialTheme {
-
         DialogoQuitarAdministrador(
             visible = true,
             nombreMiembro = "María",
             titulo = "Quitar administrador",
             descripcion =
-                "El integrante conservará acceso a la familia, pero volverá a tener permisos de miembro.",
-            textoConfirmar =
-                "Quitar administrador",
-            textoCancelar =
-                "Cancelar",
-            mensajeError =
-                null,
-            cargando =
-                false,
-            alConfirmar =
-                {},
-            alCancelar =
-                {}
+                "El integrante conservará acceso a la familia," +
+                        " pero volverá a tener permisos de miembro.",
+            textoConfirmar = "Quitar administrador",
+            textoCancelar = "Cancelar",
+            mensajeError = null,
+            cargando = false,
+            alConfirmar = {},
+            alCancelar = {}
         )
     }
 }
@@ -224,27 +162,18 @@ private fun DialogoQuitarAdministradorPreview() {
 )
 @Composable
 private fun DialogoExpulsarMiembroPreview() {
-
     MaterialTheme {
-
         DialogoExpulsarMiembro(
             visible = true,
             nombreMiembro = "Carlos",
             titulo = "Expulsar integrante",
-            descripcion =
-                "Este integrante dejará de pertenecer a la familia.",
-            textoConfirmar =
-                "Expulsar",
-            textoCancelar =
-                "Cancelar",
-            mensajeError =
-                null,
-            cargando =
-                false,
-            alConfirmar =
-                {},
-            alCancelar =
-                {}
+            descripcion = "Este integrante dejará de pertenecer a la familia.",
+            textoConfirmar = "Expulsar",
+            textoCancelar = "Cancelar",
+            mensajeError = null,
+            cargando = false,
+            alConfirmar = {},
+            alCancelar = {}
         )
     }
 }

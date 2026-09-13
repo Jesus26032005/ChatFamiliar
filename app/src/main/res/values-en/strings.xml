@@ -220,4 +220,138 @@
     <string name="language_french_description">Display the application in French</string>
 
     <string name="language_preparing">Preparando idioma(machine translation)…</string>
+
+    <string name="register_error_profile_creation">The account was created, but the user profile could not be saved.</string>
+
+    <string name="home_error_no_session">
+    No active session was found.
+    </string>
+
+    <string name="home_error_load_profile">
+    Your profile could not be loaded.
+    </string>
+
+    <string name="home_error_empty_name">
+    Enter a name to continue.
+    </string>
+
+    <string name="home_error_save_name">
+    Your name could not be saved.
+    </string>
+
+    <string name="home_name_title">What should we call you?</string>
+
+    <string name="home_name_description">
+    This name will appear on your profile and later in the family chat.
+    </string>
+
+    <string name="home_name_label">Name</string>
+
+    <string name="home_name_save">Save name</string>
+
+    <string name="home_role_member">Member</string>
+
+    <string name="home_role_admin">Administrator</string>
+
+    <string name="home_error_load_families">Unable to load your families.</string>
+    <string name="home_error_load_membership">Unable to load your family membership information.</string>
+
+    <!-- Families -->
+    <string name="home_no_family_title">You don\'t belong to a family yet</string>
+    <string name="home_no_family_description">Create a new family or join an existing one using its invitation code.</string>
+
+    <string name="home_family_active">Active family</string>
+
+    <string name="home_family_create">Create family</string>
+    <string name="home_family_join">Join with code</string>
+
+    <string name="home_family_create_another">Create another family</string>
+    <string name="home_family_join_another">Join another family</string>
+
+    <string name="home_create_family_title">Create a family</string>
+    <string name="home_create_family_description">Enter a name to identify your family.</string>
+    <string name="home_family_name_label">Family name</string>
+
+    <string name="home_join_family_title">Join a family</string>
+    <string name="home_join_family_description">Enter the invitation code provided by a family member.</string>
+    <string name="home_family_code_label">Invitation code</string>
+
+    <string name="home_family_cancel">Cancel</string>
+
+    <string name="home_error_empty_family_name">Enter a family name.</string>
+    <string name="home_error_create_family">The family could not be created. Please try again.</string>
+
+    <string name="home_error_empty_invitation_code">Enter an invitation code.</string>
+    <string name="home_error_join_family">Unable to join the family. Check the code and try again.</string>
+
+    <string name="home_family_loading">Loading your families…</string>
+
+    <!-- Family management -->
+    <string name="home_family_settings">Family settings</string>
+
+    <string name="home_family_edit">Edit family</string>
+    <string name="home_family_leave">Leave family</string>
+
+    <string name="home_edit_family_title">Edit family</string>
+    <string name="home_edit_family_description">Change the name used to identify this family.</string>
+    <string name="home_edit_family_save">Save changes</string>
+
+    <string name="home_leave_family_title">Leave family</string>
+    <string name="home_leave_family_description">You will lose access to this family\'s content and conversations.</string>
+    <string name="home_leave_family_confirm">Leave</string>
+
+    <string name="home_error_admin_required">Only an administrator can perform this action.</string>
+    <string name="home_error_edit_family">The family could not be updated.</string>
+    <string name="home_error_leave_family">Unable to leave the family.</string>
+    <string name="home_error_leave_only_admin">You are the only administrator. Assign another administrator before leaving the family.</string>
+
+    <!-- Family members -->
+    <string name="home_members_title">Family members</string>
+    <string name="home_members_empty">There are no members to display.</string>
+    <string name="home_members_loading">Loading members…</string>
+
+    <string name="home_member_make_admin">Make administrator</string>
+
+    <string name="home_error_load_members">Unable to load family members.</string>
+    <string name="home_error_update_member_role">Unable to update the member role.</string>
+
+    <!-- Member management -->
+    <string name="home_member_remove_admin">Remove administrator</string>
+    <string name="home_member_remove">Remove from family</string>
+
+    <string name="home_member_owner">Primary administrator</string>
+
+    <string name="home_remove_member_title">Remove member</string>
+    <string name="home_remove_member_description">This member will leave the family and lose access to its conversations and content.</string>
+    <string name="home_remove_member_confirm">Remove</string>
+
+    <string name="home_remove_admin_title">Remove administrator</string>
+    <string name="home_remove_admin_description">The member will keep access to the family but will return to regular member permissions.</string>
+    <string name="home_remove_admin_confirm">Remove administrator</string>
+
+    <string name="home_error_modify_own_role">You cannot change your own role from member management.</string>
+    <string name="home_error_remove_self">You cannot remove yourself. Use the Leave family option instead.</string>
+    <string name="home_error_owner_protected">The primary administrator cannot be demoted or removed.</string>
+    <string name="home_error_remove_member">Unable to remove the member.</string>
+    <string name="home_error_owner_cannot_leave">You are the primary administrator of this family. Transfer primary administration before leaving.</string>
+    <string name="home_member_you">You</string>
+
+    <!-- Invitation code -->
+    <string name="home_invitation_code_title">Invitation code</string>
+    <string name="home_invitation_code_copy">Copy code</string>
+    <string name="home_invitation_code_copied">Code copied</string>
+    <string name="home_error_owner_last_member">You are the only member of this family. To leave, you must delete the family.</string>
+
+    <!-- Delete family -->
+    <string name="home_family_delete">Delete family</string>
+
+    <string name="home_delete_family_title">Delete family</string>
+
+    <string name="home_delete_family_description">This family, its memberships, and its invitation code will be deleted. Users will keep their accounts. This action cannot be undone.</string>
+
+    <string name="home_delete_family_confirm">Delete family</string>
+
+    <string name="home_error_delete_family_owner_only">Only the primary administrator can delete the family.</string>
+
+    <string name="home_error_delete_family">Unable to delete the family. Please try again.</string>
 </resources>

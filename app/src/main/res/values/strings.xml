@@ -96,7 +96,7 @@
 
     <string name="language_system">Sistema</string>
     <string name="language_spanish">Español</string>
-    <string name="language_english">English</string>
+    <string name="language_english">Ingles</string>
 
     <string name="language_select">Seleccionar idioma</string>
     <string name="language_cancel">Cancelar</string>
@@ -214,7 +214,7 @@
 
     <string name="language_italian_description">Mostrar la aplicación en italiano</string>
 
-    <string name="language_french">Italiano</string>
+    <string name="language_french">Frances</string>
 
     <string name="language_french_description">Mostrar la aplicación en frances</string>
 

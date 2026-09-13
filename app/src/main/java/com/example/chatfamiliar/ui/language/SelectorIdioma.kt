@@ -103,7 +103,7 @@ fun SelectorIdioma(
                     onClick = { alSeleccionarIdioma(IdiomaRepository.ITALIANO)
                         alCerrar() })
                 OpcionIdioma(
-                    codigo = "IT",
+                    codigo = "FR",
                     titulo = textos.texto(R.string.language_french),
                     descripcion = textos.texto(R.string.language_french_description),
                     textoActual = textos.texto(R.string.language_current),

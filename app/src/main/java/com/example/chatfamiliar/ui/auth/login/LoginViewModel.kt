@@ -12,12 +12,13 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import androidx.lifecycle.viewModelScope
+import com.example.chatfamiliar.util.TimeoutSolicitud
 
 class LoginViewModel : ViewModel() {
 
     private val authRepository = AuthRepository()
-
-
+    private val timeoutLogin = TimeoutSolicitud()
     var correo by mutableStateOf("")
         private set
 
@@ -47,12 +48,19 @@ class LoginViewModel : ViewModel() {
         if (!validarFormulario(correoLimpio)) {
             return
         }
-
-
         cargando = true
         errorRecurso = null
 
-        authRepository.iniciarSesion(correo = correoLimpio, password = password) { resultado ->
+        val solicitud = timeoutLogin.iniciar(scope = viewModelScope) {
+                cargando = false
+                errorRecurso = R.string.error_network }
+
+        authRepository.iniciarSesion(correo = correoLimpio, password = password) {
+            resultado ->
+            if (!timeoutLogin.completar(solicitud)) {
+                authRepository.cerrarSesion()
+                return@iniciarSesion }
+
             cargando = false
             resultado
                 .onSuccess { usuario ->

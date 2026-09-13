@@ -358,4 +358,7 @@
     <string name="family_management_title">Gestión familiar</string>
     <string name="family_management_description">Administra integrantes, permisos y opciones de tus familias.</string>
 
+    <string name="error_network">No fue posible conectar. Revisa tu conexión a Internet e inténtalo nuevamente.</string>
+    <string name="retry">Reintentar</string>
+
 </resources>

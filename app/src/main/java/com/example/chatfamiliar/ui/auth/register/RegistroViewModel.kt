@@ -14,11 +14,13 @@ import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
-
+import androidx.lifecycle.viewModelScope
+import com.example.chatfamiliar.util.TimeoutSolicitud
 
 class RegistroViewModel : ViewModel() {
     private val authRepository =
         AuthRepository()
+    private val timeoutRegistro = TimeoutSolicitud()
     private val usuarioRepository =
         UsuarioRepository()
     var correo by mutableStateOf("")
@@ -49,10 +51,14 @@ class RegistroViewModel : ViewModel() {
         if (!validarFormulario(correoLimpio)) { return }
         cargando = true
         errorRecurso = null
+
+        val solicitud = timeoutRegistro.iniciar(scope = viewModelScope) {
+                errorRecurso = R.string.register_error_network }
         authRepository.crearUsuario(
             correo = correoLimpio,
             password = password
         ) { resultadoAuth ->
+            timeoutRegistro.completar(solicitud)
             resultadoAuth
                 .onSuccess { usuarioFirebase ->
                     usuarioRepository.crearUsuario(

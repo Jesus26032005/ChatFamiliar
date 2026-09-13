@@ -12,6 +12,8 @@ import com.example.chatfamiliar.data.family.MiembroFamiliaRepository
 import com.example.chatfamiliar.model.Familia
 import com.example.chatfamiliar.model.MiembroFamilia
 import com.example.chatfamiliar.model.MiembroFamiliaDetalle
+import androidx.lifecycle.viewModelScope
+import com.example.chatfamiliar.util.TimeoutSolicitud
 
 class FamiliaViewModel : ViewModel() {
 
@@ -58,6 +60,9 @@ class FamiliaViewModel : ViewModel() {
     @get:StringRes
     var errorMiembrosRecurso by mutableStateOf<Int?>(null)
         private set
+    private val timeoutFamilia = TimeoutSolicitud()
+    private val timeoutMembresia = TimeoutSolicitud()
+    private val timeoutMiembros = TimeoutSolicitud()
     val esAdministrador: Boolean
         get() = membresiaActiva?.rol == MiembroFamilia.ROL_ADMINISTRADOR
     fun cargarPantalla(familiaIdInicial: String?) {
@@ -76,7 +81,15 @@ class FamiliaViewModel : ViewModel() {
             return
         }
         cargando = true
+        val solicitud = timeoutFamilia.iniciar(scope = viewModelScope) {
+            cargando = false
+            familiaActiva = null
+            membresiaActiva = null
+            miembrosFamilia = emptyList()
+            errorFamiliaRecurso = R.string.error_network }
         familiaRepository.obtenerFamilia(familiaIdInicial) { resultado ->
+            if (!timeoutFamilia.completar(solicitud)) {
+                return@obtenerFamilia }
             resultado
                 .onSuccess { familia ->
                     if (familia == null) {
@@ -97,9 +110,16 @@ class FamiliaViewModel : ViewModel() {
         }
     }
     private fun cargarMembresia(familia: Familia, uidUsuario: String) {
+        val solicitud = timeoutMembresia.iniciar(scope = viewModelScope) {
+                cargando = false
+                membresiaActiva = null
+                miembrosFamilia = emptyList()
+                errorFamiliaRecurso = R.string.error_network }
         familiaRepository.obtenerMembresia(
             familiaId = familia.id, uidUsuario = uidUsuario
         ) { resultado ->
+            if (!timeoutMembresia.completar(solicitud)) {
+                return@obtenerMembresia }
             resultado
                 .onSuccess { membresia ->
                     membresiaActiva = membresia
@@ -123,9 +143,14 @@ class FamiliaViewModel : ViewModel() {
         cargandoMiembros = true
         errorMiembrosRecurso = null
 
+        val solicitud = timeoutMiembros.iniciar(scope = viewModelScope) {
+                cargandoMiembros = false
+                errorMiembrosRecurso = R.string.error_network }
         miembroFamiliaRepository.obtenerMiembrosFamilia(
             familiaId = familiaId
         ) { resultado ->
+            if (!timeoutMiembros.completar(solicitud)) {
+                return@obtenerMiembrosFamilia }
             cargandoMiembros = false
             resultado
                 .onSuccess { miembros ->
@@ -458,6 +483,9 @@ class FamiliaViewModel : ViewModel() {
     fun limpiarErrorFamilia() { errorFamiliaRecurso = null }
     fun limpiarErrorMiembros() { errorMiembrosRecurso = null }
     private fun limpiarFamiliaActiva() {
+        timeoutFamilia.cancelar()
+        timeoutMembresia.cancelar()
+        timeoutMiembros.cancelar()
         familiaActiva = null
         membresiaActiva = null
         miembrosFamilia = emptyList()
@@ -466,6 +494,7 @@ class FamiliaViewModel : ViewModel() {
         cargandoMiembros = false
         actualizandoRolUid = null
         expulsandoMiembroUid = null
+        errorFamiliaRecurso = null
         errorMiembrosRecurso = null
     }
     private fun ordenarMiembros(

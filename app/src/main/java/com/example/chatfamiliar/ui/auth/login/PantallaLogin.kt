@@ -185,6 +185,7 @@ fun ContenidoLogin(
                         descripcionMostrar = textos.texto(R.string.auth_show_password),
                         descripcionOcultar = textos.texto(R.string.auth_hide_password),
                         habilitado = !cargando)
+                    Spacer(modifier = Modifier.height((8.dp)))
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                         textos.texto(recurso) })
                     Spacer(modifier = Modifier.height(16.dp))

@@ -12,6 +12,8 @@ import com.example.chatfamiliar.data.user.UsuarioRepository
 import com.example.chatfamiliar.model.Familia
 import com.example.chatfamiliar.model.MiembroFamilia
 import com.example.chatfamiliar.model.Usuario
+import androidx.lifecycle.viewModelScope
+import com.example.chatfamiliar.util.TimeoutSolicitud
 
 class HomeViewModel : ViewModel() {
     private val authRepository = AuthRepository()
@@ -30,6 +32,9 @@ class HomeViewModel : ViewModel() {
         private set
     var cargando by mutableStateOf(false)
         private set
+    private val timeoutUsuario = TimeoutSolicitud()
+    private val timeoutFamilias = TimeoutSolicitud()
+    private val timeoutMembresia = TimeoutSolicitud()
     var cargandoFamilia by mutableStateOf(false)
         private set
     var guardandoNombre by mutableStateOf(false)
@@ -48,7 +53,13 @@ class HomeViewModel : ViewModel() {
         }
         cargando = true
         errorRecurso = null
+
+        val solicitud = timeoutUsuario.iniciar(scope = viewModelScope) {
+                cargando = false
+                errorRecurso = R.string.error_network }
         usuarioRepository.obtenerUsuario(usuarioFirebase.uid) { resultado ->
+            if (!timeoutUsuario.completar(solicitud)) {
+                return@obtenerUsuario }
             resultado
                 .onSuccess { perfil ->
                     if (perfil != null) {
@@ -69,7 +80,7 @@ class HomeViewModel : ViewModel() {
         }
     }
     fun recargarHome() {
-        if (cargando) return
+        if (cargando || cargandoFamilia) return
 
         errorRecurso = null
         cargarUsuario()
@@ -99,7 +110,13 @@ class HomeViewModel : ViewModel() {
         familiaPreferidaId: String? = null
     ) {
         cargandoFamilia = true
+        val solicitud = timeoutFamilias.iniciar(scope = viewModelScope) {
+            cargandoFamilia = false
+            if (finalizarCargaInicial) { cargando = false }
+            errorRecurso = R.string.error_network }
         familiaRepository.obtenerFamiliasDelUsuario(uidUsuario) { resultado ->
+            if (!timeoutFamilias.completar(solicitud)) {
+                return@obtenerFamiliasDelUsuario }
             resultado
                 .onSuccess { familiasUsuario ->
                     val familiasOrdenadas =
@@ -130,16 +147,24 @@ class HomeViewModel : ViewModel() {
                 }
         }
     }
+
     private fun cargarMembresia(
         familia: Familia,
         uidUsuario: String,
         finalizarCargaInicial: Boolean
     ) {
         cargandoFamilia = true
+        val solicitud = timeoutMembresia.iniciar(scope = viewModelScope) {
+            membresiaActiva = null
+            cargandoFamilia = false
+            if (finalizarCargaInicial) { cargando = false }
+            errorRecurso = R.string.error_network }
         familiaRepository.obtenerMembresia(
             familiaId = familia.id,
             uidUsuario = uidUsuario
         ) { resultado ->
+            if (!timeoutMembresia.completar(solicitud)) {
+                return@obtenerMembresia }
             resultado
                 .onSuccess { membresia ->
                     membresiaActiva = membresia
@@ -227,9 +252,10 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun cerrarSesion(
-        alCerrarSesion: () -> Unit
-    ) {
+    fun cerrarSesion(alCerrarSesion: () -> Unit) {
+        timeoutUsuario.cancelar()
+        timeoutFamilias.cancelar()
+        timeoutMembresia.cancelar()
         authRepository.cerrarSesion()
         usuario = null
         familias = emptyList()

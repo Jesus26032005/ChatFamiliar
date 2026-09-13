@@ -179,6 +179,7 @@ fun ContenidoRegistro(
                         descripcionOcultar = textos.texto(R.string.auth_hide_password),
                         habilitado = !cargando
                     )
+                    Spacer(modifier = Modifier.height((8.dp)))
                     // Mensaje de error traducido.
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                             textos.texto(recurso) })

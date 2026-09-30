@@ -16,7 +16,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.chatfamiliar.util.TimeoutSolicitud
 
 class FamiliaViewModel : ViewModel() {
-
     private val authRepository = AuthRepository()
     private val familiaRepository = FamiliaRepository()
     private val miembroFamiliaRepository = MiembroFamiliaRepository()
@@ -75,7 +74,6 @@ class FamiliaViewModel : ViewModel() {
         uidUsuarioActual = usuarioFirebase.uid
         errorFamiliaRecurso = null
         errorMiembrosRecurso = null
-
         if (familiaIdInicial.isNullOrBlank()) {
             limpiarFamiliaActiva()
             return
@@ -86,22 +84,25 @@ class FamiliaViewModel : ViewModel() {
             familiaActiva = null
             membresiaActiva = null
             miembrosFamilia = emptyList()
-            errorFamiliaRecurso = R.string.error_network }
+            errorFamiliaRecurso = R.string.error_network
+        }
         familiaRepository.obtenerFamilia(familiaIdInicial) { resultado ->
             if (!timeoutFamilia.completar(solicitud)) {
-                return@obtenerFamilia }
-            resultado
-                .onSuccess { familia ->
-                    if (familia == null) {
-                        cargando = false
-                        limpiarFamiliaActiva()
-                        errorFamiliaRecurso = R.string.home_error_load_families
-                        return@onSuccess
-                    }
-                    familiaActiva = familia
-                    cargarMembresia(
-                        familia = familia,
-                        uidUsuario = usuarioFirebase.uid) }
+                return@obtenerFamilia
+            }
+            resultado.onSuccess { familia ->
+                if (familia == null) {
+                    cargando = false
+                    limpiarFamiliaActiva()
+                    errorFamiliaRecurso = R.string.home_error_load_families
+                    return@onSuccess
+                }
+                familiaActiva = familia
+                cargarMembresia(
+                    familia = familia,
+                    uidUsuario = usuarioFirebase.uid
+                )
+            }
                 .onFailure {
                     cargando = false
                     limpiarFamiliaActiva()
@@ -109,40 +110,34 @@ class FamiliaViewModel : ViewModel() {
                 }
         }
     }
+
     private fun cargarMembresia(familia: Familia, uidUsuario: String) {
         val solicitud = timeoutMembresia.iniciar(scope = viewModelScope) {
-                cargando = false
-                membresiaActiva = null
-                miembrosFamilia = emptyList()
-                errorFamiliaRecurso = R.string.error_network }
+            cargando = false
+            membresiaActiva = null
+            miembrosFamilia = emptyList()
+            errorFamiliaRecurso = R.string.error_network }
         familiaRepository.obtenerMembresia(
             familiaId = familia.id, uidUsuario = uidUsuario
         ) { resultado ->
             if (!timeoutMembresia.completar(solicitud)) {
                 return@obtenerMembresia }
-            resultado
-                .onSuccess { membresia ->
+            resultado.onSuccess { membresia ->
                     membresiaActiva = membresia
                     cargando = false
                     if (membresia == null) {
                         miembrosFamilia = emptyList()
                         errorFamiliaRecurso = R.string.home_error_load_membership
-                        return@onSuccess
-                    }
+                        return@onSuccess }
                     cargarMiembrosFamilia(familia.id) }
                 .onFailure {
                     cargando = false
                     membresiaActiva = null
                     miembrosFamilia = emptyList()
-                    errorFamiliaRecurso = R.string.home_error_load_membership
-                }
-        }
-    }
-
+                    errorFamiliaRecurso = R.string.home_error_load_membership } } }
     private fun cargarMiembrosFamilia(familiaId: String) {
         cargandoMiembros = true
         errorMiembrosRecurso = null
-
         val solicitud = timeoutMiembros.iniciar(scope = viewModelScope) {
                 cargandoMiembros = false
                 errorMiembrosRecurso = R.string.error_network }
@@ -152,15 +147,12 @@ class FamiliaViewModel : ViewModel() {
             if (!timeoutMiembros.completar(solicitud)) {
                 return@obtenerMiembrosFamilia }
             cargandoMiembros = false
-            resultado
-                .onSuccess { miembros ->
+            resultado.onSuccess { miembros ->
                     miembrosFamilia = miembros }
                 .onFailure {
                     miembrosFamilia = emptyList()
-                    errorMiembrosRecurso = R.string.home_error_load_members }
-        }
+                    errorMiembrosRecurso = R.string.home_error_load_members } }
     }
-
     fun actualizarNombreFamilia(nombre: String) {
         nombreFamiliaNueva = nombre
         errorFamiliaRecurso = null
@@ -193,9 +185,7 @@ class FamiliaViewModel : ViewModel() {
                         uidUsuario = usuarioFirebase.uid)
                     alTenerExito() }
                 .onFailure {
-                    errorFamiliaRecurso = R.string.home_error_create_family
-                }
-        }
+                    errorFamiliaRecurso = R.string.home_error_create_family } }
     }
 
     fun actualizarCodigoInvitacion(codigo: String) {
@@ -212,115 +202,83 @@ class FamiliaViewModel : ViewModel() {
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
         if (usuarioFirebase == null) {
             errorFamiliaRecurso = R.string.home_error_no_session
-            return
-        }
+            return }
         uidUsuarioActual = usuarioFirebase.uid
         uniendoFamilia = true
         errorFamiliaRecurso = null
-
         familiaRepository.unirseAFamilia(
             codigoInvitacion = codigoLimpio,
             uidUsuario = usuarioFirebase.uid
         ) { resultado ->
             uniendoFamilia = false
-            resultado
-                .onSuccess { familia ->
-                    codigoInvitacion = ""
-                    activarFamilia(
-                        familia = familia,
-                        uidUsuario = usuarioFirebase.uid)
+            resultado.onSuccess { familia -> codigoInvitacion = ""
+                    activarFamilia(familia = familia, uidUsuario = usuarioFirebase.uid)
                     alTenerExito() }
                 .onFailure {
-                    errorFamiliaRecurso = R.string.home_error_join_family }
-        }
+                    errorFamiliaRecurso = R.string.home_error_join_family } }
     }
-
-    private fun activarFamilia(
-        familia: Familia,
-        uidUsuario: String
-    ) {
+    private fun activarFamilia(familia: Familia, uidUsuario: String) {
         familiaActiva = familia
         membresiaActiva = null
         miembrosFamilia = emptyList()
         errorFamiliaRecurso = null
         errorMiembrosRecurso = null
-        cargarMembresia(familia = familia, uidUsuario = uidUsuario)
-    }
-
+        cargarMembresia(familia = familia, uidUsuario = uidUsuario) }
     fun prepararEdicionFamilia() {
         val familia = familiaActiva ?: return
         if (!esAdministrador) {
             errorFamiliaRecurso = R.string.home_error_admin_required
-            return
-        }
+            return }
         nombreFamiliaEdicion = familia.nombre
         errorFamiliaRecurso = null
     }
-
     fun actualizarNombreFamiliaEdicion(nombre: String) {
         nombreFamiliaEdicion = nombre
-        errorFamiliaRecurso = null
-    }
+        errorFamiliaRecurso = null }
 
     fun editarFamilia(alTenerExito: () -> Unit) {
         if (editandoFamilia) return
         val familia = familiaActiva ?: return
         if (!esAdministrador) {
             errorFamiliaRecurso = R.string.home_error_admin_required
-            return
-        }
+            return }
         val nombreLimpio = nombreFamiliaEdicion.trim()
         if (nombreLimpio.isBlank()) {
             errorFamiliaRecurso = R.string.home_error_empty_family_name
-            return
-        }
+            return }
         editandoFamilia = true
         errorFamiliaRecurso = null
         familiaRepository.editarFamilia(familiaId = familia.id,
             nuevoNombre = nombreLimpio
         ) { resultado ->
             editandoFamilia = false
-            resultado
-                .onSuccess {
+            resultado.onSuccess {
                     familiaActiva = familia.copy(nombre = nombreLimpio)
                     nombreFamiliaEdicion = ""
                     alTenerExito() }
-                .onFailure {
-                    errorFamiliaRecurso = R.string.home_error_edit_family }
-        }
+                .onFailure { errorFamiliaRecurso = R.string.home_error_edit_family } }
     }
-
-    fun hacerAdministrador(
-        miembro: MiembroFamiliaDetalle
-    ) {
+    fun hacerAdministrador(miembro: MiembroFamiliaDetalle) {
         if (actualizandoRolUid != null) return
         val familia = familiaActiva ?: return
         if (!esAdministrador) {
             errorMiembrosRecurso = R.string.home_error_admin_required
-            return
-        }
+            return }
         if (miembro.esAdministrador) return
         actualizandoRolUid = miembro.uid
         errorMiembrosRecurso = null
-        miembroFamiliaRepository.hacerAdministrador(
-            familiaId = familia.id,
+        miembroFamiliaRepository.hacerAdministrador(familiaId = familia.id,
             uidMiembro = miembro.uid
         ) { resultado ->
             actualizandoRolUid = null
-            resultado
-                .onSuccess {
+            resultado.onSuccess {
                     miembrosFamilia = ordenarMiembros(
                         miembrosFamilia.map { actual ->
                             if (actual.uid == miembro.uid) {
                                 actual.copy(rol = MiembroFamilia.ROL_ADMINISTRADOR)
-                            } else { actual }
-                        }
-                    ) }
-                .onFailure {
-                    errorMiembrosRecurso =
-                        R.string.home_error_update_member_role
-                }
-        }
+                            } else { actual } }) }
+                .onFailure { errorMiembrosRecurso =
+                        R.string.home_error_update_member_role } }
     }
 
     fun quitarAdministrador(miembro: MiembroFamiliaDetalle) {
@@ -328,71 +286,51 @@ class FamiliaViewModel : ViewModel() {
         val familia = familiaActiva ?: return
         if (!esAdministrador) {
             errorMiembrosRecurso = R.string.home_error_admin_required
-            return
-        }
+            return }
         if (miembro.uid == uidUsuarioActual) {
             errorMiembrosRecurso = R.string.home_error_modify_own_role
-            return
-        }
+            return }
         if (miembro.uid == familia.creadoPor) {
             errorMiembrosRecurso = R.string.home_error_owner_protected
-            return
-        }
+            return }
         if (!miembro.esAdministrador) return
         actualizandoRolUid = miembro.uid
         errorMiembrosRecurso = null
-        miembroFamiliaRepository.quitarAdministrador(
-            familiaId = familia.id,
-            uidMiembro = miembro.uid
-        ) { resultado ->
+        miembroFamiliaRepository.quitarAdministrador(familiaId = familia.id,
+            uidMiembro = miembro.uid) { resultado ->
             actualizandoRolUid = null
-            resultado
-                .onSuccess {
+            resultado.onSuccess {
                     miembrosFamilia = ordenarMiembros(
                         miembrosFamilia.map { actual ->
                             if (actual.uid == miembro.uid) {
                                 actual.copy(rol = MiembroFamilia.ROL_MIEMBRO)
                             } else { actual } }) }
-                .onFailure {
-                    errorMiembrosRecurso =
-                        R.string.home_error_update_member_role }
-        }
-    }
+                .onFailure { errorMiembrosRecurso =
+                        R.string.home_error_update_member_role } } }
 
-    fun expulsarMiembro(
-        miembro: MiembroFamiliaDetalle,
-        alTenerExito: () -> Unit
-    ) {
+    fun expulsarMiembro(miembro: MiembroFamiliaDetalle, alTenerExito: () -> Unit) {
         if (expulsandoMiembroUid != null) return
         val familia = familiaActiva ?: return
         if (!esAdministrador) {
             errorMiembrosRecurso = R.string.home_error_admin_required
-            return
-        }
+            return }
         if (miembro.uid == uidUsuarioActual) {
             errorMiembrosRecurso = R.string.home_error_remove_self
-            return
-        }
+            return }
         if (miembro.uid == familia.creadoPor) {
             errorMiembrosRecurso = R.string.home_error_owner_protected
-            return
-        }
+            return }
         expulsandoMiembroUid = miembro.uid
         errorMiembrosRecurso = null
-        miembroFamiliaRepository.expulsarMiembro(
-            familiaId = familia.id,
-            uidMiembro = miembro.uid
-        ) { resultado ->
+        miembroFamiliaRepository.expulsarMiembro(familiaId = familia.id,
+            uidMiembro = miembro.uid) { resultado ->
             expulsandoMiembroUid = null
-            resultado
-                .onSuccess {
+            resultado.onSuccess {
                     miembrosFamilia = miembrosFamilia.filterNot {
-                        it.uid == miembro.uid
-                    }
+                        it.uid == miembro.uid }
                     alTenerExito() }
                 .onFailure {
-                    errorMiembrosRecurso = R.string.home_error_remove_member }
-        }
+                    errorMiembrosRecurso = R.string.home_error_remove_member } }
     }
 
     fun eliminarFamilia(alTenerExito: () -> Unit) {
@@ -401,85 +339,66 @@ class FamiliaViewModel : ViewModel() {
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
         if (usuarioFirebase == null) {
             errorFamiliaRecurso = R.string.home_error_no_session
-            return
-        }
+            return }
         val uidActual = usuarioFirebase.uid
-        if (familia.creadoPor != uidActual) {
-            errorFamiliaRecurso =
+        if (familia.creadoPor != uidActual) { errorFamiliaRecurso =
                 R.string.home_error_delete_family_owner_only
-            return
-        }
+            return }
         if (!esAdministrador) {
             errorFamiliaRecurso = R.string.home_error_admin_required
-            return
-        }
+            return }
         eliminandoFamilia = true
         errorFamiliaRecurso = null
-        familiaRepository.eliminarFamiliaCompleta(
-            familiaId = familia.id,
-            uidAdministradorPrincipal = uidActual
-        ) { resultado ->
+        familiaRepository.eliminarFamiliaCompleta(familiaId = familia.id,
+            uidAdministradorPrincipal = uidActual) { resultado ->
             eliminandoFamilia = false
-            resultado
-                .onSuccess {
+            resultado.onSuccess {
                     limpiarFamiliaActiva()
                     alTenerExito() }
                 .onFailure {
-                    errorFamiliaRecurso = R.string.home_error_delete_family }
-        }
+                    errorFamiliaRecurso = R.string.home_error_delete_family } }
     }
-
     fun abandonarFamilia(alTenerExito: () -> Unit) {
         if (abandonandoFamilia) return
         val familia = familiaActiva ?: return
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
         if (usuarioFirebase == null) {
             errorFamiliaRecurso = R.string.home_error_no_session
-            return
-        }
+            return }
         val uidActual = usuarioFirebase.uid
         if (familia.creadoPor == uidActual) {
             val candidatos = miembrosFamilia.filter {
-                it.uid != uidActual
-            }
+                it.uid != uidActual }
             if (candidatos.isEmpty()) {
                 errorFamiliaRecurso = R.string.home_error_owner_last_member
-                return
-            }
+                return }
             val nuevoAdministrador = candidatos.random()
             abandonandoFamilia = true
             errorFamiliaRecurso = null
             familiaRepository.transferirAdministracionYAbandonar(
-                familiaId = familia.id,
-                uidAdministradorActual = uidActual,
+                familiaId = familia.id, uidAdministradorActual = uidActual,
                 uidNuevoAdministrador = nuevoAdministrador.uid
             ) { resultado ->
                 abandonandoFamilia = false
-                resultado
-                    .onSuccess {
+                resultado.onSuccess {
                         limpiarFamiliaActiva()
                         alTenerExito() }
                     .onFailure {
-                        errorFamiliaRecurso = R.string.home_error_leave_family }
-            }
+                        errorFamiliaRecurso = R.string.home_error_leave_family } }
             return
         }
         abandonandoFamilia = true
         errorFamiliaRecurso = null
-        familiaRepository.abandonarFamilia(
-            familiaId = familia.id,
+        familiaRepository.abandonarFamilia(familiaId = familia.id,
             uidUsuario = uidActual
         ) { resultado ->
             abandonandoFamilia = false
-            resultado
-                .onSuccess {
+            resultado.onSuccess {
                     limpiarFamiliaActiva()
                     alTenerExito() }
                 .onFailure {
-                    errorFamiliaRecurso = R.string.home_error_leave_family }
-        }
+                    errorFamiliaRecurso = R.string.home_error_leave_family } }
     }
-
     fun limpiarErrorFamilia() { errorFamiliaRecurso = null }
     fun limpiarErrorMiembros() { errorMiembrosRecurso = null }
     private fun limpiarFamiliaActiva() {
@@ -495,17 +414,11 @@ class FamiliaViewModel : ViewModel() {
         actualizandoRolUid = null
         expulsandoMiembroUid = null
         errorFamiliaRecurso = null
-        errorMiembrosRecurso = null
-    }
+        errorMiembrosRecurso = null }
     private fun ordenarMiembros(
         miembros: List<MiembroFamiliaDetalle>
     ): List<MiembroFamiliaDetalle> {
         return miembros.sortedWith(
-            compareByDescending<MiembroFamiliaDetalle> {
-                it.esAdministrador
-            }.thenBy {
-                it.nombre.lowercase()
-            }
-        )
-    }
+            compareByDescending<MiembroFamiliaDetalle> { it.esAdministrador
+            }.thenBy { it.nombre.lowercase() }) }
 }

@@ -50,12 +50,10 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 fun PantallaVerificacion(
     viewModel: VerificacionViewModel = viewModel(),
     idiomaViewModel: IdiomaViewModel = viewModel(),
-    alNavegarHome: () -> Unit,
-    alNavegarLogin: () -> Unit
-) {
-    LaunchedEffect(Unit) { viewModel.prepararPantalla() }
-    val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
-
+    alNavegarHome: () -> Unit, alNavegarLogin: () -> Unit)
+{ LaunchedEffect(Unit) { viewModel.prepararPantalla() }
+    val idiomaEfectivo = recordarIdiomaEfectivo(
+        idiomaViewModel.idiomaSeleccionado)
     ContenidoVerificacion(
         correoUsuario = viewModel.correoUsuario,
         errorRecurso = viewModel.errorRecurso,
@@ -63,30 +61,23 @@ fun PantallaVerificacion(
         cargando = viewModel.cargando,
         idiomaEfectivo = idiomaEfectivo,
         traducir = idiomaViewModel::traducir,
-        alComprobarVerificacion = {
-            viewModel.comprobarVerificacion(
-                alEstarVerificado = alNavegarHome) },
+        alComprobarVerificacion = { viewModel
+            .comprobarVerificacion(alEstarVerificado
+            = alNavegarHome) },
         alReenviarCorreo = { viewModel.reenviarCorreo() },
-        alCambiarCuenta = {
-            viewModel.cerrarSesion(alCerrarSesion = alNavegarLogin) }
-    )
-}
-
+        alCambiarCuenta = { viewModel.cerrarSesion(
+            alCerrarSesion = alNavegarLogin) }) }
 @Composable
 fun ContenidoVerificacion(
     correoUsuario: String,
-    @StringRes
-    errorRecurso: Int?,
-    @StringRes
-    mensajeRecurso: Int?,
-    cargando: Boolean,
-    idiomaEfectivo: String,
+    @StringRes errorRecurso: Int?,
+    @StringRes mensajeRecurso: Int?,
+    cargando: Boolean, idiomaEfectivo: String,
     traducir: TraducirTexto,
     alComprobarVerificacion: () -> Unit,
     alReenviarCorreo: () -> Unit,
     alCambiarCuenta: () -> Unit
-) {
-    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
+) { val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
             traducir = traducir)
     Box(modifier = Modifier.fillMaxSize()
             .safeDrawingPadding().imePadding()
@@ -179,7 +170,7 @@ fun ContenidoVerificacion(
             // Error técnico
             MensajeError(mensaje = errorRecurso?.let { recurso ->
                         textos.texto(recurso) })
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             // Acción principal
             BotonAuth(texto = textos.texto(
                 R.string.verification_check_button),

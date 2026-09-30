@@ -30,61 +30,42 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun CodigoInvitacionFamilia(
-    codigo: String,
-    titulo: String,
-    textoCopiar: String,
-    textoCopiado: String,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    Card(modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
+fun CodigoInvitacionFamilia(codigo: String, titulo: String,
+    textoCopiar: String, textoCopiado: String,
+    modifier: Modifier = Modifier) { val context = LocalContext.current
+    Card(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer)
-    ) {
-        Column(modifier = Modifier.padding(18.dp)
+    ) { Column(modifier = Modifier.padding(18.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically
-            ) { Icon(imageVector = Icons.Filled.Key,
-                    contentDescription = null,
+            ) { Icon(imageVector = Icons.Filled.Key, contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = titulo,
-                    style = MaterialTheme.typography.titleMedium,
+                Text(text = titulo, style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold) }
             Spacer(modifier = Modifier.padding(6.dp))
-            Text(text = codigo,
-                style = MaterialTheme.typography.headlineSmall,
+            Text(text = codigo, style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.padding(6.dp))
             OutlinedButton(
                 onClick = { copiarCodigo(context = context, codigo = codigo)
-                    Toast.makeText(context,
-                        textoCopiado, Toast.LENGTH_SHORT).show() },
+                    Toast.makeText(context, textoCopiado,
+                        Toast.LENGTH_SHORT).show() },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = null)
+            ) { Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = textoCopiar, fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
+            } } }
 }
-
-
-private fun copiarCodigo(
-    context: Context,
-    codigo: String
-) {
-    val portapapeles = context.getSystemService(Context.CLIPBOARD_SERVICE
-    ) as ClipboardManager
-
-    val clip = ClipData.newPlainText("Código de invitación", codigo)
-    portapapeles.setPrimaryClip(clip
-    )
+private fun copiarCodigo(context: Context, codigo: String) {
+    val portapapeles = context.getSystemService(
+        Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Código de invitación",
+        codigo)
+    portapapeles.setPrimaryClip(clip)
 }
 
 

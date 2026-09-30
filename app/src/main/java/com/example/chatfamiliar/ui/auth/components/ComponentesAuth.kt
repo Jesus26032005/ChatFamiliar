@@ -103,7 +103,7 @@ fun MensajeError(mensaje: String?,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = modifier.fillMaxWidth().padding(bottom = 16.dp))
+            modifier = modifier.fillMaxWidth().padding(top = 28.dp, bottom = 16.dp))
     }
 }
 

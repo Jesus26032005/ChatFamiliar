@@ -24,42 +24,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun EstadoCargaHome(
-    titulo: String,
-    descripcion: String,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxSize().padding(32.dp),
+fun EstadoCargaHome(titulo: String, descripcion: String, modifier:
+Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    ) {
-        Surface(
-            modifier = Modifier.size(82.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
-            Box(contentAlignment = Alignment.Center
-            ) {
-                Icon(imageVector = Icons.Filled.Forum,
-                    contentDescription = null,
+    ) { Surface(modifier = Modifier.size(82.dp),
+            shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer
+        ) { Box(contentAlignment = Alignment.Center
+            ) { Icon(imageVector = Icons.Filled.Forum, contentDescription = null,
                     modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                ) } }
+        tint = MaterialTheme.colorScheme.primary) } }
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = titulo,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
+        Text(text = titulo, style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = descripcion,
-            style = MaterialTheme.typography.bodyMedium,
+        Text(text = descripcion, style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(28.dp))
-        CircularProgressIndicator(
-            modifier = Modifier.size(34.dp),
-            strokeWidth = 3.dp)
-    }
-}
+        CircularProgressIndicator(modifier = Modifier.size(34.dp),
+            strokeWidth = 3.dp) } }

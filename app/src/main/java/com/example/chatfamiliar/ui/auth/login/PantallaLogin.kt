@@ -63,8 +63,8 @@ fun PantallaLogin(
     alNavegarRegistro: () -> Unit,
     alNavegarVerificacion: () -> Unit
 ) {
-    val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
-
+    val idiomaEfectivo = recordarIdiomaEfectivo(
+        idiomaViewModel.idiomaSeleccionado)
     ContenidoLogin(correo = viewModel.correo,
         password = viewModel.password,
         errorRecurso = viewModel.errorRecurso,
@@ -75,35 +75,27 @@ fun PantallaLogin(
         alCambiarPassword = viewModel::actualizarPassword,
         alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma,
         traducir = idiomaViewModel::traducir,
-        alIniciarSesion = {
-            viewModel.iniciarSesion(
-                alTenerExito = alNavegarHome,
-                alRequerirVerificacion = alNavegarVerificacion)
-        },
-        alNavegarRegistro = alNavegarRegistro
-    )
+        alIniciarSesion = { viewModel.iniciarSesion(
+            alTenerExito = alNavegarHome,
+                alRequerirVerificacion = alNavegarVerificacion) },
+        alNavegarRegistro = alNavegarRegistro)
 }
 
 
 @Composable
 fun ContenidoLogin(
-    correo: String,
-    password: String,
-
-    @StringRes
-    errorRecurso: Int?,
-    cargando: Boolean,
-    idiomaSeleccionado: String?,
-    idiomaEfectivo: String,
+    correo: String, password: String,
+    @StringRes errorRecurso: Int?,
+    cargando: Boolean,traducir: TraducirTexto,
+    idiomaSeleccionado: String?, idiomaEfectivo: String,
     alCambiarCorreo: (String) -> Unit,
     alCambiarPassword: (String) -> Unit,
     alSeleccionarIdioma: (String?) -> Unit,
-    traducir: TraducirTexto,
     alIniciarSesion: () -> Unit,
     alNavegarRegistro: () -> Unit
 ) {
-    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo, traducir = traducir)
-
+    val textos = recordarTextosApp(idiomaEfectivo =
+        idiomaEfectivo, traducir = traducir)
     Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()
         .imePadding()
     ) {
@@ -154,7 +146,6 @@ fun ContenidoLogin(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(28.dp))
-
             // Formulario
             Card(modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
@@ -185,7 +176,6 @@ fun ContenidoLogin(
                         descripcionMostrar = textos.texto(R.string.auth_show_password),
                         descripcionOcultar = textos.texto(R.string.auth_hide_password),
                         habilitado = !cargando)
-                    Spacer(modifier = Modifier.height((8.dp)))
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                         textos.texto(recurso) })
                     Spacer(modifier = Modifier.height(16.dp))

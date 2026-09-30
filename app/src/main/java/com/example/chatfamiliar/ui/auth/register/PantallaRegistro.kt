@@ -50,9 +50,9 @@ fun PantallaRegistro(
     idiomaViewModel: IdiomaViewModel,
     viewModel: RegistroViewModel = viewModel(),
     alNavegarVerificacion: () -> Unit,
-    alNavegarLogin: () -> Unit
-) {
-    val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
+    alNavegarLogin: () -> Unit) {
+    val idiomaEfectivo = recordarIdiomaEfectivo(
+        idiomaViewModel.idiomaSeleccionado)
     ContenidoRegistro(
         correo = viewModel.correo,
         password = viewModel.password,
@@ -65,23 +65,17 @@ fun PantallaRegistro(
         alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma,
         alCambiarCorreo = viewModel::actualizarCorreo,
         alCambiarPassword = viewModel::actualizarPassword,
-        alCambiarConfirmarPassword = viewModel::actualizarConfirmarPassword,
-        alRegistrar = { viewModel.crearCuenta(alTenerExito = alNavegarVerificacion)
-        },
-        alNavegarLogin = alNavegarLogin
-    )
+        alCambiarConfirmarPassword = viewModel
+        ::actualizarConfirmarPassword,
+        alRegistrar = { viewModel.crearCuenta(alTenerExito
+        = alNavegarVerificacion) },
+        alNavegarLogin = alNavegarLogin)
 }
-
 @Composable
 fun ContenidoRegistro(
-    correo: String,
-    password: String,
-    confirmarPassword: String,
-    @StringRes
-    errorRecurso: Int?,
-    cargando: Boolean,
-    idiomaSeleccionado: String?,
-    idiomaEfectivo: String,
+    correo: String, password: String, confirmarPassword: String,
+    @StringRes errorRecurso: Int?, cargando: Boolean,
+    idiomaSeleccionado: String?, idiomaEfectivo: String,
     traducir: TraducirTexto,
     alSeleccionarIdioma: (String?) -> Unit,
     alCambiarCorreo: (String) -> Unit,
@@ -90,8 +84,8 @@ fun ContenidoRegistro(
     alRegistrar: () -> Unit,
     alNavegarLogin: () -> Unit
 ) {
-    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
-        traducir = traducir)
+    val textos = recordarTextosApp(idiomaEfectivo =
+        idiomaEfectivo, traducir = traducir)
     Box(modifier = Modifier.fillMaxSize()
             .safeDrawingPadding().imePadding()
     ) {
@@ -152,9 +146,7 @@ fun ContenidoRegistro(
                 Column(modifier = Modifier.padding(20.dp)
                 ) {
                     // Correo.
-                    CampoCorreo(
-                        valor = correo,
-                        alCambiarValor = alCambiarCorreo,
+                    CampoCorreo(valor = correo, alCambiarValor = alCambiarCorreo,
                         etiqueta = textos.texto(R.string.auth_email_label),
                         habilitado = !cargando)
                     Spacer(modifier = Modifier.height(16.dp))
@@ -179,7 +171,6 @@ fun ContenidoRegistro(
                         descripcionOcultar = textos.texto(R.string.auth_hide_password),
                         habilitado = !cargando
                     )
-                    Spacer(modifier = Modifier.height((8.dp)))
                     // Mensaje de error traducido.
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                             textos.texto(recurso) })

@@ -48,33 +48,25 @@ fun SelectorFamiliaActiva(
 ) {
     var expandido by remember { mutableStateOf(false) }
     Box(modifier = modifier.fillMaxWidth()
-    ) {
-        Card(modifier = Modifier.fillMaxWidth()
-            .clickable(
-                enabled = familias.size > 1 && !cargando) { expandido = true },
+    ) { Card(modifier = Modifier.fillMaxWidth()
+            .clickable(enabled = familias.size > 1 && !cargando) { expandido = true },
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Row(modifier = Modifier.fillMaxWidth().padding(18.dp),
                 verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(modifier = Modifier.size(48.dp),
+            ) { Surface(modifier = Modifier.size(48.dp),
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Box(contentAlignment = Alignment.Center
-                    ) {
-                        Icon(imageVector = Icons.Filled.Home,
+                ) { Box(contentAlignment = Alignment.Center
+                    ) { Icon(imageVector = Icons.Filled.Home,
                             contentDescription = null,
                             modifier = Modifier.size(25.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    }
-                }
+                            tint = MaterialTheme.colorScheme.primary) } }
                 Spacer(modifier = Modifier.width(14.dp))
                 Column(modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = titulo,
+                ) { Text(text = titulo,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(text = familiaActiva.nombre,
@@ -91,26 +83,19 @@ fun SelectorFamiliaActiva(
                         strokeWidth = 2.dp)
                 } else if (familias.size > 1) {
                     Icon(imageVector = Icons.Filled.KeyboardArrowDown,
-                        contentDescription = null) }
-            }
-        }
+                        contentDescription = null) } } }
         DropdownMenu(expanded = expandido,
             onDismissRequest = { expandido = false }
         ) {
-            familias
-                .forEach { familia ->
+            familias.forEach { familia ->
                     DropdownMenuItem(
-                        text = {
-                            Text(text = familia.nombre,
+                        text = { Text(text = familia.nombre,
                                 fontWeight = if (familia.id == familiaActiva.id
                                 ) { FontWeight.Bold
                                 } else { FontWeight.Normal }) },
                     onClick = {
                         expandido = false
-                        alSeleccionarFamilia(familia) })
-            }
-        }
-    }
+                        alSeleccionarFamilia(familia) }) } } }
 }
 
 @Preview(

@@ -16,24 +16,19 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = FamiliaOnPrimary,
     primaryContainer = FamiliaPrimaryContainer,
     onPrimaryContainer = FamiliaOnPrimaryContainer,
-
     secondary = FamiliaSecondary,
     onSecondary = FamiliaOnSecondary,
     secondaryContainer = FamiliaSecondaryContainer,
     onSecondaryContainer = FamiliaOnSecondaryContainer,
-
     tertiary = FamiliaTertiary,
     onTertiary = FamiliaOnTertiary,
     tertiaryContainer = FamiliaTertiaryContainer,
     onTertiaryContainer = FamiliaOnTertiaryContainer,
-
     background = FamiliaBackground,
     onBackground = FamiliaOnBackground,
-
     surface = FamiliaSurface,
     onSurface = FamiliaOnSurface,
     surfaceContainer = FamiliaSurfaceContainer,
-
     surfaceVariant = FamiliaSurfaceVariant,
     onSurfaceVariant = FamiliaOnSurfaceVariant,
 

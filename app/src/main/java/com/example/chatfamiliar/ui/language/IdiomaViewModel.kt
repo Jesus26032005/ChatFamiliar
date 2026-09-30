@@ -28,8 +28,6 @@ class IdiomaViewModel(
     private var ocultarIndicadorJob: Job? = null
     val traduciendo: Boolean
         get() = preparandoIdioma || traduccionesPendientes > 0
-
-
     fun seleccionarIdioma(
         codigoIdioma: String?
     ) {
@@ -45,10 +43,7 @@ class IdiomaViewModel(
         idiomaRepository.cambiarIdioma(codigoIdioma)
     }
 
-
-    fun traducir(
-        texto: String,
-        codigoDestino: String,
+    fun traducir(texto: String, codigoDestino: String,
         alCompletar: (Result<String>) -> Unit
     ) {
         val generacionActual = generacionTraduccion
@@ -59,14 +54,16 @@ class IdiomaViewModel(
             codigoDestino = codigoDestino
         ) { resultado ->
             if (generacionActual == generacionTraduccion) {
-                traduccionesPendientes = (traduccionesPendientes - 1)
+                traduccionesPendientes = (
+                        traduccionesPendientes - 1)
                     .coerceAtLeast(0)
                 if (traduccionesPendientes == 0
                 ) { ocultarIndicadorJob =
                         viewModelScope.launch {
                             delay(180)
                             if (traduccionesPendientes == 0 &&
-                                generacionActual == generacionTraduccion
+                                generacionActual
+                                == generacionTraduccion
                             ) { preparandoIdioma = false }
                         }
                 }

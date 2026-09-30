@@ -64,10 +64,7 @@ fun PantallaHome(
             viewModel.cargarUsuario() } }
     val idiomaEfectivo = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
-
-    ContenidoHome(
-        usuario = viewModel.usuario,
-        familias = viewModel.familias,
+    ContenidoHome(usuario = viewModel.usuario, familias = viewModel.familias,
         familiaActiva = viewModel.familiaActiva,
         membresiaActiva = viewModel.membresiaActiva,
         nombreNuevo = viewModel.nombreNuevo,
@@ -85,124 +82,88 @@ fun PantallaHome(
         alRecargar = viewModel::recargarHome,
         alSeleccionarFamilia = viewModel::seleccionarFamilia,
         alGestionarFamilia = alGestionarFamilia,
-        alCerrarSesion = { viewModel.cerrarSesion(alCerrarSesion = alCerrarSesion) }
-    )
-}
-
+        alCerrarSesion = { viewModel.cerrarSesion(
+            alCerrarSesion = alCerrarSesion) }) }
 @Composable
 private fun ContenidoHome(
-    usuario: Usuario?,
-    familias: List<Familia>,
-    familiaActiva: Familia?,
-    membresiaActiva: MiembroFamilia?,
-    nombreNuevo: String,
-    necesitaNombre: Boolean,
-    cargando: Boolean,
-    cargandoFamilia: Boolean,
-    guardandoNombre: Boolean,
-    @StringRes errorRecurso: Int?,
-    idiomaSeleccionado: String?,
-    idiomaEfectivo: String,
-    traducir: TraducirTexto,
-    alSeleccionarIdioma: (String?) -> Unit,
-    alCambiarNombre: (String) -> Unit,
-    alGuardarNombre: () -> Unit,
-    alRecargar: () -> Unit,
-    alSeleccionarFamilia: (Familia) -> Unit,
-    alGestionarFamilia: () -> Unit,
-    alCerrarSesion: () -> Unit
+    usuario: Usuario?, familias: List<Familia>,
+    familiaActiva: Familia?, membresiaActiva: MiembroFamilia?,
+    nombreNuevo: String, necesitaNombre: Boolean,
+    cargando: Boolean, cargandoFamilia: Boolean,
+    guardandoNombre: Boolean, @StringRes errorRecurso: Int?,
+    idiomaSeleccionado: String?, idiomaEfectivo: String,
+    traducir: TraducirTexto, alSeleccionarIdioma: (String?) -> Unit,
+    alCambiarNombre: (String) -> Unit, alGuardarNombre: () -> Unit,
+    alRecargar: () -> Unit, alSeleccionarFamilia: (Familia) -> Unit,
+    alGestionarFamilia: () -> Unit, alCerrarSesion: () -> Unit
 ) {
-    val textos = recordarTextosApp(
-        idiomaEfectivo = idiomaEfectivo,
-        traducir = traducir
-    )
+    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo, traducir = traducir)
     val mensajeErrorGeneral =
-        errorRecurso?.let { recurso -> textos.texto(recurso)
-        }
+        errorRecurso?.let { recurso -> textos.texto(recurso) }
     Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()
-    ) {
-        if (cargando && usuario == null) {
-            EstadoCargaHome(
-                titulo = textos.texto(R.string.home_loading_title),
+    ) { if (cargando && usuario == null) {
+            EstadoCargaHome(titulo = textos.texto(R.string.home_loading_title),
                 descripcion = textos.texto(
                     R.string.home_loading_description))
         } else {
-            Column(
-                modifier = Modifier.fillMaxSize()
+            Column(modifier = Modifier.fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp, vertical = 24.dp)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            ) { Row(modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically) {
                     Surface(modifier = Modifier.size(52.dp),
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Box(contentAlignment = Alignment.Center
-                        ) {
-                            Icon(imageVector = Icons.Filled.Forum,
+                        ) { Icon(imageVector = Icons.Filled.Forum,
                                 contentDescription = null,
                                 modifier = Modifier.size(27.dp),
                                 tint = MaterialTheme.colorScheme.primary)
                         } }
                     Spacer(modifier = Modifier.width(14.dp))
                     Column(modifier = Modifier.weight(1f)
-                    ) {
-                        Text(text = textos.texto(R.string.home_title),
+                    ) { Text(text = textos.texto(R.string.home_title),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary)
                         Text(
                             text = usuario?.correo.orEmpty(),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    IconButton(
-                        onClick = alRecargar,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    IconButton(onClick = alRecargar,
                         enabled = !cargando
                     ) {
-                        if (cargando) {
-                            CircularProgressIndicator(
+                        if (cargando) { CircularProgressIndicator(
                                 modifier = Modifier.size(22.dp),
                                 strokeWidth = 2.dp)
-                        } else {
-                            Icon(
+                        } else { Icon(
                                 imageVector = Icons.Filled.Refresh,
                                 contentDescription = textos.texto(
                                     R.string.home_refresh),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                                tint = MaterialTheme.colorScheme.primary) }
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     ControlIdiomaCompacto(
                         idiomaSeleccionado = idiomaSeleccionado,
                         idiomaEfectivo = idiomaEfectivo,
                         traducir = traducir,
-                        alSeleccionarIdioma = alSeleccionarIdioma)
-                }
-
+                        alSeleccionarIdioma = alSeleccionarIdioma) }
                 Spacer(modifier = Modifier.height(28.dp))
                 if (cargando && usuario != null) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
+                    Surface(modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         color = MaterialTheme.colorScheme.secondaryContainer
-                    ) {
-                        Row(modifier = Modifier.padding(
+                    ) { Row(modifier = Modifier.padding(
                                 horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
+                        ) { CircularProgressIndicator(modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(text = textos.texto(
                                     R.string.home_refreshing),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer)
-                        }
+                                color = MaterialTheme.colorScheme.onSecondaryContainer) }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -210,10 +171,8 @@ private fun ContenidoHome(
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer)
-                ) {
-                    Column(modifier = Modifier.padding(22.dp)
-                    ) {
-                        Text(text = if (usuario?.nombre.isNullOrBlank()) {
+                ) { Column(modifier = Modifier.padding(22.dp)
+                    ) { Text(text = if (usuario?.nombre.isNullOrBlank()) {
                                 textos.texto(R.string.home_welcome)
                             } else {
                                 "${textos.texto(R.string.home_welcome)}," +
@@ -224,61 +183,42 @@ private fun ContenidoHome(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = textos.texto(R.string.home_description),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
+                            color = MaterialTheme.colorScheme.onPrimaryContainer) } }
                 Spacer(modifier = Modifier.height(20.dp))
-                usuario?.let { perfil ->
-                    TarjetaPerfilUsuario(
-                        nombre = perfil.nombre,
-                        correo = perfil.correo)
-                }
+                usuario?.let { perfil -> TarjetaPerfilUsuario(
+                        nombre = perfil.nombre, correo = perfil.correo) }
                 Spacer(modifier = Modifier.height(20.dp))
                 if (mensajeErrorGeneral != null &&
-                    !necesitaNombre
-                ) {
+                    !necesitaNombre) {
                     Surface(modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Text(text = mensajeErrorGeneral,
+                    ) { Text(text = mensajeErrorGeneral,
                             modifier = Modifier.padding(14.dp),
                             color = MaterialTheme.colorScheme.onErrorContainer,
-                            textAlign = TextAlign.Center
-                        )
+                            textAlign = TextAlign.Center)
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                when {
-                    cargandoFamilia && familias.isEmpty() -> {
+                    Spacer(modifier = Modifier.height(16.dp)) }
+                when {cargandoFamilia && familias.isEmpty() -> {
                         Column(modifier = Modifier
                                 .fillMaxWidth().padding(24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(28.dp),
-                                strokeWidth = 2.dp)
+                        ) { CircularProgressIndicator(
+                                modifier = Modifier.size(28.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text(text = textos.texto(
-                                R.string.home_family_loading),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
+                            Text(text = textos.texto(R.string.home_family_loading),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant) } }
                     familias.isEmpty() -> {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
+                        Card(modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme
                                     .colorScheme.surfaceContainer
                             )
-                        ) {
-                            Column(modifier = Modifier.padding(22.dp),
+                        ) { Column(modifier = Modifier.padding(22.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(text = textos.texto(
+                            ) { Text(text = textos.texto(
                                         R.string.home_no_family_title),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
@@ -295,28 +235,20 @@ private fun ContenidoHome(
                                     onClick = alGestionarFamilia,
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(16.dp)
-                                ) {
-                                    Text(text = textos.texto(R.string.home_manage_family),
-                                        fontWeight = FontWeight.SemiBold)
-                                }
-                            }
-                        }
-                    }
-
+                                ) { Text(text = textos.texto(
+                                        R.string.home_manage_family),
+                                        fontWeight = FontWeight.SemiBold) } } } }
                     familiaActiva != null -> {
-                        val textoRol =
-                            when (membresiaActiva?.rol) {
+                        val textoRol = when (membresiaActiva?.rol) {
                                 MiembroFamilia.ROL_ADMINISTRADOR ->
                                     textos.texto(R.string.home_role_admin)
                                 MiembroFamilia.ROL_MIEMBRO ->
                                     textos.texto(R.string.home_role_member)
-                                else -> null
-                            }
+                                else -> null }
                         SelectorFamiliaActiva(
                             familias = familias,
                             familiaActiva = familiaActiva,
-                            titulo = textos.texto(
-                                R.string.home_family_active),
+                            titulo = textos.texto(R.string.home_family_active),
                             textoRol = textoRol,
                             cargando = cargandoFamilia,
                             alSeleccionarFamilia = alSeleccionarFamilia)
@@ -325,8 +257,10 @@ private fun ContenidoHome(
                             codigo = familiaActiva.codigoInvitacion,
                             titulo = textos.texto(
                                 R.string.home_invitation_code_title),
-                            textoCopiar = textos.texto(R.string.home_invitation_code_copy),
-                            textoCopiado = textos.texto(R.string.home_invitation_code_copied))
+                            textoCopiar = textos.texto(R.string
+                                .home_invitation_code_copy),
+                            textoCopiado = textos.texto(R.string
+                                .home_invitation_code_copied))
                         Spacer(modifier = Modifier.height(16.dp))
                         OutlinedButton(
                             onClick = alGestionarFamilia,
@@ -334,27 +268,20 @@ private fun ContenidoHome(
                             shape = RoundedCornerShape(16.dp)
                         ) { Text(text = textos.texto(
                             R.string.home_manage_family),
-                                fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
+                                fontWeight = FontWeight.SemiBold) } } }
                 Spacer(modifier = Modifier.height(32.dp))
                 OutlinedButton(
                     onClick = alCerrarSesion,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
-                ) {
-                    Icon(imageVector = Icons.Filled.Logout,
+                ) { Icon(imageVector = Icons.Filled.Logout,
                         contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = textos.texto(R.string.home_logout),
-                        fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+                        fontWeight = FontWeight.SemiBold) }
+                Spacer(modifier = Modifier.height(24.dp)) }
         }
     }
-
     DialogoNombreInicial(
         visible = necesitaNombre,
         nombre = nombreNuevo,

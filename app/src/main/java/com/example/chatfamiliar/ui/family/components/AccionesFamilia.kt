@@ -17,31 +17,23 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun AccionesFamilia(
-    textoCrear: String,
-    textoUnirse: String,
-    alCrearFamilia: () -> Unit,
-    alUnirseFamilia: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    textoCrear: String, textoUnirse: String,
+    alCrearFamilia: () -> Unit, alUnirseFamilia: () -> Unit,
+    modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth())
-    {
-        OutlinedButton(
-            onClick = alCrearFamilia,
+    { OutlinedButton(
+        onClick = alCrearFamilia,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(text = textoCrear,
-                fontWeight = FontWeight.SemiBold)
-        }
+        ) { Text(text = textoCrear,
+                fontWeight = FontWeight.SemiBold) }
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(onClick = alUnirseFamilia,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(text = textoUnirse, fontWeight = FontWeight.SemiBold)
-        }
-    }
+            shape = RoundedCornerShape(16.dp)) {
+            Text(text = textoUnirse, fontWeight = FontWeight.SemiBold) } }
 }
+
 @Preview(
     showBackground = true,
     name = "Acciones de familia"

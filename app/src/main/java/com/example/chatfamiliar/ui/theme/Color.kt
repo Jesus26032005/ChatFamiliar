@@ -8,13 +8,11 @@ val FamiliaPrimary = Color(0xFF4F5FD7)
 val FamiliaOnPrimary = Color(0xFFFFFFFF)
 val FamiliaPrimaryContainer = Color(0xFFE2E5FF)
 val FamiliaOnPrimaryContainer = Color(0xFF101B69)
-
 // Color secundario
 val FamiliaSecondary = Color(0xFF387A7A)
 val FamiliaOnSecondary = Color(0xFFFFFFFF)
 val FamiliaSecondaryContainer = Color(0xFFBCEBEB)
 val FamiliaOnSecondaryContainer = Color(0xFF002020)
-
 // Color de acento
 val FamiliaTertiary = Color(0xFFA94F64)
 val FamiliaOnTertiary = Color(0xFFFFFFFF)
@@ -25,7 +23,6 @@ val FamiliaBackground = Color(0xFFF9F9FF)
 val FamiliaOnBackground = Color(0xFF1B1B21)
 val FamiliaSurface = Color(0xFFF9F9FF)
 val FamiliaOnSurface = Color(0xFF1B1B21)
-
 val FamiliaSurfaceVariant = Color(0xFFE4E1EC)
 val FamiliaOnSurfaceVariant = Color(0xFF46464F)
 

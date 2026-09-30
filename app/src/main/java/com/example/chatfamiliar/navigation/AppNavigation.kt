@@ -28,20 +28,15 @@ fun AppNavigation() {
     val homeViewModel: HomeViewModel = viewModel()
     val usuarioActual = authRepository.obtenerUsuarioActual()
     val rutaInicial =
-        when {
-            usuarioActual == null -> Rutas.LOGIN
+        when {usuarioActual == null -> Rutas.LOGIN
             usuarioActual.isEmailVerified -> Rutas.HOME
             else -> Rutas.VERIFICACION
         }
-
-    Box(
-        modifier = Modifier.fillMaxSize()
+    Box(modifier = Modifier.fillMaxSize()
     ) {
-        NavHost(
-            navController = navController,
+        NavHost(navController = navController,
             startDestination = rutaInicial
-        ) {
-            composable(route = Rutas.LOGIN) {
+        ) { composable(route = Rutas.LOGIN) {
                 PantallaLogin(
                     idiomaViewModel = idiomaViewModel,
                     alNavegarHome = {
@@ -56,10 +51,7 @@ fun AppNavigation() {
                         navController.navigate(Rutas.VERIFICACION) {
                             popUpTo(Rutas.LOGIN) {
                                 inclusive = true }
-                            launchSingleTop = true } }
-                )
-            }
-
+                            launchSingleTop = true } }) }
             composable(route = Rutas.REGISTRO) {
                 PantallaRegistro(
                     idiomaViewModel = idiomaViewModel,
@@ -93,9 +85,7 @@ fun AppNavigation() {
                     alCerrarSesion = {
                         navController.navigate(Rutas.LOGIN) {
                             popUpTo(Rutas.HOME) { inclusive = true }
-                            launchSingleTop = true } }
-                )
-            }
+                            launchSingleTop = true } }) }
             composable(route = Rutas.GESTION_FAMILIA) {
                 val familiaViewModel: FamiliaViewModel = viewModel()
                 PantallaFamilia(
@@ -105,12 +95,7 @@ fun AppNavigation() {
                     alVolver = { familiaIdFinal ->
                         homeViewModel.sincronizarFamiliasDesdeGestion(
                             familiaPreferidaId = familiaIdFinal)
-                        navController.popBackStack() })
-            }
-        }
-
-        IndicadorTraduccion(
-            visible = idiomaViewModel.traduciendo
-        )
+                        navController.popBackStack() }) } }
+        IndicadorTraduccion(visible = idiomaViewModel.traduciendo)
     }
 }

@@ -11,85 +11,56 @@ import androidx.compose.ui.res.stringResource
 import com.example.chatfamiliar.data.language.IdiomaRepository
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.os.ConfigurationCompat
-
 typealias TraducirTexto = (
-    texto: String,
-    codigoDestino: String,
+    texto: String, codigoDestino: String,
     alCompletar: (Result<String>) -> Unit
 ) -> Unit
-
-
 class TextosApp internal constructor(
     private val idiomaEfectivo: String,
     private val traducir: TraducirTexto
-) {
-    @Composable
+) { @Composable
     fun texto(@StringRes recurso: Int): String {
         return textoApp(recurso = recurso,
             idiomaEfectivo = idiomaEfectivo,
-            traducir = traducir
-        )
-    }
+            traducir = traducir) }
 }
-
 @Composable
-fun recordarTextosApp(
-    idiomaEfectivo: String,
+fun recordarTextosApp(idiomaEfectivo: String,
     traducir: TraducirTexto
 ): TextosApp {
     return remember(idiomaEfectivo, traducir
-    ) {
-        TextosApp(idiomaEfectivo = idiomaEfectivo, traducir = traducir)
-    }
+    ) { TextosApp(idiomaEfectivo = idiomaEfectivo,
+            traducir = traducir) }
 }
 
 @Composable
 fun textoApp(
-    @StringRes recurso: Int,
-    idiomaEfectivo: String,
+    @StringRes recurso: Int, idiomaEfectivo: String,
     traducir: TraducirTexto
 ): String {
     val textoLocal = stringResource(recurso)
-    val esIdiomaLocal = idiomaEfectivo == IdiomaRepository.ESPANOL
+    val esIdiomaLocal = idiomaEfectivo ==
+            IdiomaRepository.ESPANOL
             || idiomaEfectivo == IdiomaRepository.INGLES
     if (esIdiomaLocal) { return textoLocal }
     var textoTraducido by remember(recurso,
-        idiomaEfectivo, textoLocal
-    ) { mutableStateOf(textoLocal) }
-
-    LaunchedEffect(recurso,
-        idiomaEfectivo, textoLocal
-    ) {
+        idiomaEfectivo, textoLocal) {
+        mutableStateOf(textoLocal) }
+    LaunchedEffect(recurso, idiomaEfectivo,
+        textoLocal) {
         traducir(textoLocal,
-            idiomaEfectivo
-        ) { resultado ->
-            resultado
-                .onSuccess { traduccion ->
-                    textoTraducido = traduccion
-                }
+            idiomaEfectivo) { resultado ->
+            resultado.onSuccess { traduccion ->
+                    textoTraducido = traduccion }
                 .onFailure {
-                    textoTraducido = textoLocal
-                }
-        }
-    }
-    return textoTraducido
-}
-
-
+                    textoTraducido = textoLocal } } }
+    return textoTraducido }
 @Composable
-fun recordarIdiomaEfectivo(
-    idiomaSeleccionado: String?
-): String {
-
-    val configuracion =
-        LocalConfiguration.current
-
+fun recordarIdiomaEfectivo(idiomaSeleccionado: String?)
+: String { val configuracion = LocalConfiguration.current
     val idiomaSistema =
         ConfigurationCompat
             .getLocales(configuracion)[0]
-            ?.language
-            ?: IdiomaRepository.ESPANOL
-
-    return idiomaSeleccionado
-        ?: idiomaSistema
+            ?.language ?: IdiomaRepository.ESPANOL
+    return idiomaSeleccionado ?: idiomaSistema
 }

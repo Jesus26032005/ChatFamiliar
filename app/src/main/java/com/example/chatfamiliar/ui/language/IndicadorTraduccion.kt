@@ -3,6 +3,7 @@ package com.example.chatfamiliar.ui.language
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -30,43 +31,37 @@ import com.example.chatfamiliar.R
 
 
 @Composable
-fun IndicadorTraduccion(
-    visible: Boolean
-) {
-    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()
+fun IndicadorTraduccion(visible: Boolean) {
+    AnimatedVisibility(visible = visible, enter = fadeIn(),
+        exit = fadeOut()
     ) {
         Box(modifier = Modifier.fillMaxSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null, onClick = {}
-                ),
+                .clickable(interactionSource = remember {
+                        MutableInteractionSource() },
+                    indication = null, onClick = {}),
             contentAlignment = Alignment.Center
-        ) {
-            Box(modifier = Modifier.fillMaxSize()
-            ) {
-                androidx.compose.foundation.Canvas(modifier =
-                    Modifier.fillMaxSize()
-                ) {
-                    drawRect(color = Color.Black.copy(alpha = 0.32f))
-                }
-            }
+        ) { Box(modifier = Modifier.fillMaxSize()
+            ) { Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawRect(color = Color.Black.copy(alpha
+                    = 0.32f)) } }
             Card(shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 32.dp, vertical = 26.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
+                        containerColor = MaterialTheme
+                            .colorScheme.surface),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 8.dp)) {
+                Column(modifier = Modifier.padding(
+                    horizontal = 32.dp, vertical = 26.dp),
+                    horizontalAlignment = Alignment
+                        .CenterHorizontally,
+                    verticalArrangement = Arrangement
+                        .Center) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = stringResource(R.string.language_preparing),
+                    Text(text = stringResource(
+                        R.string.language_preparing),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
+                        fontWeight = FontWeight.SemiBold) } }
         }
     }
 }

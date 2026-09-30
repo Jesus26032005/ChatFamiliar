@@ -74,27 +74,20 @@ fun PantallaFamilia(
     val volver = { alVolver(viewModel.familiaActiva?.id) }
     BackHandler { volver() }
     ContenidoFamilia(
-        uidUsuarioActual = viewModel.uidUsuarioActual,
-        familiaActiva = viewModel.familiaActiva,
-        membresiaActiva = viewModel.membresiaActiva,
-        miembrosFamilia = viewModel.miembrosFamilia,
-        nombreFamiliaNueva = viewModel.nombreFamiliaNueva,
+        uidUsuarioActual = viewModel.uidUsuarioActual, familiaActiva = viewModel.familiaActiva,
+        membresiaActiva = viewModel.membresiaActiva, miembrosFamilia = viewModel.miembrosFamilia,
+        nombreFamiliaNueva = viewModel.nombreFamiliaNueva, idiomaEfectivo = idiomaEfectivo,
         codigoInvitacion = viewModel.codigoInvitacion,
-        nombreFamiliaEdicion = viewModel.nombreFamiliaEdicion,
-        cargando = viewModel.cargando,
-        cargandoMiembros = viewModel.cargandoMiembros,
-        creandoFamilia = viewModel.creandoFamilia,
-        uniendoFamilia = viewModel.uniendoFamilia,
-        editandoFamilia = viewModel.editandoFamilia,
+        nombreFamiliaEdicion = viewModel.nombreFamiliaEdicion, cargando = viewModel.cargando,
+        cargandoMiembros = viewModel.cargandoMiembros, creandoFamilia = viewModel.creandoFamilia,
+        uniendoFamilia = viewModel.uniendoFamilia, editandoFamilia = viewModel.editandoFamilia,
         abandonandoFamilia = viewModel.abandonandoFamilia,
         eliminandoFamilia = viewModel.eliminandoFamilia,
         actualizandoRolUid = viewModel.actualizandoRolUid,
         expulsandoMiembroUid = viewModel.expulsandoMiembroUid,
         errorFamiliaRecurso = viewModel.errorFamiliaRecurso,
         errorMiembrosRecurso = viewModel.errorMiembrosRecurso,
-        idiomaEfectivo = idiomaEfectivo,
-        traducir = idiomaViewModel::traducir,
-        alVolver = volver,
+        traducir = idiomaViewModel::traducir, alVolver = volver,
         alCambiarNombreFamilia = viewModel::actualizarNombreFamilia,
         alCrearFamilia = { alTenerExito ->
             viewModel.crearFamilia(alTenerExito = alTenerExito) },
@@ -115,49 +108,28 @@ fun PantallaFamilia(
         alQuitarAdministrador = viewModel::quitarAdministrador,
         alExpulsarMiembro = { miembro, alTenerExito ->
             viewModel.expulsarMiembro(miembro = miembro, alTenerExito = alTenerExito) },
-        alLimpiarErrorMiembros = viewModel::limpiarErrorMiembros
-    )
-}
-
+        alLimpiarErrorMiembros = viewModel::limpiarErrorMiembros) }
 @Composable
 private fun ContenidoFamilia(
-    uidUsuarioActual: String,
-    familiaActiva: Familia?,
-    membresiaActiva: MiembroFamilia?,
-    miembrosFamilia: List<MiembroFamiliaDetalle>,
-    nombreFamiliaNueva: String,
-    codigoInvitacion: String,
-    nombreFamiliaEdicion: String,
-    cargando: Boolean,
-    cargandoMiembros: Boolean,
-    creandoFamilia: Boolean,
-    uniendoFamilia: Boolean,
-    editandoFamilia: Boolean,
-    abandonandoFamilia: Boolean,
-    eliminandoFamilia: Boolean,
-    actualizandoRolUid: String?,
-    expulsandoMiembroUid: String?,
+    uidUsuarioActual: String, familiaActiva: Familia?,
+    membresiaActiva: MiembroFamilia?, miembrosFamilia: List<MiembroFamiliaDetalle>,
+    nombreFamiliaNueva: String, codigoInvitacion: String, nombreFamiliaEdicion: String,
+    cargando: Boolean, cargandoMiembros: Boolean, creandoFamilia: Boolean,
+    uniendoFamilia: Boolean, editandoFamilia: Boolean, abandonandoFamilia: Boolean,
+    eliminandoFamilia: Boolean, actualizandoRolUid: String?, expulsandoMiembroUid: String?,
     @StringRes errorFamiliaRecurso: Int?,
-    @StringRes errorMiembrosRecurso: Int?,
-    idiomaEfectivo: String,
-    traducir: TraducirTexto,
-    alVolver: () -> Unit,
-    alCambiarNombreFamilia: (String) -> Unit,
-    alCrearFamilia: (() -> Unit) -> Unit,
-    alCambiarCodigo: (String) -> Unit,
-    alUnirseFamilia: (() -> Unit) -> Unit,
-    alLimpiarErrorFamilia: () -> Unit,
-    alPrepararEdicionFamilia: () -> Unit,
-    alCambiarNombreFamiliaEdicion: (String) -> Unit,
-    alEditarFamilia: (() -> Unit) -> Unit,
-    alAbandonarFamilia: (() -> Unit) -> Unit,
-    alEliminarFamilia: (() -> Unit) -> Unit,
+    @StringRes errorMiembrosRecurso: Int?, idiomaEfectivo: String,
+    traducir: TraducirTexto, alVolver: () -> Unit,
+    alCambiarNombreFamilia: (String) -> Unit, alCrearFamilia: (() -> Unit) -> Unit,
+    alCambiarCodigo: (String) -> Unit, alUnirseFamilia: (() -> Unit) -> Unit,
+    alLimpiarErrorFamilia: () -> Unit, alPrepararEdicionFamilia: () -> Unit,
+    alCambiarNombreFamiliaEdicion: (String) -> Unit, alEditarFamilia: (() -> Unit) -> Unit,
+    alAbandonarFamilia: (() -> Unit) -> Unit, alEliminarFamilia: (() -> Unit) -> Unit,
     alHacerAdministrador: (MiembroFamiliaDetalle) -> Unit,
     alQuitarAdministrador: (MiembroFamiliaDetalle) -> Unit,
     alExpulsarMiembro: (MiembroFamiliaDetalle, () -> Unit) -> Unit,
     alLimpiarErrorMiembros: () -> Unit
-) {
-    val textos = recordarTextosApp(
+) { val textos = recordarTextosApp(
         idiomaEfectivo = idiomaEfectivo, traducir = traducir)
     val mensajeErrorFamilia =
         errorFamiliaRecurso?.let { recurso -> textos.texto(recurso) }
@@ -184,15 +156,12 @@ private fun ContenidoFamilia(
     Column(modifier = Modifier.fillMaxSize()
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 20.dp)
-    ) {
+            .padding(horizontal = 24.dp, vertical = 20.dp)) {
         Row(modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = alVolver) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null)
-            }
+                    contentDescription = null) }
             Spacer(modifier = Modifier.width(8.dp))
             Column { Text(text = textos.texto(R.string.family_management_title),
                     style = MaterialTheme.typography.headlineSmall,

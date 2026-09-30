@@ -27,50 +27,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.chatfamiliar.ui.family.components.EstadoSinFamilia
 
 @Composable
-fun TarjetaPerfilUsuario(
-    nombre: String,
-    correo: String,
-    modifier: Modifier = Modifier
-) {
+fun TarjetaPerfilUsuario(nombre: String, correo: String,
+                         modifier: Modifier = Modifier) {
     Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme
-                .surfaceContainer
-        )
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()
+            containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) { Row(modifier = Modifier.fillMaxWidth()
             .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(modifier = Modifier.size(50.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme
+        ) { Surface(modifier = Modifier.size(50.dp),
+                shape = CircleShape, color = MaterialTheme.colorScheme
                     .secondaryContainer
-            ) {
-                Box(contentAlignment = Alignment.Center
-                ) {
-                    Icon(imageVector = Icons.Filled.Person,
+            ) { Box(contentAlignment = Alignment.Center
+                ) { Icon(imageVector = Icons.Filled.Person,
                         contentDescription = null,
                         modifier = Modifier.size(26.dp),
                         tint = MaterialTheme.colorScheme
-                            .onSecondaryContainer
-                    )
-                }
-            }
+                            .onSecondaryContainer) } }
             Spacer(modifier = Modifier.width(14.dp))
-            Column {
-                Text(text = nombre.ifBlank { correo },
+            Column { Text(text = nombre.ifBlank { correo },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold)
                 Text(text = correo,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme
-                            .onSurfaceVariant)
-            }
-        }
-    }
-}
+                            .onSurfaceVariant) } } } }
 
 @Preview(
     showBackground = true,

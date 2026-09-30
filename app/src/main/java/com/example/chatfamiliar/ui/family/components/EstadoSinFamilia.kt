@@ -28,67 +28,37 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun EstadoSinFamilia(
-    titulo: String,
-    descripcion: String,
-    textoCrear: String,
-    textoUnirse: String,
-    alCrearFamilia: () -> Unit,
-    alUnirseFamilia: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    titulo: String, descripcion: String, textoCrear: String, textoUnirse: String,
+    alCrearFamilia: () -> Unit, alUnirseFamilia: () -> Unit, modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surfaceContainer
-    ) {
-        Column(modifier = Modifier.fillMaxWidth(),
+    ) { Column(modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Surface(
-                modifier = Modifier.size(64.dp),
-                shape = CircleShape,
+        verticalArrangement = Arrangement.Center
+        ) { Spacer(modifier = Modifier.height(24.dp))
+            Surface(modifier = Modifier.size(64.dp), shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(imageVector = Icons.Filled.Home,
-                        contentDescription = null,
+            ) { Box(contentAlignment = Alignment.Center
+                ) { Icon(imageVector = Icons.Filled.Home, contentDescription = null,
                         modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
+                tint = MaterialTheme.colorScheme.primary) } }
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = titulo,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center)
+            Text(text = titulo, style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = descripcion,
-                modifier = Modifier.fillMaxWidth(0.85f),
+            Text(text = descripcion, modifier = Modifier.fillMaxWidth(0.85f),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme
-                        .onSurfaceVariant,
-                textAlign = TextAlign.Center)
+                color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = alCrearFamilia,
-                modifier = Modifier.fillMaxWidth(0.85f),
-                shape = RoundedCornerShape(16.dp)
-            ) {
+            Button(onClick = alCrearFamilia, modifier = Modifier.fillMaxWidth(0.85f),
+                shape = RoundedCornerShape(16.dp)) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = textoCrear, fontWeight = FontWeight.SemiBold)
-            }
+                Text(text = textoCrear, fontWeight = FontWeight.SemiBold) }
             Spacer(modifier = Modifier.height(10.dp))
-            OutlinedButton(
-                onClick = alUnirseFamilia,
-                modifier = Modifier.fillMaxWidth(0.85f),
-                shape = RoundedCornerShape(16.dp)
-            ) { Text(text = textoUnirse,
-                fontWeight = FontWeight.SemiBold) }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
+            OutlinedButton(onClick = alUnirseFamilia, modifier = Modifier.fillMaxWidth(
+                0.85f), shape = RoundedCornerShape(16.dp)
+            ) { Text(text = textoUnirse, fontWeight = FontWeight.SemiBold) }
+            Spacer(modifier = Modifier.height(24.dp)) } }
 }

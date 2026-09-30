@@ -31,63 +31,49 @@ import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.R
 import com.example.chatfamiliar.data.language.IdiomaRepository
 
-
 @Composable
 fun SelectorIdioma(
     idiomaSeleccionado: String?,
     idiomaEfectivo: String,
-
     traducir: TraducirTexto,
-
     alSeleccionarIdioma: (String?) -> Unit,
     alCerrar: () -> Unit
 ) {
-    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo, traducir = traducir)
-
+    val textos = recordarTextosApp(idiomaEfectivo =
+        idiomaEfectivo, traducir = traducir)
     AlertDialog(onDismissRequest = alCerrar,
-        icon = { Surface(
-                modifier = Modifier.size(56.dp),
+        icon = { Surface(modifier = Modifier.size(56.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
+                color = MaterialTheme.colorScheme
+                    .primaryContainer) {
                 Icon(imageVector = Icons.Filled.Language,
                     contentDescription = null,
                     modifier = Modifier.padding(14.dp),
-                    tint = MaterialTheme.colorScheme.primary)
-            }
-        },
-        title = {
-            Text(text = textos.texto(R.string.language_select),
+                    tint = MaterialTheme.colorScheme.primary) } },
+        title = { Text(text = textos.texto(R.string.language_select),
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold)
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(text = textos.texto(R.string.language_dialog_description),
+                fontWeight = FontWeight.Bold) },
+        text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) { Text(text = textos.texto(R.string.language_dialog_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(4.dp))
-
-
-                OpcionIdioma(
-                    codigo = "AUTO",
+                OpcionIdioma(codigo = "AUTO",
                     titulo = textos.texto(R.string.language_system),
-                    descripcion = textos.texto(R.string.language_system_option_description),
+                    descripcion = textos.texto(R.string
+                        .language_system_option_description),
                     textoActual = textos.texto(R.string.language_current),
                     seleccionado = idiomaSeleccionado == null,
                     onClick = {alSeleccionarIdioma(null)
                         alCerrar() })
-                OpcionIdioma(
-                    codigo = "ES",
+                OpcionIdioma(codigo = "ES",
                     titulo = textos.texto(R.string.language_spanish),
                     descripcion = textos.texto(R.string.language_spanish_description),
                     textoActual = textos.texto(R.string.language_current),
                     seleccionado = idiomaSeleccionado == IdiomaRepository.ESPANOL,
                     onClick = { alSeleccionarIdioma(IdiomaRepository.ESPANOL)
                         alCerrar() })
-                OpcionIdioma(
-                    codigo = "EN",
+                OpcionIdioma(codigo = "EN",
                     titulo = textos.texto(R.string.language_english),
                     descripcion = textos.texto(R.string.language_english_description),
                     textoActual = textos.texto(R.string.language_current),
@@ -97,7 +83,8 @@ fun SelectorIdioma(
                 OpcionIdioma(
                     codigo = "IT",
                     titulo = textos.texto(R.string.language_italian),
-                    descripcion = textos.texto(R.string.language_italian_description),
+                    descripcion = textos.texto(R.string
+                        .language_italian_description),
                     textoActual = textos.texto(R.string.language_current),
                     seleccionado = idiomaSeleccionado == IdiomaRepository.ITALIANO,
                     onClick = { alSeleccionarIdioma(IdiomaRepository.ITALIANO)
@@ -105,47 +92,32 @@ fun SelectorIdioma(
                 OpcionIdioma(
                     codigo = "FR",
                     titulo = textos.texto(R.string.language_french),
-                    descripcion = textos.texto(R.string.language_french_description),
+                    descripcion = textos.texto(R.string
+                        .language_french_description),
                     textoActual = textos.texto(R.string.language_current),
                     seleccionado = idiomaSeleccionado == IdiomaRepository.FRANCES,
                     onClick = { alSeleccionarIdioma(IdiomaRepository.FRANCES)
-                        alCerrar() })
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = alCerrar) {
-                Text(text = textos.texto(R.string.language_cancel))
-            }
-        },
+                        alCerrar() }) } },
+        confirmButton = { TextButton(onClick = alCerrar) { Text(text =
+            textos.texto(R.string.language_cancel)) } },
         shape = RoundedCornerShape(28.dp),
-        containerColor = MaterialTheme.colorScheme.surface
-    )
+        containerColor = MaterialTheme.colorScheme.surface)
 }
-
-
 @Composable
 private fun OpcionIdioma(
-    codigo: String,
-    titulo: String,
-    descripcion: String,
-    textoActual: String,
-    seleccionado: Boolean,
-    onClick: () -> Unit
+    codigo: String, titulo: String, descripcion: String,
+    textoActual: String, seleccionado: Boolean, onClick: () -> Unit
 ) {
     Surface(modifier = Modifier
             .fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         color = if (seleccionado) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainer
-            },
+                MaterialTheme.colorScheme.primaryContainer } else {
+                MaterialTheme.colorScheme.surfaceContainer },
         border =
             BorderStroke(
                 width = if (seleccionado) { 2.dp } else { 1.dp },
-                color = if (seleccionado) {
-                        MaterialTheme.colorScheme.primary
+                color = if (seleccionado) { MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.outlineVariant }),
         tonalElevation =
@@ -155,30 +127,20 @@ private fun OpcionIdioma(
         Row(modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(46.dp),
+        ) { Surface(modifier = Modifier.size(46.dp),
                 shape = CircleShape,
                 color = if (seleccionado) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.secondaryContainer
-                    }
+                    MaterialTheme.colorScheme.primary } else {
+                        MaterialTheme.colorScheme.secondaryContainer }
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
-                ) {
-                    Text(text = codigo,
+                ) { Text(text = codigo,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (seleccionado) {
-                                MaterialTheme.colorScheme.onPrimary
-                            } else {
-                                MaterialTheme.colorScheme.onSecondaryContainer
-                            }
-                    )
-                }
-            }
+                        color = if (seleccionado) { MaterialTheme.colorScheme
+                            .onPrimary } else {
+                                MaterialTheme.colorScheme.onSecondaryContainer }) } }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -189,19 +151,15 @@ private fun OpcionIdioma(
                         Spacer(modifier = Modifier.width(8.dp))
                         Surface(shape = RoundedCornerShape(50),
                             color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(text = textoActual,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        ) { Text(text = textoActual,
+                                modifier = Modifier.padding(horizontal =
+                                    8.dp, vertical = 3.dp),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimary)
-                        }
-                    }
-                }
+                                color = MaterialTheme.colorScheme.onPrimary) } } }
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(text = descripcion,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                    color = MaterialTheme.colorScheme.onSurfaceVariant) }
             Spacer(modifier = Modifier.width(8.dp))
             RadioButton(selected = seleccionado, onClick = onClick)
         }

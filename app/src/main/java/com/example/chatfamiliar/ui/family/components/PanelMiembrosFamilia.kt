@@ -22,44 +22,28 @@ import com.example.chatfamiliar.model.MiembroFamiliaDetalle
 
 @Composable
 fun PanelMiembrosFamilia(
-    miembros: List<MiembroFamiliaDetalle>,
-    uidUsuarioActual: String,
-    uidAdministradorPrincipal: String,
-    esAdministradorActual: Boolean,
-    titulo: String,
-    textoRolAdministrador: String,
-    textoRolMiembro: String,
-    textoAdministradorPrincipal: String,
-    textoTu: String,
-    textoHacerAdministrador: String,
-    textoQuitarAdministrador: String,
-    textoExpulsar: String,
-    textoVacio: String,
-    cargando: Boolean,
-    actualizandoRolUid: String?,
-    expulsandoMiembroUid: String?,
-    mensajeError: String?,
+    miembros: List<MiembroFamiliaDetalle>, uidUsuarioActual: String,
+    uidAdministradorPrincipal: String, esAdministradorActual: Boolean,
+    titulo: String, textoRolAdministrador: String,
+    textoRolMiembro: String, textoAdministradorPrincipal: String,
+    textoTu: String, textoHacerAdministrador: String,
+    textoQuitarAdministrador: String, textoExpulsar: String,
+    textoVacio: String, cargando: Boolean,
+    actualizandoRolUid: String?, expulsandoMiembroUid: String?,
+    mensajeError: String?, modifier: Modifier = Modifier,
     alHacerAdministrador: (MiembroFamiliaDetalle) -> Unit,
     alQuitarAdministrador: (MiembroFamiliaDetalle) -> Unit,
-    alExpulsar: (MiembroFamiliaDetalle) -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
+    alExpulsar: (MiembroFamiliaDetalle) -> Unit, ) {
+    Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors =
-            CardDefaults.cardColors(containerColor = MaterialTheme
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme
                 .colorScheme.surfaceContainer)
-    ) {
-        Column(modifier = Modifier.padding(18.dp)
-        ) {
-            Text(text = "$titulo (${miembros.size})",
+    ) { Column(modifier = Modifier.padding(18.dp)
+        ) { Text(text = "$titulo (${miembros.size})",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(14.dp))
-            if (cargando) {
-                CircularProgressIndicator(
+            if (cargando) { CircularProgressIndicator(
                     modifier = Modifier.size(26.dp)
                         .align(Alignment.CenterHorizontally),
                     strokeWidth = 2.dp)
@@ -70,13 +54,10 @@ fun PanelMiembrosFamilia(
                 miembros.forEachIndexed { indice, miembro ->
                     val esPrincipal = miembro.uid == uidAdministradorPrincipal
                     val esActual = miembro.uid == uidUsuarioActual
-                    ItemMiembroFamilia(
-                        nombre = miembro.nombre,
+                    ItemMiembroFamilia(nombre = miembro.nombre,
                         correo = miembro.correo,
-                        textoRol =
-                            if (miembro.esAdministrador) {
-                                textoRolAdministrador
-                            } else { textoRolMiembro },
+                        textoRol = if (miembro.esAdministrador) {
+                                textoRolAdministrador } else { textoRolMiembro },
                         textoAdministradorPrincipal = textoAdministradorPrincipal,
                         textoTu = textoTu,
                         esAdministrador = miembro.esAdministrador,
@@ -90,17 +71,12 @@ fun PanelMiembrosFamilia(
                         expulsando = expulsandoMiembroUid == miembro.uid,
                         alHacerAdministrador = { alHacerAdministrador(miembro) },
                         alQuitarAdministrador = { alQuitarAdministrador(miembro) },
-                        alExpulsar = { alExpulsar(miembro) }
-                    )
+                        alExpulsar = { alExpulsar(miembro) })
                     if (indice != miembros.lastIndex) {
-                        Spacer(modifier = Modifier.height(10.dp)) } }
-            }
+                        Spacer(modifier = Modifier.height(10.dp)) } } }
             if (mensajeError != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(text = mensajeError,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error)
-            }
-        }
-    }
+                    color = MaterialTheme.colorScheme.error) } } }
 }

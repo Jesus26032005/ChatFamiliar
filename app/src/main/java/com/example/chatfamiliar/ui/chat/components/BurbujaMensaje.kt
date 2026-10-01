@@ -27,19 +27,15 @@ import com.example.chatfamiliar.ui.theme.funcional
 private val EsquinaGrande = 20.dp
 private val EsquinaChica = 6.dp
 private val TamanoAvatarRemitente = 30.dp
+private val EspacioEnGrupo = 6.dp
+private val EspacioEntreGrupos = 14.dp
 
 @Composable
-fun BurbujaMensaje(
-    mensaje: Mensaje,
-    esPropio: Boolean,
-    mostrarRemitente: Boolean,
-    hora: String,
-    idiomaEfectivo: String,
-    traducir: TraducirTexto,
-    modifier: Modifier = Modifier,
-    primeroDelGrupo: Boolean = true,
-    ultimoDelGrupo: Boolean = true
-) {
+fun BurbujaMensaje(mensaje: Mensaje, esPropio: Boolean,
+    mostrarRemitente: Boolean, hora: String,
+    idiomaEfectivo: String, traducir: TraducirTexto,
+    modifier: Modifier = Modifier, primeroDelGrupo: Boolean = true,
+    ultimoDelGrupo: Boolean = true) {
     val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo, traducir = traducir)
     val funcional = MaterialTheme.funcional
     val colorFondo = if (esPropio) { funcional.burbujaPropia
@@ -62,7 +58,7 @@ fun BurbujaMensaje(
 
     Row(modifier = modifier.fillMaxWidth()
         .padding(horizontal = 12.dp)
-        .padding(top = if (primeroDelGrupo) 10.dp else 2.dp)
+        .padding(top = if (primeroDelGrupo) EspacioEntreGrupos else EspacioEnGrupo)
         .padding(start = if (esPropio) 48.dp else 0.dp,
             end = if (esPropio) 0.dp else 48.dp),
         horizontalArrangement = if (esPropio) { Arrangement.End

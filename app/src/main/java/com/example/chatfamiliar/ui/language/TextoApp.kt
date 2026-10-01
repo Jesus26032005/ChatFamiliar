@@ -51,8 +51,10 @@ fun textoApp(
         traducir(textoLocal,
             idiomaEfectivo) { resultado ->
             resultado.onSuccess { traduccion ->
-                    textoTraducido = traduccion }
-                .onFailure {
+                textoTraducido = traduccion }
+                .onFailure { error ->
+                    android.util.Log.w("TraduccionApp",
+                        "No se pudo traducir a $idiomaEfectivo: ${error.message}", error)
                     textoTraducido = textoLocal } } }
     return textoTraducido }
 @Composable

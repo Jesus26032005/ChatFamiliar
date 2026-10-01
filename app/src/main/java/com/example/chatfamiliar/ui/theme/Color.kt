@@ -63,5 +63,27 @@ val FamiliaErrorContainerDark = Color(0xFF93000A)
 val FamiliaOnErrorContainerDark = Color(0xFFFFDAD6)
 
 // Contenedor de superficies
-val FamiliaSurfaceContainer = Color(0xFFE4E4FA)
+// Superficies claras: distintos niveles para separar contenido.
+val FamiliaSurfaceContainerLowest = Color(0xFFFFFFFF)
+val FamiliaSurfaceContainerLow = Color(0xFFF3F3FA)
+val FamiliaSurfaceContainer = Color(0xFFEDEDF5)
+val FamiliaSurfaceContainerHigh = Color(0xFFE7E7F0)
+val FamiliaSurfaceContainerHighest = Color(0xFFE1E1EB)
+
+val FamiliaOutlineVariant = Color(0xFFD5D5E2)
+
+// Superficies oscuras: fondos profundos con separación gradual.
+val FamiliaSurfaceContainerLowestDark = Color(0xFF0D0E13)
+val FamiliaSurfaceContainerLowDark = Color(0xFF17181F)
 val FamiliaSurfaceContainerDark = Color(0xFF1B1C23)
+val FamiliaSurfaceContainerHighDark = Color(0xFF252630)
+val FamiliaSurfaceContainerHighestDark = Color(0xFF30313C)
+
+val FamiliaOutlineVariantDark = Color(0xFF41424F)
+
+// Burbujas de mensaje
+// Recibidos: superficie fría suave, distinta del fondo del chat.
+val FamiliaBurbujaRecibida = Color(0xFFEAECF6)
+val FamiliaBurbujaRecibidaDark = Color(0xFF252733)
+// Propios en modo oscuro: índigo profundo con texto blanco (contraste 5.6:1).
+val FamiliaBurbujaPropiaDark = Color(0xFF4A58C9)

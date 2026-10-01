@@ -9,9 +9,11 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
-private val LightColorScheme = lightColorScheme(
+internal val EsquemaClaroBase = lightColorScheme(
     primary = FamiliaPrimary,
     onPrimary = FamiliaOnPrimary,
     primaryContainer = FamiliaPrimaryContainer,
@@ -28,7 +30,12 @@ private val LightColorScheme = lightColorScheme(
     onBackground = FamiliaOnBackground,
     surface = FamiliaSurface,
     onSurface = FamiliaOnSurface,
+    surfaceContainerLowest = FamiliaSurfaceContainerLowest,
+    surfaceContainerLow = FamiliaSurfaceContainerLow,
     surfaceContainer = FamiliaSurfaceContainer,
+    surfaceContainerHigh = FamiliaSurfaceContainerHigh,
+    surfaceContainerHighest = FamiliaSurfaceContainerHighest,
+    outlineVariant = FamiliaOutlineVariant,
     surfaceVariant = FamiliaSurfaceVariant,
     onSurfaceVariant = FamiliaOnSurfaceVariant,
 
@@ -61,7 +68,12 @@ private val DarkColorScheme = darkColorScheme(
 
     surface = FamiliaSurfaceDark,
     onSurface = FamiliaOnSurfaceDark,
+    surfaceContainerLowest = FamiliaSurfaceContainerLowestDark,
+    surfaceContainerLow = FamiliaSurfaceContainerLowDark,
     surfaceContainer = FamiliaSurfaceContainerDark,
+    surfaceContainerHigh = FamiliaSurfaceContainerHighDark,
+    surfaceContainerHighest = FamiliaSurfaceContainerHighestDark,
+    outlineVariant = FamiliaOutlineVariantDark,
 
     surfaceVariant = FamiliaSurfaceVariantDark,
     onSurfaceVariant = FamiliaOnSurfaceVariantDark,
@@ -87,8 +99,13 @@ fun ChatFamiliarTheme(darkTheme: Boolean = isSystemInDarkTheme(),
             }
         }
         darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> EsquemaClaroBase
     }
-    MaterialTheme(colorScheme = colorScheme,
-        typography = Typography, content = content)
+    val funcionales = remember(colorScheme, darkTheme) {
+        coloresFuncionales(colorScheme, oscuro = darkTheme)
+    }
+    CompositionLocalProvider(LocalColoresFuncionales provides funcionales) {
+        MaterialTheme(colorScheme = colorScheme,
+            typography = Typography, content = content)
+    }
 }

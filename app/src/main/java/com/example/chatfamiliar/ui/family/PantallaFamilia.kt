@@ -2,6 +2,8 @@ package com.example.chatfamiliar.ui.family
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.os.Build
+import android.widget.Toast
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,6 +54,7 @@ import com.example.chatfamiliar.model.Familia
 import com.example.chatfamiliar.model.MiembroFamilia
 import com.example.chatfamiliar.model.MiembroFamiliaDetalle
 import com.example.chatfamiliar.ui.family.components.AccionesFamilia
+import com.example.chatfamiliar.ui.family.components.EtiquetaRol
 import com.example.chatfamiliar.ui.family.components.DialogoAbandonarFamilia
 import com.example.chatfamiliar.ui.family.components.DialogoCrearFamilia
 import com.example.chatfamiliar.ui.family.components.DialogoEditarFamilia
@@ -56,6 +69,8 @@ import com.example.chatfamiliar.ui.language.IdiomaViewModel
 import com.example.chatfamiliar.ui.language.TraducirTexto
 import com.example.chatfamiliar.ui.language.recordarIdiomaEfectivo
 import com.example.chatfamiliar.ui.language.recordarTextosApp
+import com.example.chatfamiliar.ui.comun.AvatarIdentidad
+import com.example.chatfamiliar.ui.theme.funcional
 
 @Composable
 fun PantallaFamilia(
@@ -130,33 +145,33 @@ private fun ContenidoFamilia(
     alExpulsarMiembro: (MiembroFamiliaDetalle, () -> Unit) -> Unit,
     alLimpiarErrorMiembros: () -> Unit
 ) { val textos = recordarTextosApp(
-        idiomaEfectivo = idiomaEfectivo, traducir = traducir)
+    idiomaEfectivo = idiomaEfectivo, traducir = traducir)
     val mensajeErrorFamilia =
         errorFamiliaRecurso?.let { recurso -> textos.texto(recurso) }
     val mensajeErrorMiembros =
         errorMiembrosRecurso?.let { recurso -> textos.texto(recurso) }
     var mostrarCrearFamilia by
-        rememberSaveable { mutableStateOf(false) }
+    rememberSaveable { mutableStateOf(false) }
     var mostrarUnirseFamilia by
-        rememberSaveable { mutableStateOf(false) }
+    rememberSaveable { mutableStateOf(false) }
     var mostrarEditarFamilia by
-        rememberSaveable { mutableStateOf(false) }
+    rememberSaveable { mutableStateOf(false) }
     var mostrarAbandonarFamilia by
-        rememberSaveable { mutableStateOf(false) }
+    rememberSaveable { mutableStateOf(false) }
     var mostrarEliminarFamilia by
-        rememberSaveable { mutableStateOf(false) }
+    rememberSaveable { mutableStateOf(false) }
     var uidQuitarAdministrador by
-        rememberSaveable { mutableStateOf<String?>(null) }
+    rememberSaveable { mutableStateOf<String?>(null) }
     var uidExpulsarMiembro by
-        rememberSaveable { mutableStateOf<String?>(null) }
+    rememberSaveable { mutableStateOf<String?>(null) }
     val miembroQuitarAdministrador =
         miembrosFamilia.firstOrNull { it.uid == uidQuitarAdministrador }
     val miembroExpulsar =
         miembrosFamilia.firstOrNull { it.uid == uidExpulsarMiembro }
     Column(modifier = Modifier.fillMaxSize()
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 20.dp)) {
+        .safeDrawingPadding()
+        .verticalScroll(rememberScrollState())
+        .padding(horizontal = 24.dp, vertical = 20.dp)) {
         Row(modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = alVolver) {
@@ -164,8 +179,9 @@ private fun ContenidoFamilia(
                     contentDescription = null) }
             Spacer(modifier = Modifier.width(8.dp))
             Column { Text(text = textos.texto(R.string.family_management_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.funcional.encabezado)
                 Text(text = textos.texto(
                     R.string.family_management_description),
                     style = MaterialTheme.typography.bodySmall,
@@ -192,45 +208,43 @@ private fun ContenidoFamilia(
                     mostrarUnirseFamilia = true }
             )
         } else {
+            val tonoFamilia = MaterialTheme.funcional.tonoPara(familiaActiva.id)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = MaterialTheme.funcional.tarjeta
                 )
             ) {
-                Row(modifier = Modifier.padding(18.dp),
+                Row(modifier = Modifier.fillMaxWidth()
+                    .background(tonoFamilia.suave)
+                    .padding(18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surface
-                    ) {
-                        Icon(imageVector = Icons.Filled.Groups,
-                            contentDescription = null,
-                            modifier = Modifier.padding(12.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    }
+                    AvatarIdentidad(semilla = familiaActiva.id,
+                        icono = Icons.Filled.Groups, esGrupo = true,
+                        tamano = 52.dp)
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(text = textos.texto(R.string.home_family_active),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            color = tonoFamilia.texto)
                         Text(text = familiaActiva.nombre,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        val rol =
-                            if (membresiaActiva?.rol ==
-                                MiembroFamilia.ROL_ADMINISTRADOR) {
-                                textos.texto(R.string.home_role_admin)
-                            } else {
-                                textos.texto(R.string.home_role_member) }
-                        Text(text = rol,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
-            }
+                val esAdministradorActivo =
+                    membresiaActiva?.rol == MiembroFamilia.ROL_ADMINISTRADOR
+                Row(modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 18.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    EtiquetaRol(
+                        texto = textos.texto(
+                            if (esAdministradorActivo) R.string.home_role_admin
+                            else R.string.home_role_member),
+                        esAdministrador = esAdministradorActivo) } }
             Spacer(modifier = Modifier.height(20.dp))
             PanelMiembrosFamilia(
                 miembros = miembrosFamilia,
@@ -265,6 +279,11 @@ private fun ContenidoFamilia(
                 alExpulsar = { miembro ->
                     alLimpiarErrorMiembros()
                     uidExpulsarMiembro = miembro.uid })
+            Spacer(modifier = Modifier.height(20.dp))
+            TarjetaCodigoInvitacion(
+                codigo = familiaActiva.codigoInvitacion,
+                idiomaEfectivo = idiomaEfectivo,
+                traducir = traducir)
             Spacer(modifier = Modifier.height(20.dp))
             PanelGestionFamilia(
                 esAdministrador = membresiaActiva?.rol ==
@@ -383,8 +402,8 @@ private fun ContenidoFamilia(
         cargando = miembroQuitarAdministrador != null &&
                 actualizandoRolUid == miembroQuitarAdministrador.uid,
         alConfirmar = { miembroQuitarAdministrador?.let { miembro ->
-                alQuitarAdministrador(miembro)
-                uidQuitarAdministrador = null } },
+            alQuitarAdministrador(miembro)
+            uidQuitarAdministrador = null } },
         alCancelar = { uidQuitarAdministrador = null
             alLimpiarErrorMiembros() })
     DialogoExpulsarMiembro(
@@ -416,9 +435,65 @@ private fun ContenidoFamilia(
             alLimpiarErrorFamilia() })
 }
 
-private fun nombreVisible(
-    miembro: MiembroFamiliaDetalle?
-): String {
+private fun nombreVisible(miembro: MiembroFamiliaDetalle?): String {
     if (miembro == null) return ""
     return miembro.nombre.ifBlank { miembro.correo }
+}
+
+
+@Composable
+private fun TarjetaCodigoInvitacion(codigo: String, idiomaEfectivo: String,
+                                    traducir: TraducirTexto) {
+    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo, traducir = traducir)
+    val contexto = LocalContext.current
+    val titulo = textos.texto(R.string.family_invitation_title)
+    val confirmacion = textos.texto(R.string.family_invitation_copied)
+    Card(modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.funcional.tarjeta)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
+            Text(text = titulo,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = textos.texto(R.string.family_invitation_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(modifier = Modifier.height(16.dp))
+            if (codigo.isBlank()) {
+                Text(text = textos.texto(R.string.family_invitation_unavailable),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else {
+                Surface(modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.funcional.tarjetaInterior,
+                    border = BorderStroke(1.dp,
+                        MaterialTheme.colorScheme.outlineVariant)) {
+                    SelectionContainer {
+                        Text(text = codigo,
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.funcional.encabezado) } }
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        val portapapeles = contexto.getSystemService(
+                            Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        portapapeles.setPrimaryClip(
+                            ClipData.newPlainText(titulo, codigo))
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            Toast.makeText(contexto, confirmacion,
+                                Toast.LENGTH_SHORT).show() } }) {
+                    Icon(imageVector = Icons.Filled.ContentCopy,
+                        contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = textos.texto(R.string.family_invitation_copy)) } }
+        }
+    }
 }

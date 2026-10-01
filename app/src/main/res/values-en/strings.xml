@@ -369,5 +369,147 @@
     <string name="error_network">
     Unable to connect. Check your Internet connection and try again.</string>
 
+    <!-- Messaging errors -->
+    <string name="chat_error_session_required">Sign in to continue.</string>
+    <string name="chat_error_invalid_identifier">The conversation or message could not be identified. Open the chat again.</string>
+    <string name="chat_error_empty_message">Write a message before sending it.</string>
+    <string name="chat_error_message_too_long">The message is too long. Shorten it before sending.</string>
+    <string name="chat_error_family_unavailable">This family is no longer available. Return to My families.</string>
+    <string name="chat_error_access_denied">You do not have permission to perform this action in the chat.</string>
+    <string name="chat_error_profile_unavailable">Your profile could not be found. Sign in again.</string>
+    <string name="chat_error_name_required">Add your name in Profile before sending messages.</string>
+    <string name="chat_error_message_conflict">This send attempt could not be identified. Open the chat again and check whether the message already appears.</string>
+    <string name="chat_error_message_unavailable">This message is no longer available.</string>
+    <string name="chat_error_date_unconfirmed">The message timestamp has not been confirmed yet. Wait a moment and try again.</string>
+    <string name="chat_error_invalid_data">The chat data could not be read. Try again.</string>
+    <string name="chat_error_service_unavailable">Could not connect to the service. Check your connection and try again.</string>
+    <string name="chat_error_timeout">The operation took too long and its result could not be confirmed. Check the chat status before retrying.</string>
+    <string name="chat_error_unknown">The operation could not be completed. Check the chat status and try again.</string>
+
+    <!-- Conversation search and filters -->
+    <string name="chat_filter_all">All</string>
+    <string name="chat_filter_unread">Unread</string>
+    <string name="chat_filter_families">Families</string>
+    <string name="chat_filter_private">Private</string>
+    <string name="chat_search_conversations">Search for a person or family</string>
+    <string name="chat_unread_pending">Some unread counts still need to be updated.</string>
+
+    <!-- Conversation list items -->
+    <string name="chat_item_family">Family</string>
+    <string name="chat_item_you">You</string>
+    <string name="chat_item_loading_name">Loading name…</string>
+    <string name="chat_item_loading_message">Loading latest message…</string>
+    <string name="chat_item_unknown_user">User unavailable</string>
+    <string name="chat_item_unnamed_family">Unnamed family</string>
+    <string name="chat_item_empty">No messages yet</string>
+    <string name="chat_item_unread">Unread messages</string>
+    <string name="chat_item_loading_unread">Checking unread messages</string>
+    <string name="chat_item_updating">Updating count…</string>
+    <string name="chat_item_stale_count">Last available count</string>
+    <string name="chat_item_retry">Retry</string>
+    <string name="chat_item_open">Open conversation</string>
+    <string name="chat_item_many_unread">99+</string>
+
+    <string name="chat_date_yesterday">Yesterday</string>
+    <string name="chat_search_clear">Clear search</string>
+    <string name="chat_filters_description">Filter conversations</string>
     <string name="retry">Retry</string>
+
+    <!-- Conversation list states -->
+    <string name="chat_list_loading_title">Loading conversations</string>
+    <string name="chat_list_loading_description">We are preparing your chats and unread messages.</string>
+
+    <string name="chat_list_empty_title">No conversations yet</string>
+    <string name="chat_list_empty_description">Open a family to join its chat or message one of its members.</string>
+    <string name="chat_list_view_families">View families</string>
+
+    <string name="chat_list_no_results_title">No matches found</string>
+    <string name="chat_list_no_results_description">Try another name or select a different filter.</string>
+
+    <string name="chat_list_no_unread_title">You are all caught up</string>
+    <string name="chat_list_no_unread_description">You have no unread messages.</string>
+
+    <string name="chat_list_unread_pending_title">Checking unread messages</string>
+
+    <string name="chat_list_no_private_title">No private chats yet</string>
+    <string name="chat_list_no_private_description">Select a member of your families to start a conversation.</string>
+    <string name="chat_list_new_message">New message</string>
+
+    <string name="chat_list_no_families_title">No families yet</string>
+    <string name="chat_list_no_families_description">Create a family or join with a code to start chatting.</string>
+
+    <string name="chat_list_error_title">Could not load conversations</string>
+
+    <string name="chat_home_title">Conversations</string>
+    <string name="chat_home_family_error">Could not update family chats</string>
+    <string name="chat_home_private_error">Could not update private chats</string>
+    <string name="chat_home_pending_title">Some unread counts are unconfirmed</string>
+    <string name="chat_home_search_incomplete_title">Search results are still incomplete</string>
+    <string name="chat_home_search_incomplete_description">Some names have not been retrieved yet. Wait a moment or retry if an error occurred.</string>
+    <string name="profile_title">Profile</string>
+    <string name="profile_account_title">My account</string>
+    <string name="profile_name_label">Name</string>
+    <string name="profile_email_label">Email address</string>
+    <string name="profile_name_missing">Name pending</string>
+    <string name="profile_email_missing">Email unavailable</string>
+    <string name="profile_language_title">App language</string>
+    <string name="profile_language_description">Use the selector at the top to change the language of the screens. Names and messages keep their original text.</string>
+    <string name="profile_session_title">Session</string>
+    <string name="families_section_title">Families</string>
+    <string name="families_section_description">View your families and access their members and management options here.</string>
+    <string name="families_section_create_join">Create or join a family</string>
+    <string name="families_section_refresh">Refresh families</string>
+    <string name="families_section_manage">View family</string>
+    <string name="families_section_error">We could not refresh your families</string>
+    <string name="families_section_loading">Loading your families</string>
+    <string name="families_section_loading_description">We are updating your family group information.</string>
+    <string name="families_section_empty_description">Create a family or join with an invitation code to start sharing messages.</string>
+
+    <string name="main_tab_home">Home</string>
+    <string name="main_profile_error_title">We could not load your profile</string>
+
+    <string name="new_message_back">Back</string>
+    <string name="new_message_search">Search by name</string>
+    <string name="new_message_description">Choose someone from your families to start a private conversation.</string>
+    <string name="new_message_load_error">We could not refresh your contacts</string>
+    <string name="new_message_partial_title">The list is incomplete</string>
+    <string name="new_message_partial_description">We could not check all your families. You can choose an available contact or try loading the list again.</string>
+    <string name="new_message_open_retry">You can select the person again to retry.</string>
+    <string name="new_message_write">Send message</string>
+    <string name="new_message_opening">Opening conversation…</string>
+    <string name="new_message_loading">Finding contacts</string>
+    <string name="new_message_loading_description">We are checking the members of your families.</string>
+    <string name="new_message_no_results">No contacts matched that name. Try another name or clear the search.</string>
+    <string name="new_message_empty_title">No contacts available yet</string>
+    <string name="new_message_empty_description">Other members of your families will appear here so you can chat with them privately.</string>
+
+    <string name="chat_message_unknown_sender">Member</string>
+    <string name="chat_message_time_pending">Time pending confirmation</string>
+
+    <string name="chat_composer_label">Write a message</string>
+    <string name="chat_composer_send">Send message</string>
+    <string name="chat_composer_sending">Sending message</string>
+    <string name="chat_composer_unavailable">Sending messages is currently unavailable.</string>
+    <string name="chat_composer_too_long">The message exceeds the character limit. Shorten it before sending.</string>
+
+    <string name="chat_screen_loading">Loading messages…</string>
+    <string name="chat_screen_load_previous">Load earlier messages</string>
+    <string name="chat_screen_empty">No messages yet. Start the conversation.</string>
+    <string name="chat_screen_unread_divider">Unread messages</string>
+    <string name="chat_screen_latest">Go to latest messages</string>
+    <string name="chat_screen_read_error">We could not sync your reading progress.</string>
+
+    <string name="chat_private_checking_permission">Checking whether you can exchange messages…</string>
+    <string name="chat_private_no_shared_family">You no longer share a family. You can view this conversation, but you must belong to the same family to send messages.</string>
+    <string name="chat_private_refresh_permission">Refresh messaging availability</string>
+
+    <string name="family_invitation_title">Invitation code</string>
+    <string name="family_invitation_description">Share this code with someone you want to invite to your family.</string>
+    <string name="family_invitation_copy">Copy code</string>
+    <string name="family_invitation_copied">Code copied</string>
+    <string name="family_invitation_unavailable">The code is unavailable.</string>
+
+    <string name="chat_home_intro">Your family, closer</string>
+    <string name="chat_home_intro_description">Share your day and keep the conversation going.</string>
+    <string name="chat_item_private">Private</string>
 </resources>

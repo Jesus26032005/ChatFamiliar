@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.model.MiembroFamiliaDetalle
-
+import com.example.chatfamiliar.ui.theme.funcional
 
 @Composable
 fun PanelMiembrosFamilia(
@@ -37,46 +37,44 @@ fun PanelMiembrosFamilia(
     Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme
-                .colorScheme.surfaceContainer)
+            .funcional.tarjeta)
     ) { Column(modifier = Modifier.padding(18.dp)
-        ) { Text(text = "$titulo (${miembros.size})",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(14.dp))
-            if (cargando) { CircularProgressIndicator(
-                    modifier = Modifier.size(26.dp)
-                        .align(Alignment.CenterHorizontally),
-                    strokeWidth = 2.dp)
-            } else if (miembros.isEmpty()) {
-                Text(text = textoVacio,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            } else {
-                miembros.forEachIndexed { indice, miembro ->
-                    val esPrincipal = miembro.uid == uidAdministradorPrincipal
-                    val esActual = miembro.uid == uidUsuarioActual
-                    ItemMiembroFamilia(nombre = miembro.nombre,
-                        correo = miembro.correo,
-                        textoRol = if (miembro.esAdministrador) {
-                                textoRolAdministrador } else { textoRolMiembro },
-                        textoAdministradorPrincipal = textoAdministradorPrincipal,
-                        textoTu = textoTu,
-                        esAdministrador = miembro.esAdministrador,
-                        esAdministradorPrincipal = esPrincipal,
-                        esUsuarioActual = esActual,
-                        puedeGestionar = esAdministradorActual,
-                        textoHacerAdministrador = textoHacerAdministrador,
-                        textoQuitarAdministrador = textoQuitarAdministrador,
-                        textoExpulsar = textoExpulsar,
-                        actualizandoRol = actualizandoRolUid == miembro.uid,
-                        expulsando = expulsandoMiembroUid == miembro.uid,
-                        alHacerAdministrador = { alHacerAdministrador(miembro) },
-                        alQuitarAdministrador = { alQuitarAdministrador(miembro) },
-                        alExpulsar = { alExpulsar(miembro) })
-                    if (indice != miembros.lastIndex) {
-                        Spacer(modifier = Modifier.height(10.dp)) } } }
-            if (mensajeError != null) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(text = mensajeError,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error) } } }
+    ) { Text(text = "$titulo (${miembros.size})",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(14.dp))
+        if (cargando) { CircularProgressIndicator(
+            modifier = Modifier.size(26.dp)
+                .align(Alignment.CenterHorizontally),
+            strokeWidth = 2.dp)
+        } else if (miembros.isEmpty()) {
+            Text(text = textoVacio,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        } else {
+            miembros.forEachIndexed { indice, miembro ->
+                val esPrincipal = miembro.uid == uidAdministradorPrincipal
+                val esActual = miembro.uid == uidUsuarioActual
+                ItemMiembroFamilia(uid = miembro.uid,
+                    nombre = miembro.nombre, correo = miembro.correo,
+                    textoRol = if (miembro.esAdministrador) {
+                        textoRolAdministrador } else { textoRolMiembro },
+                    textoAdministradorPrincipal = textoAdministradorPrincipal,
+                    textoTu = textoTu, esAdministrador = miembro.esAdministrador,
+                    esAdministradorPrincipal = esPrincipal, esUsuarioActual = esActual,
+                    puedeGestionar = esAdministradorActual,
+                    textoHacerAdministrador = textoHacerAdministrador,
+                    textoQuitarAdministrador = textoQuitarAdministrador,
+                    textoExpulsar = textoExpulsar,
+                    actualizandoRol = actualizandoRolUid == miembro.uid,
+                    expulsando = expulsandoMiembroUid == miembro.uid,
+                    alHacerAdministrador = { alHacerAdministrador(miembro) },
+                    alQuitarAdministrador = { alQuitarAdministrador(miembro) },
+                    alExpulsar = { alExpulsar(miembro) })
+                if (indice != miembros.lastIndex) {
+                    Spacer(modifier = Modifier.height(10.dp)) } } }
+        if (mensajeError != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = mensajeError,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error) } } }
 }

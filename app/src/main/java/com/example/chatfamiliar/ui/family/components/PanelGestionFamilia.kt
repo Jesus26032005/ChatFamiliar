@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.chatfamiliar.ui.comun.BotonDestructivo
+import com.example.chatfamiliar.ui.theme.funcional
 
 
 @Composable
@@ -34,11 +36,11 @@ fun PanelGestionFamilia(
     Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+            containerColor = MaterialTheme.funcional.tarjeta)) {
         Column(modifier = Modifier.fillMaxWidth().padding(18.dp) )
         { Text(text = titulo,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold)
             if (esAdministrador) {
                 Spacer(modifier = Modifier.height(14.dp))
                 OutlinedButton(onClick = alEditar,
@@ -49,33 +51,25 @@ fun PanelGestionFamilia(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = textoEditar) } }
             Spacer(modifier = Modifier.height(10.dp))
-            OutlinedButton(onClick = alAbandonar,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)) {
+            BotonDestructivo(onClick = alAbandonar,
+                modifier = Modifier.fillMaxWidth()) {
                 Icon(imageVector = Icons.Filled.ExitToApp,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error)
+                    contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = textoAbandonar,
-                    color = MaterialTheme.colorScheme.error) }
+                Text(text = textoAbandonar) }
             if (esAdministradorPrincipal) { Spacer(modifier = Modifier.height(10.dp))
-                OutlinedButton(onClick = alEliminar,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                BotonDestructivo(onClick = alEliminar,
+                    modifier = Modifier.fillMaxWidth()
                 ) { Icon(imageVector = Icons.Filled.DeleteForever,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error)
+                    contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = textoEliminar,
-                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.SemiBold) } } } }
 }
 
 
-@Preview(
-    showBackground = true,
-    name = "Administrador principal"
-)
+@Preview(showBackground = true,
+    name = "Administrador principal")
 @Composable
 private fun PanelGestionFamiliaPrincipalPreview() {
     MaterialTheme {
@@ -89,8 +83,7 @@ private fun PanelGestionFamiliaPrincipalPreview() {
             alEditar = {},
             alAbandonar = {},
             alEliminar = {},
-            modifier =
-                Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

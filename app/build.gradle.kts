@@ -22,9 +22,7 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            optimization { enable = false }
         }
     }
     compileOptions {

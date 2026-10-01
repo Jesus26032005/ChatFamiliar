@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="llamada_permisos_titulo">Cámara y micrófono</string>
+
+    <string name="llamada_permisos_explicacion">Para participar con audio y video, permite que FamiliaChat use tu cámara y micrófono. Durante la llamada podrás apagarlos cuando quieras.</string>
+
+    <string name="llamada_permisos_denegados_titulo">Permisos pendientes</string>
+
+    <string name="llamada_permisos_denegados_mensaje">Falta permiso para usar la cámara o el micrófono. Puedes intentarlo de nuevo. Si Android ya no muestra la solicitud, revisa los permisos de FamiliaChat en los ajustes del dispositivo.</string>
+
+    <string name="llamada_permisos_continuar">Continuar</string>
+
+    <string name="llamada_permisos_cancelar">Ahora no</string>
+
+    <string name="llamada_permisos_reintentar">Intentar de nuevo</string>
+
+    <string name="llamada_permisos_abrir_ajustes">Abrir ajustes</string>
+
+    <string name="llamada_permisos_cerrar">Cerrar</string>
+
+    <string name="llamada_notificaciones_titulo">Avisos de llamadas</string>
+
+    <string name="llamada_notificaciones_explicacion">Permite las notificaciones para recibir avisos de llamadas entrantes cuando no estés usando FamiliaChat.</string>
+
+    <string name="llamada_notificaciones_denegadas">Las notificaciones están desactivadas. Puedes seguir haciendo llamadas dentro de la app, pero los avisos de llamadas entrantes pueden no aparecer cuando estés fuera.</string>
+
+</resources>

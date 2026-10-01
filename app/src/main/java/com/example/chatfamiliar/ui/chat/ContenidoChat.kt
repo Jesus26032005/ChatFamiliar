@@ -71,21 +71,23 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ContenidoChat(claveConversacion: String, titulo: String,
-    uidActual: String, mensajes: List<Mensaje>,
-    mostrarRemitentes: Boolean, borrador: String,
-    cargandoMensajes: Boolean, cargandoAnteriores: Boolean,
-    puedeCargarAnteriores: Boolean, historialCompleto: Boolean,
-    puedeEnviar: Boolean, enviando: Boolean,
-    @StringRes errorMensajesRecurso: Int?,
-    @StringRes errorHistorialRecurso: Int?,
-    @StringRes errorEnvioRecurso: Int?,
-    lecturaViewModel: LecturaChatViewModel,
-    idiomaViewModel: IdiomaViewModel,
-    alVolver: () -> Unit, alCambiarBorrador: (String) -> Unit,
-    alEnviar: () -> Unit, alCargarAnteriores: () -> Unit,
-    alReintentarMensajes: () -> Unit, modifier: Modifier = Modifier,
-    @StringRes motivoBloqueoRecurso: Int? = null,
-    semillaAvatar: String = claveConversacion.substringAfter(':')) {
+     uidActual: String, mensajes: List<Mensaje>,
+     mostrarRemitentes: Boolean, borrador: String,
+     cargandoMensajes: Boolean, cargandoAnteriores: Boolean,
+     puedeCargarAnteriores: Boolean, historialCompleto: Boolean,
+     puedeEnviar: Boolean, enviando: Boolean,
+     @StringRes errorMensajesRecurso: Int?,
+     @StringRes errorHistorialRecurso: Int?,
+     @StringRes errorEnvioRecurso: Int?,
+     lecturaViewModel: LecturaChatViewModel,
+     idiomaViewModel: IdiomaViewModel,
+     alVolver: () -> Unit, alCambiarBorrador: (String) -> Unit,
+     alEnviar: () -> Unit, alCargarAnteriores: () -> Unit,
+     alReintentarMensajes: () -> Unit, modifier: Modifier = Modifier,
+     @StringRes motivoBloqueoRecurso: Int? = null,
+     semillaAvatar: String = claveConversacion.substringAfter(':'),
+     accionesCabecera: @Composable () -> Unit = {},
+     avisoSuperior: @Composable () -> Unit = {}) {
     val idioma = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(
@@ -197,10 +199,13 @@ fun ContenidoChat(claveConversacion: String, titulo: String,
             idioma = idioma,
             descripcionVolver = textos.texto(R.string.new_message_back),
             alVolver = alVolver) {
+            // Acciones extra de cada chat (por ejemplo, videollamada)
+            accionesCabecera()
             ControlIdiomaCompacto(idiomaSeleccionado = idiomaViewModel.idiomaSeleccionado,
                 idiomaEfectivo = idioma,
                 traducir = idiomaViewModel::traducir,
                 alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma) }
+        avisoSuperior()
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             LazyColumn(state = lista, modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 12.dp)) {
@@ -376,7 +381,7 @@ private fun SeparadorPendientes(texto: String) {
 }
 
 private data class TramoMensajeVisible(val id: String, val alto: Int,
-             val inicio: Int, val fin: Int)
+                   val inicio: Int, val fin: Int)
 private class CoberturaMensaje(val alto: Int) {
     private val tramos = mutableListOf<Pair<Int, Int>>()
     fun agregar(inicio: Int, fin: Int): Boolean {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -11,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalView
+import com.example.chatfamiliar.data.llamada.DestinoLlamada
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -21,12 +24,15 @@ import com.example.chatfamiliar.model.ConversacionResumen
 import com.example.chatfamiliar.ui.language.IdiomaViewModel
 import com.example.chatfamiliar.ui.language.recordarIdiomaEfectivo
 import com.example.chatfamiliar.ui.language.recordarTextosApp
+import com.example.chatfamiliar.ui.llamada.BotonVideollamada
+import com.example.chatfamiliar.ui.llamada.LlamadaViewModel
 
 @Composable
 fun PantallaChatPrivado(conversacionId: String,
-    idiomaViewModel: IdiomaViewModel, alVolver: () -> Unit,
-    chatViewModel: ChatPrivadoViewModel = viewModel(),
-    lecturaViewModel: LecturaChatViewModel = viewModel()) {
+                        idiomaViewModel: IdiomaViewModel, llamadaViewModel: LlamadaViewModel,
+                        alVolver: () -> Unit,
+                        chatViewModel: ChatPrivadoViewModel = viewModel(),
+                        lecturaViewModel: LecturaChatViewModel = viewModel()) {
     val idioma = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(idiomaEfectivo = idioma,
@@ -40,8 +46,6 @@ fun PantallaChatPrivado(conversacionId: String,
             id = conversacionId)
         onDispose { chatViewModel.detener()
             lecturaViewModel.detener() } }
-    // Al regresar a la aplicación, revisamos nuevamente
-    // si los participantes comparten una familia.
     DisposableEffect(ciclo, chatViewModel) {
         val observador = LifecycleEventObserver { _, evento ->
             if (evento == Lifecycle.Event.ON_RESUME) { chatViewModel.comprobarPermiso() } }
@@ -100,7 +104,24 @@ fun PantallaChatPrivado(conversacionId: String,
             alReintentarMensajes = chatViewModel::reintentar,
             modifier = Modifier.weight(1f),
             motivoBloqueoRecurso = motivoBloqueo,
-            semillaAvatar = chatViewModel.otroUsuarioId.ifBlank { conversacionId })
+            semillaAvatar = chatViewModel.otroUsuarioId.ifBlank { conversacionId },
+            accionesCabecera = {
+                val familiaCompartidaId = chatViewModel.familiaCompartidaId
+                BotonVideollamada(textos = textos,
+                    habilitado = chatViewModel.puedeEnviar &&
+                            chatViewModel.otroUsuarioId.isNotBlank() &&
+                            familiaCompartidaId != null,
+                    iniciando = llamadaViewModel.iniciando,
+                    alLlamar = {
+                        if (familiaCompartidaId != null) {
+                            llamadaViewModel.llamar(DestinoLlamada.Privado(
+                                conversacionId = conversacionId,
+                                familiaCompartidaId = familiaCompartidaId,
+                                otroUid = chatViewModel.otroUsuarioId))
+                        }
+                    },
+                    modifier = Modifier.padding(end = 6.dp))
+            })
         if (mostrarActualizarDisponibilidad) {
             TextButton(onClick = chatViewModel::reintentar, modifier = Modifier.fillMaxWidth()) {
                 Text(text = textos.texto(R.string.chat_private_refresh_permission)) }

@@ -1,20 +1,28 @@
 package com.example.chatfamiliar.ui.chat
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chatfamiliar.R
+import com.example.chatfamiliar.data.llamada.DestinoLlamada
 import com.example.chatfamiliar.model.ConversacionResumen
 import com.example.chatfamiliar.ui.language.IdiomaViewModel
 import com.example.chatfamiliar.ui.language.recordarIdiomaEfectivo
 import com.example.chatfamiliar.ui.language.recordarTextosApp
+import com.example.chatfamiliar.ui.llamada.AvisoLlamadaEnCurso
+import com.example.chatfamiliar.ui.llamada.BotonVideollamada
+import com.example.chatfamiliar.ui.llamada.LlamadaViewModel
 
 @Composable
 fun PantallaChatFamilia(familiaId: String, nombreFamilia: String,
-    idiomaViewModel: IdiomaViewModel, alVolver: () -> Unit,
-    chatViewModel: ChatFamiliaViewModel = viewModel(),
-    lecturaViewModel: LecturaChatViewModel = viewModel()) {
+                        idiomaViewModel: IdiomaViewModel, llamadaViewModel: LlamadaViewModel,
+                        alVolver: () -> Unit,
+                        chatViewModel: ChatFamiliaViewModel = viewModel(),
+                        lecturaViewModel: LecturaChatViewModel = viewModel()) {
     val idioma = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(
@@ -26,6 +34,12 @@ fun PantallaChatFamilia(familiaId: String, nombreFamilia: String,
             id = familiaId)
         onDispose { chatViewModel.detener()
             lecturaViewModel.detener() }
+    }
+    // Mientras este chat está abierto, revisamos si hay una
+    // videollamada familiar en curso para ofrecer "Unirse".
+    DisposableEffect(familiaId, llamadaViewModel) {
+        llamadaViewModel.vigilarLlamadaFamiliar(familiaId)
+        onDispose { llamadaViewModel.dejarDeVigilarLlamadaFamiliar() }
     }
     LaunchedEffect(chatViewModel.mensajes, chatViewModel.historialCompleto) {
         lecturaViewModel.actualizarHistorial(mensajes = chatViewModel.mensajes,
@@ -66,6 +80,26 @@ fun PantallaChatFamilia(familiaId: String, nombreFamilia: String,
         alCambiarBorrador = chatViewModel::actualizarBorrador,
         alEnviar = chatViewModel::enviarMensaje,
         alCargarAnteriores = chatViewModel::cargarAnteriores,
-        alReintentarMensajes = chatViewModel::reintentarMensajes
+        alReintentarMensajes = chatViewModel::reintentarMensajes,
+        accionesCabecera = {
+            // Llama a todos los miembros de la familia
+            BotonVideollamada(textos = textos,
+                habilitado = chatViewModel.puedeEnviar,
+                iniciando = llamadaViewModel.iniciando,
+                alLlamar = {
+                    llamadaViewModel.llamar(DestinoLlamada.Familia(
+                        familiaId = familiaId,
+                        nombreFamilia = nombreFamilia))
+                },
+                modifier = Modifier.padding(end = 6.dp))
+        },
+        avisoSuperior = {
+            val llamadaEnCurso = llamadaViewModel.llamadaFamiliarEnCurso
+            if (llamadaEnCurso != null && chatViewModel.puedeEnviar) {
+                AvisoLlamadaEnCurso(textos = textos,
+                    conectando = llamadaViewModel.conectando,
+                    alUnirse = { llamadaViewModel.unirse(llamadaEnCurso) })
+            }
+        }
     )
 }

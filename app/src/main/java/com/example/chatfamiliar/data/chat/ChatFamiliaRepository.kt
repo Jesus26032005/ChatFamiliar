@@ -77,13 +77,14 @@ class ChatFamiliaRepository {
     }
 
     fun enviarMensaje(familiaId: String, mensajeId: String,
-        contenido: String, alCompletar: (Result<Unit>) -> Unit) {
+                      contenido: String, tipo: String = Mensaje.TIPO_TEXTO,
+                      duracionSegundos: Long = 0L, alCompletar: (Result<Unit>) -> Unit) {
         val uid = auth.currentUser?.uid
         val texto = contenido.trim()
 
         if (uid.isNullOrBlank()) {
             alCompletar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+                ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
             return
         }
 
@@ -124,14 +125,14 @@ class ChatFamiliaRepository {
                 throw ExcepcionChat(
                     CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
             if (!miembro.exists()) { throw ExcepcionChat(
-                    CodigoErrorChat.SIN_ACCESO) }
+                CodigoErrorChat.SIN_ACCESO) }
             if (!usuario.exists()) { throw ExcepcionChat(
-                    CodigoErrorChat.PERFIL_NO_DISPONIBLE) }
+                CodigoErrorChat.PERFIL_NO_DISPONIBLE) }
             val nombre = usuario
                 .getString(CAMPO_NOMBRE)
                 .orEmpty().trim()
             if (nombre.isEmpty()) { throw ExcepcionChat(
-                    CodigoErrorChat.NOMBRE_REQUERIDO) }
+                CodigoErrorChat.NOMBRE_REQUERIDO) }
             if (mensajeExistente.exists()) {
                 val mismoRemitente = mensajeExistente.getString(
                     CAMPO_REMITENTE_ID
@@ -144,12 +145,18 @@ class ChatFamiliaRepository {
                         CodigoErrorChat.CONFLICTO_MENSAJE)
                 }
             } else {
-                val datos = mapOf(
+                val datos = mutableMapOf<String, Any>(
                     CAMPO_REMITENTE_ID to uid,
                     CAMPO_NOMBRE_REMITENTE to nombre,
                     CAMPO_CONTENIDO to texto,
                     CAMPO_FECHA_ENVIO to FieldValue.serverTimestamp()
                 )
+                // Solo los registros de llamada llevan campos extra; los
+                // mensajes de texto se guardan exactamente igual que antes.
+                if (tipo != Mensaje.TIPO_TEXTO) {
+                    datos[CAMPO_TIPO] = tipo
+                    datos[CAMPO_DURACION_SEGUNDOS] = duracionSegundos
+                }
                 transaccion.set(mensajeRef, datos)
             }
             Unit
@@ -183,5 +190,7 @@ class ChatFamiliaRepository {
         private const val CAMPO_NOMBRE_REMITENTE = "nombreRemitente"
         private const val CAMPO_CONTENIDO = "contenido"
         private const val CAMPO_FECHA_ENVIO = "fechaEnvio"
+        private const val CAMPO_TIPO = "tipo"
+        private const val CAMPO_DURACION_SEGUNDOS = "duracionSegundos"
     }
 }

@@ -25,9 +25,11 @@ import com.example.chatfamiliar.ui.home.HomeViewModel
 import com.example.chatfamiliar.ui.home.PantallaPrincipal
 import com.example.chatfamiliar.ui.language.IdiomaViewModel
 import com.example.chatfamiliar.ui.language.IndicadorTraduccion
+import com.example.chatfamiliar.ui.llamada.CapaLlamadas
+import com.example.chatfamiliar.ui.llamada.LlamadaViewModel
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(llamadaViewModel: LlamadaViewModel = viewModel()) {
     val navController = rememberNavController()
     val authRepository = remember { AuthRepository() }
     val idiomaViewModel: IdiomaViewModel = viewModel()
@@ -64,11 +66,11 @@ fun AppNavigation() {
                 PantallaVerificacion(
                     idiomaViewModel = idiomaViewModel,
                     alNavegarHome = { navController.navigate(Rutas.HOME) {
-                            popUpTo(navController.graph.id) { inclusive = false }
-                            launchSingleTop = true } },
+                        popUpTo(navController.graph.id) { inclusive = false }
+                        launchSingleTop = true } },
                     alNavegarLogin = { navController.navigate(Rutas.LOGIN) {
-                            popUpTo(navController.graph.id) { inclusive = false }
-                            launchSingleTop = true } }) }
+                        popUpTo(navController.graph.id) { inclusive = false }
+                        launchSingleTop = true } }) }
             composable(route = Rutas.HOME) {
                 PantallaPrincipal(idiomaViewModel = idiomaViewModel,
                     homeViewModel = homeViewModel,
@@ -76,7 +78,7 @@ fun AppNavigation() {
                         when (conversacion.tipo) {
                             ConversacionResumen.TIPO_FAMILIA -> {
                                 val familiaId = conversacion.familiaId.ifBlank {
-                                        conversacion.id }
+                                    conversacion.id }
                                 navController.navigate(
                                     Rutas.crearRutaChatFamilia(
                                         familiaId = familiaId,
@@ -95,8 +97,8 @@ fun AppNavigation() {
                             Rutas.crearRutaGestionFamilia(familiaId)
                         ) { launchSingleTop = true } },
                     alCerrarSesion = { navController.navigate(Rutas.LOGIN) {
-                            popUpTo(navController.graph.id) { inclusive = false }
-                            launchSingleTop = true } }) }
+                        popUpTo(navController.graph.id) { inclusive = false }
+                        launchSingleTop = true } }) }
             composable(route = Rutas.GESTION_FAMILIA_CON_ARGUMENTOS,
                 arguments = listOf(
                     navArgument("familiaId") { type = NavType.StringType
@@ -122,7 +124,7 @@ fun AppNavigation() {
                             launchSingleTop = true } }) }
             composable(route = Rutas.CHAT_FAMILIA,
                 arguments = listOf(navArgument("familiaId") {
-                        type = NavType.StringType },
+                    type = NavType.StringType },
                     navArgument("nombre") { type = NavType.StringType
                         defaultValue = "" })) { entrada ->
                 val familiaId = entrada.arguments
@@ -131,15 +133,19 @@ fun AppNavigation() {
                     ?.getString("nombre").orEmpty()
                 PantallaChatFamilia(familiaId = familiaId,
                     nombreFamilia = nombreFamilia, idiomaViewModel = idiomaViewModel,
+                    llamadaViewModel = llamadaViewModel,
                     alVolver = { navController.popBackStack() }) }
             composable(route = Rutas.CHAT_PRIVADO, arguments = listOf(
-                    navArgument("conversacionId") { type = NavType.StringType })
+                navArgument("conversacionId") { type = NavType.StringType })
             ) { entrada ->
                 val conversacionId = entrada.arguments
                     ?.getString("conversacionId").orEmpty()
                 PantallaChatPrivado(conversacionId = conversacionId,
                     idiomaViewModel = idiomaViewModel,
+                    llamadaViewModel = llamadaViewModel,
                     alVolver = { navController.popBackStack() }) } }
         IndicadorTraduccion(visible = idiomaViewModel.traduciendo)
+        CapaLlamadas(llamadaViewModel = llamadaViewModel,
+            idiomaViewModel = idiomaViewModel)
     }
 }

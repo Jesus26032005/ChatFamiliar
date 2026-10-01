@@ -22,7 +22,7 @@ class ChatPrivadoRepository {
         return UUID.randomUUID().toString() }
 
     fun escucharMensajesRecientes(conversacionId: String,
-        alActualizar: (Result<List<Mensaje>>) -> Unit
+                                  alActualizar: (Result<List<Mensaje>>) -> Unit
     ): ListenerRegistration? {
         val errorValidacion = when {
             auth.currentUser == null ->
@@ -75,8 +75,9 @@ class ChatPrivadoRepository {
     }
 
     fun enviarMensaje(conversacionId: String, familiaCompartidaId: String,
-        mensajeId: String, contenido: String,
-        alCompletar: (Result<Unit>) -> Unit) {
+                      mensajeId: String, contenido: String,
+                      tipo: String = Mensaje.TIPO_TEXTO, duracionSegundos: Long = 0L,
+                      alCompletar: (Result<Unit>) -> Unit) {
         val uid = auth.currentUser?.uid
         val texto = contenido.trim()
         if (uid.isNullOrBlank()) {
@@ -158,11 +159,17 @@ class ChatPrivadoRepository {
                 if (!mismoRemitente || !mismoContenido) {
                     throw ExcepcionChat(CodigoErrorChat.CONFLICTO_MENSAJE) }
             } else {
-                val datosMensaje = mapOf(
+                val datosMensaje = mutableMapOf<String, Any>(
                     CAMPO_REMITENTE_ID to uid,
                     CAMPO_NOMBRE_REMITENTE to nombre,
                     CAMPO_CONTENIDO to texto,
                     CAMPO_FECHA_ENVIO to FieldValue.serverTimestamp())
+                // Solo los registros de llamada llevan campos extra; los
+                // mensajes de texto se guardan exactamente igual que antes.
+                if (tipo != Mensaje.TIPO_TEXTO) {
+                    datosMensaje[CAMPO_TIPO] = tipo
+                    datosMensaje[CAMPO_DURACION_SEGUNDOS] = duracionSegundos
+                }
                 val datosResumen = mapOf(
                     CAMPO_FAMILIA_REFERENCIA_ID to familiaCompartidaId,
                     CAMPO_ULTIMO_MENSAJE_ID to mensajeId,
@@ -205,6 +212,8 @@ class ChatPrivadoRepository {
         private const val CAMPO_NOMBRE_REMITENTE = "nombreRemitente"
         private const val CAMPO_CONTENIDO = "contenido"
         private const val CAMPO_FECHA_ENVIO = "fechaEnvio"
+        private const val CAMPO_TIPO = "tipo"
+        private const val CAMPO_DURACION_SEGUNDOS = "duracionSegundos"
         private const val CAMPO_ULTIMO_MENSAJE_ID = "ultimoMensajeId"
         private const val CAMPO_FAMILIA_REFERENCIA_ID =
             "familiaReferenciaId"

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="llamada_permisos_titulo">Camera and microphone</string>
+
+    <string name="llamada_permisos_explicacion">To participate with audio and video, allow FamiliaChat to use your camera and microphone. You can turn them off at any time during the call.</string>
+
+    <string name="llamada_permisos_denegados_titulo">Permissions needed</string>
+
+    <string name="llamada_permisos_denegados_mensaje">Camera or microphone permission is missing. You can try again. If Android no longer shows the permission request, check the permissions for FamiliaChat in your device settings.</string>
+
+    <string name="llamada_permisos_continuar">Continue</string>
+
+    <string name="llamada_permisos_cancelar">Not now</string>
+
+    <string name="llamada_permisos_reintentar">Try again</string>
+
+    <string name="llamada_permisos_abrir_ajustes">Open settings</string>
+
+    <string name="llamada_permisos_cerrar">Close</string>
+
+    <string name="llamada_notificaciones_titulo">Call notifications</string>
+
+    <string name="llamada_notificaciones_explicacion">Allow notifications to receive incoming call alerts when you are not using FamiliaChat.</string>
+
+    <string name="llamada_notificaciones_denegadas">Notifications are turned off. You can still make calls inside the app, but incoming call alerts may not appear when you are outside it.</string>
+
+</resources>

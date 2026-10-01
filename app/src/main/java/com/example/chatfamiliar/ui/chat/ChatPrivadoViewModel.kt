@@ -31,7 +31,8 @@ class ChatPrivadoViewModel : ViewModel() {
     private var escuchaNombre: ListenerRegistration? = null
     private var conversacionId = ""
     private var familiaPreferidaId: String? = null
-    private var familiaCompartidaId by mutableStateOf<String?>(null)
+    var familiaCompartidaId by mutableStateOf<String?>(null)
+        private set
     private var datosDisponibles by mutableStateOf(false)
     private var versionSesion = 0
     private var versionDatos = 0

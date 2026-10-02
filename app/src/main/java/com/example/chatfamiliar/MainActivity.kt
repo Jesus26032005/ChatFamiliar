@@ -16,6 +16,7 @@ import com.example.chatfamiliar.ui.theme.ChatFamiliarTheme
 import io.getstream.video.android.core.notifications.NotificationHandler
 
 class MainActivity : AppCompatActivity() {
+    // Mismo ViewModel que usa AppNavigation (ambos con alcance de la actividad).
     private val llamadaViewModel: LlamadaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,11 +33,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Al volver a la app revisamos si alguien nos está marcando y no
+    // nos llegó el aviso (por ejemplo, la app estaba en segundo plano).
+    override fun onResume() {
+        super.onResume()
+        llamadaViewModel.revisarLlamadaEntrantePendiente()
+    }
+
+    // La actividad es singleTop: al tocar la notificación de llamada con
+    // la app abierta, llega aquí en lugar de crear otra pantalla.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         atenderIntentLlamada(intent)
     }
+
+    /**
+     * La notificación de llamada entrante de Stream abre esta actividad.
+     * Con "Contestar" marcamos que se debe aceptar al mostrar la llamada;
+     * con tocar la notificación basta con abrir la app, la capa de
+     * llamadas ya muestra la pantalla de llamada entrante.
+     */
     private fun atenderIntentLlamada(intent: Intent?) {
         if (intent?.action == NotificationHandler.ACTION_ACCEPT_CALL) {
             llamadaViewModel.marcarAceptarDesdeNotificacion()

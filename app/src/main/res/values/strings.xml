@@ -504,35 +504,8 @@
     <string name="chat_home_intro_description">Comparte tu día y sigue tus conversaciones.</string>
     <string name="chat_item_private">Privado</string>
 
-    <!-- Videollamada: botón, pantallas y avisos -->
-    <string name="llamada_boton_videollamada">Videollamada</string>
-    <string name="llamada_entrante">Videollamada entrante</string>
-    <string name="llamada_saliente">Llamando…</string>
-    <string name="llamada_conectando">Conectando…</string>
-    <string name="llamada_esperando">Esperando a que se conecte…</string>
-    <string name="llamada_aceptar">Contestar</string>
-    <string name="llamada_rechazar">Rechazar</string>
-    <string name="llamada_cancelar">Cancelar</string>
-    <string name="llamada_colgar">Colgar</string>
-    <string name="llamada_silenciar">Silenciar</string>
-    <string name="llamada_activar_microfono">Activar micrófono</string>
-    <string name="llamada_apagar_camara">Apagar cámara</string>
-    <string name="llamada_encender_camara">Encender cámara</string>
-    <string name="llamada_cambiar_camara">Voltear</string>
-    <string name="llamada_no_contestada">La videollamada no fue contestada.</string>
-    <string name="llamada_error_no_lista">Las videollamadas aún no están listas. Espera unos segundos e inténtalo de nuevo.</string>
-    <string name="llamada_error_en_curso">Ya tienes una llamada en curso.</string>
-    <string name="llamada_error_iniciar">No se pudo iniciar la videollamada. Revisa tu conexión e inténtalo de nuevo.</string>
-    <string name="llamada_error_conectar">No se pudo conectar a la videollamada.</string>
-
-    <!-- Llamada familiar y registro de llamadas en el chat -->
-    <string name="llamada_entrante_familia">Videollamada familiar</string>
-    <string name="llamada_saliente_familia">Llamando a la familia…</string>
-    <string name="llamada_registro">Videollamada</string>
-    <string name="llamada_registro_perdida">Videollamada perdida</string>
-    <string name="llamada_registro_sin_respuesta">Videollamada sin respuesta</string>
-
-    <!-- Unirse a una llamada familiar en curso -->
-    <string name="llamada_en_curso_familia">Hay una videollamada familiar en curso</string>
-    <string name="llamada_unirse">Unirse</string>
+    <string name="profile_edit_name">Editar nombre</string>
+    <string name="profile_edit_name_notice">Tu familia verá tu nuevo nombre en los chats y en las videollamadas. Los mensajes que ya enviaste conservarán el nombre anterior. Si estás en una llamada, el cambio se aplicará al terminarla.</string>
+    <string name="profile_edit_name_save">Guardar</string>
+    <string name="profile_edit_name_cancel">Cancelar</string>
 </resources>

@@ -64,6 +64,12 @@ dependencies {
     // Videollamadas: cliente y componentes de interfaz Compose.
     implementation("io.getstream:stream-video-android-ui-compose:1.32.0")
 
+    // Videollamadas: cliente y componentes de interfaz Compose.
+    implementation("io.getstream:stream-video-android-ui-compose:1.32.0")
+    // Push de llamadas con FCM (misma versión que usa el SDK 1.32.0).
+    // Trae firebase-messaging y su propio servicio para recibir los avisos.
+    implementation("io.getstream:stream-android-push-firebase:1.3.4")
+
     testImplementation(libs.junit)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))

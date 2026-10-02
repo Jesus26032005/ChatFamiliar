@@ -513,35 +513,8 @@
     <string name="chat_home_intro_description">Share your day and keep the conversation going.</string>
     <string name="chat_item_private">Private</string>
 
-    <!-- Videollamada: botón, pantallas y avisos -->
-    <string name="llamada_boton_videollamada">Video call</string>
-    <string name="llamada_entrante">Incoming video call</string>
-    <string name="llamada_saliente">Calling…</string>
-    <string name="llamada_conectando">Connecting…</string>
-    <string name="llamada_esperando">Waiting for them to join…</string>
-    <string name="llamada_aceptar">Answer</string>
-    <string name="llamada_rechazar">Decline</string>
-    <string name="llamada_cancelar">Cancel</string>
-    <string name="llamada_colgar">Hang up</string>
-    <string name="llamada_silenciar">Mute</string>
-    <string name="llamada_activar_microfono">Unmute</string>
-    <string name="llamada_apagar_camara">Camera off</string>
-    <string name="llamada_encender_camara">Camera on</string>
-    <string name="llamada_cambiar_camara">Flip</string>
-    <string name="llamada_no_contestada">The video call was not answered.</string>
-    <string name="llamada_error_no_lista">Video calls are not ready yet. Wait a few seconds and try again.</string>
-    <string name="llamada_error_en_curso">You already have a call in progress.</string>
-    <string name="llamada_error_iniciar">The video call could not be started. Check your connection and try again.</string>
-    <string name="llamada_error_conectar">Could not connect to the video call.</string>
-
-    <!-- Llamada familiar y registro de llamadas en el chat -->
-    <string name="llamada_entrante_familia">Family video call</string>
-    <string name="llamada_saliente_familia">Calling the family…</string>
-    <string name="llamada_registro">Video call</string>
-    <string name="llamada_registro_perdida">Missed video call</string>
-    <string name="llamada_registro_sin_respuesta">Video call not answered</string>
-
-    <!-- Unirse a una llamada familiar en curso -->
-    <string name="llamada_en_curso_familia">A family video call is in progress</string>
-    <string name="llamada_unirse">Join</string>
+    <string name="profile_edit_name">Edit name</string>
+    <string name="profile_edit_name_notice">Your family will see your new name in chats and video calls. Messages you already sent will keep your previous name. If you are on a call, the change will apply when it ends.</string>
+    <string name="profile_edit_name_save">Save</string>
+    <string name="profile_edit_name_cancel">Cancel</string>
 </resources>

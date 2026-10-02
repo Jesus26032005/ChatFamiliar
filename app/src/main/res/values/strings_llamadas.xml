@@ -25,4 +25,53 @@
 
     <string name="llamada_notificaciones_denegadas">Las notificaciones están desactivadas. Puedes seguir haciendo llamadas dentro de la app, pero los avisos de llamadas entrantes pueden no aparecer cuando estés fuera.</string>
 
+
+    <!-- Videollamada: botón, pantallas y avisos -->
+    <string name="llamada_boton_videollamada">Videollamada</string>
+    <string name="llamada_entrante">Videollamada entrante</string>
+    <string name="llamada_saliente">Llamando…</string>
+    <string name="llamada_conectando">Conectando…</string>
+    <string name="llamada_esperando">Esperando a que se conecte…</string>
+    <string name="llamada_aceptar">Contestar</string>
+    <string name="llamada_rechazar">Rechazar</string>
+    <string name="llamada_cancelar">Cancelar</string>
+    <string name="llamada_colgar">Colgar</string>
+    <string name="llamada_silenciar">Silenciar</string>
+    <string name="llamada_activar_microfono">Activar micrófono</string>
+    <string name="llamada_apagar_camara">Apagar cámara</string>
+    <string name="llamada_encender_camara">Encender cámara</string>
+    <string name="llamada_no_contestada">La videollamada no fue contestada.</string>
+    <string name="llamada_error_no_lista">Las videollamadas aún no están listas. Espera unos segundos e inténtalo de nuevo.</string>
+    <string name="llamada_error_en_curso">Ya tienes una llamada en curso.</string>
+    <string name="llamada_error_iniciar">No se pudo iniciar la videollamada. Inténtalo de nuevo.</string>
+    <string name="llamada_error_conectar">No se pudo conectar a la videollamada.</string>
+
+
+    <!-- Llamada familiar y registro de llamadas en el chat -->
+    <string name="llamada_entrante_familia">Videollamada familiar</string>
+    <string name="llamada_saliente_familia">Llamando a la familia…</string>
+    <string name="llamada_registro">Videollamada</string>
+    <string name="llamada_registro_perdida">Videollamada perdida</string>
+    <string name="llamada_registro_sin_respuesta">Videollamada sin respuesta</string>
+
+
+    <!-- Unirse a una llamada familiar en curso -->
+    <string name="llamada_en_curso_familia">Hay una videollamada familiar en curso</string>
+    <string name="llamada_unirse">Unirse</string>
+
+
+    <!-- Nueva interfaz de la llamada en curso -->
+    <string name="llamada_tu">Tú</string>
+    <string name="llamada_estado_camara_apagada">Cámara apagada</string>
+
+
+    <!-- Mensajes de error específicos -->
+    <string name="llamada_error_familia_sola">Aún no hay otros integrantes en esta familia. Comparte el código de invitación</string>
+    <string name="llamada_error_integrantes">No se pudo consultar a los integrantes de la familia. Inténtalo de nuevo.</string>
+    <string name="llamada_error_no_registrado">Esta persona aún no puede recibir videollamadas. Pídele que abra la app actualizada e inténtalo de nuevo.</string>
+    <string name="llamada_error_familia_no_registrada">Nadie más en esta familia puede recibir videollamadas todavía. Pídeles que abran la app actualizada.</string>
+    <string name="llamada_error_sin_conexion">Sin conexión. Revisa tu internet e inténtalo de nuevo.</string>
+    <string name="llamada_error_sin_permiso">Tu cuenta no tiene permiso para hacer videollamadas.</string>
+    <string name="llamada_error_terminada">La llamada ya terminó.</string>
+
 </resources>

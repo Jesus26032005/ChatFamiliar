@@ -1,13 +1,18 @@
 package com.example.chatfamiliar.ui.llamada
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,14 +22,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.CallEnd
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -37,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,7 +56,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +71,7 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.theme.funcional
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.RingingState
+import kotlinx.coroutines.delay
 
 /**
  * Capa que se dibuja encima de toda la navegación y decide qué
@@ -78,24 +89,35 @@ fun CapaLlamadas(
     val idioma = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(idiomaEfectivo = idioma,
         traducir = idiomaViewModel::traducir)
-    val contexto = LocalContext.current
 
-    // Avisos breves: errores al llamar o "no contestó".
+    PantallasDeLlamada(llamadaViewModel = llamadaViewModel, textos = textos, idioma = idioma)
+
+    // Avisos breves (errores al llamar o "no contestó"). Se dibujan al final
+    // para quedar encima de todo. Se ocultan solos tras unos segundos.
     val textoAviso = llamadaViewModel.avisoRecurso?.let { textos.texto(it) }
     LaunchedEffect(textoAviso) {
         if (textoAviso != null) {
-            Toast.makeText(contexto, textoAviso, Toast.LENGTH_LONG).show()
+            delay(DURACION_AVISO_MS)
             llamadaViewModel.limpiarAviso()
         }
     }
+    AvisoFlotante(texto = textoAviso, alCerrar = llamadaViewModel::limpiarAviso)
+}
 
+/** Elige qué pantalla de llamada mostrar según el estado de Stream. */
+@Composable
+private fun PantallasDeLlamada(
+    llamadaViewModel: LlamadaViewModel,
+    textos: TextosApp,
+    idioma: String
+) {
     val cliente = llamadaViewModel.cliente.collectAsState().value ?: return
     val activa = cliente.state.activeCall.collectAsState().value
     val sonando = cliente.state.ringingCall.collectAsState().value
 
     if (activa != null) {
         PantallaLlamadaActiva(llamada = activa, miUid = cliente.userId,
-            textos = textos, llamadaViewModel = llamadaViewModel)
+            textos = textos, idioma = idioma, llamadaViewModel = llamadaViewModel)
         return
     }
     if (sonando == null) return
@@ -278,6 +300,52 @@ private fun EncabezadoLlamada(semilla: String, nombre: String, estado: String,
         }
     }
 }
+
+/**
+ * Aviso flotante con el estilo de la app (sigue el modo claro/oscuro).
+ * A diferencia de un Toast (que Android corta a 2 líneas), muestra el
+ * texto completo.
+ * Aparece abajo, encima de la barra para escribir, para no tapar el
+ * botón de regresar ni la cabecera. Se cierra solo o al tocarlo.
+ * No bloquea los toques: solo la tarjeta ocupa espacio.
+ */
+@Composable
+private fun AvisoFlotante(texto: String?, alCerrar: () -> Unit) {
+    // Guardamos el último texto para que no desaparezca durante la
+    // animación de salida (cuando texto ya es null).
+    var ultimoTexto by remember { mutableStateOf("") }
+    if (texto != null) ultimoTexto = texto
+    Box(modifier = Modifier.fillMaxSize()
+        .navigationBarsPadding()
+        .imePadding()
+        // Deja libre la barra para escribir y la barra de navegación inferior.
+        .padding(start = 16.dp, end = 16.dp, bottom = 96.dp),
+        contentAlignment = Alignment.BottomCenter) {
+        AnimatedVisibility(visible = texto != null,
+            enter = slideInVertically { it } + fadeIn(),
+            exit = slideOutVertically { it } + fadeOut()) {
+            // Sigue el tema: claro en modo claro y oscuro en modo oscuro.
+            // El borde y la sombra lo separan del fondo de la pantalla.
+            Surface(onClick = alCerrar,
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                shadowElevation = 6.dp) {
+                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Filled.Info, contentDescription = null,
+                        tint = MaterialTheme.funcional.accionPrincipal,
+                        modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = ultimoTexto, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+}
+
+private const val DURACION_AVISO_MS = 4_500L
 
 /** Familia a la que pertenece la llamada (null si es 1 a 1). */
 internal data class InfoLlamadaFamilia(val familiaId: String, val nombre: String)

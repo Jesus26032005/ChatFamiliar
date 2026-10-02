@@ -77,6 +77,10 @@ fun PantallaPrincipal(
                         homeViewModel.cerrarSesion(alCerrarSesion = alCerrarSesion) }) {
                         Text(text = textos.texto(R.string.home_logout)) } } } }
         return }
+    // Error del nombre: lo usan el diálogo inicial y el de editar en Perfil.
+    val errorNombre = homeViewModel.errorRecurso?.takeIf {
+        it == R.string.home_error_empty_name || it == R.string.home_error_save_name }
+    val textoErrorNombre = errorNombre?.let { recurso -> textos.texto(recurso) }
     var seccionSeleccionada by rememberSaveable(usuario.uid) {
         mutableStateOf(SeccionPrincipal.INICIO) }
     Scaffold(
@@ -145,10 +149,16 @@ fun PantallaPrincipal(
                         idiomaEfectivo = idiomaEfectivo,
                         traducir = idiomaViewModel::traducir,
                         alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma,
+                        editandoNombre = homeViewModel.editandoNombre,
+                        nombreEditado = homeViewModel.nombreNuevo,
+                        guardandoNombre = homeViewModel.guardandoNombre,
+                        mensajeErrorNombre = textoErrorNombre,
+                        alEditarNombre = homeViewModel::empezarEdicionNombre,
+                        alCambiarNombre = homeViewModel::actualizarNombre,
+                        alGuardarNombre = homeViewModel::guardarNombre,
+                        alCancelarEdicionNombre = homeViewModel::cancelarEdicionNombre,
                         alCerrarSesion = { homeViewModel.cerrarSesion(
                             alCerrarSesion = alCerrarSesion) }) } } } }
-    val errorNombre = homeViewModel.errorRecurso?.takeIf {
-        it == R.string.home_error_empty_name || it == R.string.home_error_save_name }
     DialogoNombreInicial(
         visible = homeViewModel.necesitaNombre,
         nombre = homeViewModel.nombreNuevo,
@@ -156,7 +166,7 @@ fun PantallaPrincipal(
         descripcion = textos.texto(R.string.home_name_description),
         etiquetaNombre = textos.texto(R.string.home_name_label),
         textoGuardar = textos.texto(R.string.home_name_save),
-        mensajeError = errorNombre?.let { recurso -> textos.texto(recurso) },
+        mensajeError = textoErrorNombre,
         guardando = homeViewModel.guardandoNombre,
         alCambiarNombre = homeViewModel::actualizarNombre,
         alGuardarNombre = homeViewModel::guardarNombre)

@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.R
 import com.example.chatfamiliar.ui.language.TextosApp
@@ -25,14 +26,20 @@ fun BotonVideollamada(
     habilitado: Boolean,
     iniciando: Boolean,
     alLlamar: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // Cuando no hay a quién llamar: el botón se ve atenuado y al tocarlo
+    // se explica el motivo en lugar de llamar.
+    atenuado: Boolean = false,
+    alPulsarAtenuado: () -> Unit = {}
 ) {
     var pidiendoPermisos by rememberSaveable { mutableStateOf(false) }
 
     FilledTonalIconButton(
-        onClick = { pidiendoPermisos = true },
+        onClick = {
+            if (atenuado) { alPulsarAtenuado() } else { pidiendoPermisos = true }
+        },
         enabled = habilitado && !iniciando,
-        modifier = modifier.size(44.dp),
+        modifier = modifier.size(44.dp).alpha(if (atenuado) 0.45f else 1f),
         colors = IconButtonDefaults.filledTonalIconButtonColors(
             containerColor = MaterialTheme.funcional.filtroSeleccionado,
             contentColor = MaterialTheme.funcional.sobreFiltroSeleccionado

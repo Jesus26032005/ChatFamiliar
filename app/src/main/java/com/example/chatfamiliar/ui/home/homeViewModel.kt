@@ -40,6 +40,9 @@ class HomeViewModel : ViewModel() {
         private set
     var guardandoNombre by mutableStateOf(false)
         private set
+    // true mientras el diálogo "Editar nombre" del perfil está abierto.
+    var editandoNombre by mutableStateOf(false)
+        private set
     var familiasConsultadas by mutableStateOf(false)
         private set
     var cargandoListadoFamilias by mutableStateOf(false)
@@ -75,15 +78,15 @@ class HomeViewModel : ViewModel() {
             if (!timeoutUsuario.completar(solicitud)) {
                 return@obtenerUsuario }
             resultado.onSuccess { perfil ->
-                    if (perfil != null) {
-                        usuario = perfil
-                        cargarFamilias(uidUsuario = usuarioFirebase.uid,
-                            finalizarCargaInicial = true,
-                            familiaPreferidaId = familiaActiva?.id)
-                    } else {
-                        crearPerfilFaltante(uid = usuarioFirebase.uid,
-                            correo = usuarioFirebase.email.orEmpty()) }
-                }
+                if (perfil != null) {
+                    usuario = perfil
+                    cargarFamilias(uidUsuario = usuarioFirebase.uid,
+                        finalizarCargaInicial = true,
+                        familiaPreferidaId = familiaActiva?.id)
+                } else {
+                    crearPerfilFaltante(uid = usuarioFirebase.uid,
+                        correo = usuarioFirebase.email.orEmpty()) }
+            }
                 .onFailure { cargando = false
                     errorRecurso = R.string.home_error_load_profile } }
     }
@@ -123,8 +126,8 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun cargarFamilias(uidUsuario: String,
-        finalizarCargaInicial: Boolean,
-        familiaPreferidaId: String? = null
+                               finalizarCargaInicial: Boolean,
+                               familiaPreferidaId: String? = null
     ) { cargandoFamilia = true
         cargandoListadoFamilias = true
         errorFamiliasRecurso = null
@@ -174,7 +177,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun cargarMembresia(familia: Familia, uidUsuario: String,
-        finalizarCargaInicial: Boolean) {
+                                finalizarCargaInicial: Boolean) {
         cargandoFamilia = true
         val solicitud = timeoutMembresia.iniciar(scope = viewModelScope) {
             membresiaActiva = null
@@ -220,6 +223,22 @@ class HomeViewModel : ViewModel() {
     fun actualizarNombre(nuevoNombre: String) { nombreNuevo = nuevoNombre
         errorRecurso = null }
 
+    /** Abre el diálogo de edición con el nombre actual ya escrito. */
+    fun empezarEdicionNombre() {
+        if (guardandoNombre) return
+        nombreNuevo = usuario?.nombre.orEmpty()
+        errorRecurso = null
+        editandoNombre = true
+    }
+
+    fun cancelarEdicionNombre() {
+        // Mientras se guarda no se cierra, para no perder el resultado.
+        if (guardandoNombre) return
+        editandoNombre = false
+        nombreNuevo = ""
+        errorRecurso = null
+    }
+
     fun guardarNombre() {
         if (guardandoNombre) return
         val perfilActual = usuario ?: return
@@ -227,14 +246,22 @@ class HomeViewModel : ViewModel() {
         if (nombreLimpio.isBlank()) {
             errorRecurso = R.string.home_error_empty_name
             return }
+        // Si no cambió nada, solo cerramos el diálogo.
+        if (nombreLimpio == perfilActual.nombre.trim()) {
+            editandoNombre = false
+            nombreNuevo = ""
+            return }
         guardandoNombre = true
         errorRecurso = null
+        // El nombre de la videollamada (Stream) se actualiza solo:
+        // ObservadorSesionVideo escucha este mismo documento.
         usuarioRepository.actualizarNombre(uid = perfilActual.uid, nombre = nombreLimpio) {
-            resultado ->
+                resultado ->
             guardandoNombre = false
             resultado.onSuccess {
-                    usuario = perfilActual.copy(nombre = nombreLimpio)
-                    nombreNuevo = "" }
+                usuario = perfilActual.copy(nombre = nombreLimpio)
+                nombreNuevo = ""
+                editandoNombre = false }
                 .onFailure { errorRecurso = R.string.home_error_save_name }
         }
     }
@@ -260,6 +287,7 @@ class HomeViewModel : ViewModel() {
         cargandoFamilia = false
         cargandoListadoFamilias = false
         guardandoNombre = false
+        editandoNombre = false
         familiasConsultadas = false
         errorRecurso = null
         errorFamiliasRecurso = null

@@ -25,4 +25,53 @@
 
     <string name="llamada_notificaciones_denegadas">Notifications are turned off. You can still make calls inside the app, but incoming call alerts may not appear when you are outside it.</string>
 
+
+    <!-- Videollamada: botón, pantallas y avisos -->
+    <string name="llamada_boton_videollamada">Video call</string>
+    <string name="llamada_entrante">Incoming video call</string>
+    <string name="llamada_saliente">Calling…</string>
+    <string name="llamada_conectando">Connecting…</string>
+    <string name="llamada_esperando">Waiting for them to join…</string>
+    <string name="llamada_aceptar">Answer</string>
+    <string name="llamada_rechazar">Decline</string>
+    <string name="llamada_cancelar">Cancel</string>
+    <string name="llamada_colgar">Hang up</string>
+    <string name="llamada_silenciar">Mute</string>
+    <string name="llamada_activar_microfono">Unmute</string>
+    <string name="llamada_apagar_camara">Camera off</string>
+    <string name="llamada_encender_camara">Camera on</string>
+    <string name="llamada_no_contestada">The video call was not answered.</string>
+    <string name="llamada_error_no_lista">Video calls are not ready yet. Wait a few seconds and try again.</string>
+    <string name="llamada_error_en_curso">You already have a call in progress.</string>
+    <string name="llamada_error_iniciar">The video call could not be started. Please try again.</string>
+    <string name="llamada_error_conectar">Could not connect to the video call.</string>
+
+
+    <!-- Llamada familiar y registro de llamadas en el chat -->
+    <string name="llamada_entrante_familia">Family video call</string>
+    <string name="llamada_saliente_familia">Calling the family…</string>
+    <string name="llamada_registro">Video call</string>
+    <string name="llamada_registro_perdida">Missed video call</string>
+    <string name="llamada_registro_sin_respuesta">Video call not answered</string>
+
+
+    <!-- Unirse a una llamada familiar en curso -->
+    <string name="llamada_en_curso_familia">A family video call is in progress</string>
+    <string name="llamada_unirse">Join</string>
+
+
+    <!-- Nueva interfaz de la llamada en curso -->
+    <string name="llamada_tu">You</string>
+    <string name="llamada_estado_camara_apagada">Camera is off</string>
+
+
+    <!-- Mensajes de error específicos -->
+    <string name="llamada_error_familia_sola">There are no other members in this family yet. Share the invitation code to be able to call.</string>
+    <string name="llamada_error_integrantes">Could not check the family members. Please try again.</string>
+    <string name="llamada_error_no_registrado">This person can\'t receive video calls yet. Ask them to open the updated app and try again.</string>
+    <string name="llamada_error_familia_no_registrada">Nobody else in this family can receive video calls yet. Ask them to open the updated app.</string>
+    <string name="llamada_error_sin_conexion">No connection. Check your internet and try again.</string>
+    <string name="llamada_error_sin_permiso">Your account doesn\'t have permission to make video calls.</string>
+    <string name="llamada_error_terminada">The call has already ended.</string>
+
 </resources>

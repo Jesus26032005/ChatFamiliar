@@ -2,6 +2,7 @@ package com.example.chatfamiliar.ui.chat
 
 import android.text.format.DateFormat
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.R
 import com.example.chatfamiliar.model.ConversacionResumen
@@ -73,7 +74,6 @@ fun ContenidoInicioConversaciones(
     val textos = recordarTextosApp(
         idiomaEfectivo = idiomaEfectivo,
         traducir = traducir)
-    val colores = MaterialTheme.colorScheme
     val funcional = MaterialTheme.funcional
     val contexto = LocalContext.current
     val estadoLista = rememberLazyListState()
@@ -91,6 +91,16 @@ fun ContenidoInicioConversaciones(
 
     LaunchedEffect(busqueda, filtroSeleccionado) {
         estadoLista.scrollToItem(0)
+    }
+
+    // Si estás arriba y llega un chat nuevo (o cambia cuál es el más
+    // reciente), la lista se queda arriba para que lo veas. Si bajaste
+    // tú mismo, se respeta tu posición.
+    val primeraClave = conversacionesFiltradas.firstOrNull()?.clave
+    LaunchedEffect(primeraClave) {
+        if (primeraClave != null && estadoLista.firstVisibleItemIndex <= 1) {
+            estadoLista.scrollToItem(0)
+        }
     }
 
     val formato24Horas = DateFormat.is24HourFormat(contexto)
@@ -174,56 +184,10 @@ fun ContenidoInicioConversaciones(
             )
         }
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = funcional.tarjeta,
-            contentColor = colores.onSurface
-        ) {
-            Row(
-                modifier = Modifier.padding(18.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Surface(
-                    modifier = Modifier.size(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = funcional.accionPrincipal,
-                    contentColor = funcional.sobreAccionPrincipal
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Chat,
-                            contentDescription = null,
-                            modifier = Modifier.size(26.dp)
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = textos.texto(R.string.chat_home_intro),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = textos.texto(
-                            R.string.chat_home_intro_description
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colores.onSurfaceVariant
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
+        TarjetaBienvenida(
+            titulo = textos.texto(R.string.chat_home_intro),
+            descripcion = textos.texto(R.string.chat_home_intro_description)
+        )
 
         BuscadorFiltrosConversaciones(
             busqueda = busqueda,
@@ -279,6 +243,22 @@ fun ContenidoInicioConversaciones(
                     }
                 }
 
+                // El indicador de carga va ARRIBA de la lista. Si quedaba abajo,
+                // la lista se "anclaba" a él y al llegar los chats se veía
+                // el final en lugar del primero.
+                if (cargandoFuentes) {
+                    item(key = "carga_fuentes") {
+                        EstadoCargaConversaciones(
+                            titulo = textos.texto(
+                                R.string.chat_list_loading_title
+                            ),
+                            descripcion = textos.texto(
+                                R.string.chat_list_loading_description
+                            )
+                        )
+                    }
+                }
+
                 items(
                     items = conversacionesFiltradas,
                     key = { it.clave }
@@ -304,19 +284,6 @@ fun ContenidoInicioConversaciones(
                             alReintentarConversacion(estado.resumen)
                         }
                     )
-                }
-
-                if (cargandoFuentes) {
-                    item(key = "carga_fuentes") {
-                        EstadoCargaConversaciones(
-                            titulo = textos.texto(
-                                R.string.chat_list_loading_title
-                            ),
-                            descripcion = textos.texto(
-                                R.string.chat_list_loading_description
-                            )
-                        )
-                    }
                 }
 
                 if (
@@ -490,6 +457,67 @@ fun ContenidoInicioConversaciones(
                         }
                     ),
                     fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Tarjeta de bienvenida compacta: icono más chico, menos relleno y
+ * descripción en una sola línea para que ocupe poco alto.
+ */
+@Composable
+private fun TarjetaBienvenida(
+    titulo: String,
+    descripcion: String
+) {
+    val funcional = MaterialTheme.funcional
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        shape = RoundedCornerShape(18.dp),
+        color = funcional.tarjeta
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(
+                        color = funcional.accionPrincipal,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    tint = funcional.sobreAccionPrincipal,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = descripcion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

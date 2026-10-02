@@ -91,7 +91,10 @@ fun PantallaChatFamilia(familiaId: String, nombreFamilia: String,
                         familiaId = familiaId,
                         nombreFamilia = nombreFamilia))
                 },
-                modifier = Modifier.padding(end = 6.dp))
+                modifier = Modifier.padding(end = 6.dp),
+                // Si solo estás tú en la familia, se ve atenuado y explica por qué.
+                atenuado = llamadaViewModel.familiaSinOtrosIntegrantes,
+                alPulsarAtenuado = llamadaViewModel::avisarFamiliaSinIntegrantes)
         },
         avisoSuperior = {
             val llamadaEnCurso = llamadaViewModel.llamadaFamiliarEnCurso

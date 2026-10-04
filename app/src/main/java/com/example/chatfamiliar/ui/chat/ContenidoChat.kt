@@ -4,6 +4,8 @@ import android.text.format.DateFormat
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +47,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,23 +74,23 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ContenidoChat(claveConversacion: String, titulo: String,
-     uidActual: String, mensajes: List<Mensaje>,
-     mostrarRemitentes: Boolean, borrador: String,
-     cargandoMensajes: Boolean, cargandoAnteriores: Boolean,
-     puedeCargarAnteriores: Boolean, historialCompleto: Boolean,
-     puedeEnviar: Boolean, enviando: Boolean,
-     @StringRes errorMensajesRecurso: Int?,
-     @StringRes errorHistorialRecurso: Int?,
-     @StringRes errorEnvioRecurso: Int?,
-     lecturaViewModel: LecturaChatViewModel,
-     idiomaViewModel: IdiomaViewModel,
-     alVolver: () -> Unit, alCambiarBorrador: (String) -> Unit,
-     alEnviar: () -> Unit, alCargarAnteriores: () -> Unit,
-     alReintentarMensajes: () -> Unit, modifier: Modifier = Modifier,
-     @StringRes motivoBloqueoRecurso: Int? = null,
-     semillaAvatar: String = claveConversacion.substringAfter(':'),
-     accionesCabecera: @Composable () -> Unit = {},
-     avisoSuperior: @Composable () -> Unit = {}) {
+                  uidActual: String, mensajes: List<Mensaje>,
+                  mostrarRemitentes: Boolean, borrador: String,
+                  cargandoMensajes: Boolean, cargandoAnteriores: Boolean,
+                  puedeCargarAnteriores: Boolean, historialCompleto: Boolean,
+                  puedeEnviar: Boolean, enviando: Boolean,
+                  @StringRes errorMensajesRecurso: Int?,
+                  @StringRes errorHistorialRecurso: Int?,
+                  @StringRes errorEnvioRecurso: Int?,
+                  lecturaViewModel: LecturaChatViewModel,
+                  idiomaViewModel: IdiomaViewModel,
+                  alVolver: () -> Unit, alCambiarBorrador: (String) -> Unit,
+                  alEnviar: () -> Unit, alCargarAnteriores: () -> Unit,
+                  alReintentarMensajes: () -> Unit, modifier: Modifier = Modifier,
+                  @StringRes motivoBloqueoRecurso: Int? = null,
+                  semillaAvatar: String = claveConversacion.substringAfter(':'),
+                  accionesCabecera: @Composable () -> Unit = {},
+                  avisoSuperior: @Composable () -> Unit = {}) {
     val idioma = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(
@@ -189,6 +192,42 @@ fun ContenidoChat(claveConversacion: String, titulo: String,
             }
         }
     }
+    // Último elemento visible de la lista, para saber si el usuario
+    // estaba viendo el final de la conversación.
+    var claveVisibleAlFinal by remember(claveConversacion) {
+        mutableStateOf<String?>(null) }
+    LaunchedEffect(lista) {
+        snapshotFlow {
+            lista.layoutInfo.visibleItemsInfo.lastOrNull()?.key as? String
+        }.collect { claveVisibleAlFinal = it }
+    }
+    // Al llegar un mensaje nuevo: si es propio, o si el usuario ya estaba
+    // al final, la lista baja hasta él. Si estaba leyendo mensajes
+    // anteriores, se respeta su posición y queda el botón para bajar.
+    var ultimoIdAnterior by remember(claveConversacion) {
+        mutableStateOf<String?>(null) }
+    val ultimoMensaje = mensajes.lastOrNull()
+    LaunchedEffect(claveConversacion, ultimoMensaje?.id, posicionada) {
+        val anterior = ultimoIdAnterior
+        ultimoIdAnterior = ultimoMensaje?.id
+        if (!posicionada || ultimoMensaje == null || anterior == null ||
+            anterior == ultimoMensaje.id) { return@LaunchedEffect }
+        val esPropio = ultimoMensaje.remitenteId == uidActual
+        val estabaAlFinal = claveVisibleAlFinal == "mensaje:$anterior"
+        if (esPropio || estabaAlFinal) {
+            lista.animateScrollToItem(mensajes.size) }
+    }
+    // Al abrir el teclado, si se estaba viendo el final, se mantiene
+    // visible el último mensaje en lugar de quedar oculto detrás.
+    val densidad = LocalDensity.current
+    val tecladoAbierto = WindowInsets.ime.getBottom(densidad) > 0
+    LaunchedEffect(tecladoAbierto) {
+        val ultimo = mensajesActuales.lastOrNull() ?: return@LaunchedEffect
+        if (tecladoAbierto && posicionada &&
+            claveVisibleAlFinal == "mensaje:${ultimo.id}") {
+            delay(250)
+            lista.animateScrollToItem(mensajesActuales.size) }
+    }
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()
         .imePadding()) {
         CabeceraChat(titulo = titulo,
@@ -205,6 +244,7 @@ fun ContenidoChat(claveConversacion: String, titulo: String,
                 idiomaEfectivo = idioma,
                 traducir = idiomaViewModel::traducir,
                 alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma) }
+        // Aviso opcional debajo de la cabecera (por ejemplo, llamada en curso)
         avisoSuperior()
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             LazyColumn(state = lista, modifier = Modifier.fillMaxSize(),
@@ -303,9 +343,9 @@ fun ContenidoChat(claveConversacion: String, titulo: String,
 
 @Composable
 private fun CabeceraChat(titulo: String, subtitulo: String,
-            semillaAvatar: String, esGrupo: Boolean, idioma: String,
-            descripcionVolver: String, alVolver: () -> Unit,
-            acciones: @Composable () -> Unit) {
+                         semillaAvatar: String, esGrupo: Boolean, idioma: String,
+                         descripcionVolver: String, alVolver: () -> Unit,
+                         acciones: @Composable () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth()
             .padding(start = 4.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
@@ -333,8 +373,8 @@ private fun CabeceraChat(titulo: String, subtitulo: String,
 
 @Composable
 private fun EstadoChatVacio(titulo: String, descripcion: String,
-            semillaAvatar: String, esGrupo: Boolean, idioma: String,
-            modifier: Modifier = Modifier) {
+                            semillaAvatar: String, esGrupo: Boolean, idioma: String,
+                            modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
@@ -381,7 +421,7 @@ private fun SeparadorPendientes(texto: String) {
 }
 
 private data class TramoMensajeVisible(val id: String, val alto: Int,
-                   val inicio: Int, val fin: Int)
+                                       val inicio: Int, val fin: Int)
 private class CoberturaMensaje(val alto: Int) {
     private val tramos = mutableListOf<Pair<Int, Int>>()
     fun agregar(inicio: Int, fin: Int): Boolean {

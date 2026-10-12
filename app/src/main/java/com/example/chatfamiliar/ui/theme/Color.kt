@@ -2,7 +2,7 @@ package com.example.chatfamiliar.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Fondo claro
+// Tema claro
 // Color principal de FamiliaChat
 val FamiliaPrimary = Color(0xFF4F5FD7)
 val FamiliaOnPrimary = Color(0xFFFFFFFF)

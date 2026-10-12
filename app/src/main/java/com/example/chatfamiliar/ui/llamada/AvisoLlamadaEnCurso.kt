@@ -32,33 +32,27 @@ import com.example.chatfamiliar.R
 import com.example.chatfamiliar.ui.language.TextosApp
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Aviso bajo la cabecera del chat familiar con el botón para unirse a la llamada en curso. */
 @Composable
-fun AvisoLlamadaEnCurso(
-    textos: TextosApp,
+fun AvisoLlamadaEnCurso(textos: TextosApp,
     conectando: Boolean,
     alUnirse: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var pidiendoPermisos by rememberSaveable { mutableStateOf(false) }
+    modifier: Modifier = Modifier) { var pidiendoPermisos by rememberSaveable { mutableStateOf(false) }
     val funcional = MaterialTheme.funcional
 
     Surface(modifier = modifier.fillMaxWidth()
         .padding(horizontal = 12.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         color = funcional.filtroSeleccionado,
-        contentColor = funcional.sobreFiltroSeleccionado) {
-        Row(modifier = Modifier.padding(start = 12.dp, end = 8.dp,
+        contentColor = funcional.sobreFiltroSeleccionado) { Row(modifier = Modifier.padding(start = 12.dp, end = 8.dp,
             top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(0.dp)) {
             Surface(modifier = Modifier.size(36.dp), shape = CircleShape,
                 color = funcional.accionPrincipal,
-                contentColor = funcional.sobreAccionPrincipal) {
-                Box(contentAlignment = Alignment.Center) {
+                contentColor = funcional.sobreAccionPrincipal) { Box(contentAlignment = Alignment.Center) {
                     Icon(imageVector = Icons.Filled.Videocam, contentDescription = null,
-                        modifier = Modifier.size(20.dp))
-                }
-            }
+                        modifier = Modifier.size(20.dp)) } }
             Spacer(modifier = Modifier.width(12.dp))
             Text(text = textos.texto(R.string.llamada_en_curso_familia),
                 modifier = Modifier.weight(1f),
@@ -67,25 +61,13 @@ fun AvisoLlamadaEnCurso(
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = { pidiendoPermisos = true },
                 enabled = !conectando,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = funcional.accionPrincipal,
-                    contentColor = funcional.sobreAccionPrincipal)) {
-                if (conectando) {
+                colors = ButtonDefaults.buttonColors(containerColor = funcional.accionPrincipal,
+                    contentColor = funcional.sobreAccionPrincipal)) { if (conectando) {
                     CircularProgressIndicator(modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp, color = funcional.sobreAccionPrincipal)
-                } else {
-                    Text(text = textos.texto(R.string.llamada_unirse))
-                }
-            }
-        }
-    }
+                        strokeWidth = 2.dp, color = funcional.sobreAccionPrincipal) } else {
+                    Text(text = textos.texto(R.string.llamada_unirse)) } } } }
 
-    if (pidiendoPermisos) {
-        SolicitudPermisosLlamada(textos = textos,
-            alPermisosConcedidos = {
-                pidiendoPermisos = false
-                alUnirse()
-            },
-            alCancelar = { pidiendoPermisos = false })
-    }
-}
+    if (pidiendoPermisos) { SolicitudPermisosLlamada(textos = textos,
+            alPermisosConcedidos = { pidiendoPermisos = false
+                alUnirse() },
+            alCancelar = { pidiendoPermisos = false }) } }

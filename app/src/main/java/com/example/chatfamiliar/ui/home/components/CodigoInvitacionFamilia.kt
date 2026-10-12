@@ -29,16 +29,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 
+/** Tarjeta con el código de invitación de la familia y botón para copiarlo. */
 @Composable
 fun CodigoInvitacionFamilia(codigo: String, titulo: String,
     textoCopiar: String, textoCopiado: String,
     modifier: Modifier = Modifier) { val context = LocalContext.current
     Card(modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer)
-    ) { Column(modifier = Modifier.padding(18.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) { Column(modifier = Modifier.padding(18.dp)) { Row(verticalAlignment = Alignment.CenterVertically
             ) { Icon(imageVector = Icons.Filled.Key, contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -49,39 +47,28 @@ fun CodigoInvitacionFamilia(codigo: String, titulo: String,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.padding(6.dp))
-            OutlinedButton(
-                onClick = { copiarCodigo(context = context, codigo = codigo)
+            OutlinedButton(onClick = { copiarCodigo(context = context, codigo = codigo)
                     Toast.makeText(context, textoCopiado,
                         Toast.LENGTH_SHORT).show() },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) { Icon(imageVector = Icons.Filled.ContentCopy, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = textoCopiar, fontWeight = FontWeight.SemiBold)
-            } } }
-}
-private fun copiarCodigo(context: Context, codigo: String) {
-    val portapapeles = context.getSystemService(
+                Text(text = textoCopiar, fontWeight = FontWeight.SemiBold) } } } }
+/** Copia el código al portapapeles. */
+private fun copiarCodigo(context: Context, codigo: String) { val portapapeles = context.getSystemService(
         Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("Código de invitación",
         codigo)
-    portapapeles.setPrimaryClip(clip)
-}
+    portapapeles.setPrimaryClip(clip) }
 
 
-@Preview(
-    showBackground = true,
+@Preview(showBackground = true,
     name = "Código de invitación"
 )
 @Composable
-private fun CodigoInvitacionFamiliaPreview() {
-    MaterialTheme {
-        CodigoInvitacionFamilia(
-            codigo = "FAM-A1B2C3",
+private fun CodigoInvitacionFamiliaPreview() { MaterialTheme { CodigoInvitacionFamilia(codigo = "FAM-A1B2C3",
             titulo = "Código de invitación",
             textoCopiar = "Copiar código",
             textoCopiado = "Código copiado",
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
+            modifier = Modifier.padding(16.dp)) } }

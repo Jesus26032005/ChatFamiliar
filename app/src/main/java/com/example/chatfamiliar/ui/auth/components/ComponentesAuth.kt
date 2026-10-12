@@ -35,94 +35,62 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.example.chatfamiliar.R
 
+/** Campo de texto para el correo con teclado de tipo email. */
 @Composable
-fun CampoCorreo(
-    valor: String,
+fun CampoCorreo(valor: String,
     alCambiarValor: (String) -> Unit,
     etiqueta: String,
     habilitado: Boolean,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = valor,
+    modifier: Modifier = Modifier) { OutlinedTextField(value = valor,
         onValueChange = alCambiarValor,
         modifier = modifier.fillMaxWidth(),
         enabled = habilitado,
         singleLine = true,
         label = { Text(text = etiqueta) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-    )
-}
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)) }
 
+/** Campo de contraseña con botón para mostrarla u ocultarla. */
 @Composable
-fun CampoPassword(
-    valor: String,
+fun CampoPassword(valor: String,
     alCambiarValor: (String) -> Unit,
     etiqueta: String,
     descripcionMostrar: String,
     descripcionOcultar: String,
     habilitado: Boolean,
-    modifier: Modifier = Modifier
-) {
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
-    OutlinedTextField(
-        value = valor, onValueChange = alCambiarValor,
+    modifier: Modifier = Modifier) { var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    OutlinedTextField(value = valor, onValueChange = alCambiarValor,
         modifier = modifier.fillMaxWidth(),
         enabled = habilitado, singleLine = true,
         label = { Text(text = etiqueta) },
-        visualTransformation = if (passwordVisible) {
-            VisualTransformation.None
+        visualTransformation = if (passwordVisible) { VisualTransformation.None
         } else { PasswordVisualTransformation()},
-        trailingIcon = {
-            val icono = if (passwordVisible) {
-                Icons.Filled.VisibilityOff
+        trailingIcon = { val icono = if (passwordVisible) { Icons.Filled.VisibilityOff
             } else { Icons.Filled.Visibility }
-            val descripcion = if (passwordVisible) {
-                descripcionOcultar
-            } else { descripcionMostrar }
-            IconButton(
-                onClick = { passwordVisible = !passwordVisible },
-                enabled = habilitado
-            ) {
-                Icon(
-                    imageVector = icono,
-                    contentDescription = descripcion
-                )
-            }
-        }
-    )
-}
+            val descripcion = if (passwordVisible) { descripcionOcultar } else { descripcionMostrar }
+            IconButton(onClick = { passwordVisible = !passwordVisible },
+                enabled = habilitado) { Icon(imageVector = icono,
+                    contentDescription = descripcion) } }) }
 
+/** Mensaje de error que aparece y desaparece con animación. */
 @Composable
 fun MensajeError(mensaje: String?,
-                 modifier: Modifier = Modifier) {
-    AnimatedVisibility(visible = mensaje != null,
+                 modifier: Modifier = Modifier) { AnimatedVisibility(visible = mensaje != null,
         enter = fadeIn(),
-        exit = fadeOut()) {
-        Text(text = mensaje.orEmpty(),
+        exit = fadeOut()) { Text(text = mensaje.orEmpty(),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = modifier.fillMaxWidth().padding(top = 28.dp, bottom = 16.dp))
-    }
-}
+            modifier = modifier.fillMaxWidth().padding(top = 28.dp, bottom = 16.dp)) } }
 
+/** Botón principal de las pantallas de acceso; muestra un indicador mientras carga. */
 @Composable
 fun BotonAuth(texto: String,
               cargando: Boolean,
               onClick: () -> Unit,
-              modifier: Modifier = Modifier) {
-    Button(onClick = onClick,
+              modifier: Modifier = Modifier) { Button(onClick = onClick,
         enabled = !cargando,
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.fillMaxWidth().height(55.dp)) {
-        if (cargando) {
-            CircularProgressIndicator(modifier =
+        modifier = modifier.fillMaxWidth().height(55.dp)) { if (cargando) { CircularProgressIndicator(modifier =
                 Modifier.size(24.dp),
-                strokeWidth = 2.dp)
-        } else {
-            Text(text = texto,
-                style = MaterialTheme.typography.titleMedium)
-        }
-    }
-}
+                strokeWidth = 2.dp) } else { Text(text = texto,
+                style = MaterialTheme.typography.titleMedium) } } }

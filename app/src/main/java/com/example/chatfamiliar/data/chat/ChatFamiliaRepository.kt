@@ -10,100 +10,80 @@ import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import java.util.UUID
 
+/** Lectura y envío de mensajes del chat grupal de una familia (familias/{id}/mensajes). */
 class ChatFamiliaRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val familias = firestore.collection(COLECCION_FAMILIAS)
     private val usuarios = firestore.collection(COLECCION_USUARIOS)
 
-    fun generarMensajeId(): String {
-        return UUID.randomUUID().toString() }
+    /** Genera el identificador del mensaje en el cliente para que un reintento no lo duplique. */
+    fun generarMensajeId(): String { return UUID.randomUUID().toString() }
 
-    fun escucharMensajesRecientes(
-        familiaId: String,
-        alActualizar: (Result<List<Mensaje>>) -> Unit
-    ): ListenerRegistration? {
-        val errorValidacion = when {
+    /**
+     * Escucha en tiempo real los últimos mensajes de la familia, ordenados
+     * por fecha de envío e identificador. Incluye los mensajes aún pendientes
+     * de confirmar por el servidor.
+     */
+    fun escucharMensajesRecientes(familiaId: String,
+        alActualizar: (Result<List<Mensaje>>) -> Unit): ListenerRegistration? { val errorValidacion = when {
             auth.currentUser == null ->
                 CodigoErrorChat.SESION_REQUERIDA
             !esIdValido(familiaId) ->
                 CodigoErrorChat.IDENTIFICADOR_INVALIDO
-            else -> null
-        }
-        if (errorValidacion != null) {
-            alActualizar(
-                Result.failure(ExcepcionChat(errorValidacion)))
+            else -> null }
+        if (errorValidacion != null) { alActualizar(Result.failure(ExcepcionChat(errorValidacion)))
             return null }
         return familias
             .document(familiaId)
             .collection(SUBCOLECCION_MENSAJES)
-            .orderBy(
-                CAMPO_FECHA_ENVIO,
+            .orderBy(CAMPO_FECHA_ENVIO,
                 Query.Direction.ASCENDING)
-            .orderBy(
-                FieldPath.documentId(),
+            .orderBy(FieldPath.documentId(),
                 Query.Direction.ASCENDING)
             .limitToLast(LIMITE_MENSAJES_RECIENTES)
             .addSnapshotListener(MetadataChanges.INCLUDE) { resultado, error ->
-                if (error != null) {
-                    alActualizar(
-                        Result.failure(ExcepcionChat.desde(error)))
+                if (error != null) { alActualizar(Result.failure(ExcepcionChat.desde(error)))
                     return@addSnapshotListener }
-                if (resultado == null) {
-                    alActualizar(
-                        Result.failure(
-                            ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
+                if (resultado == null) { alActualizar(Result.failure(ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
                     return@addSnapshotListener }
-                val mensajes = runCatching {
-                    resultado.documents.map { documento ->
-                        val mensaje = documento.toObject(
-                            Mensaje::class.java
-                        ) ?: throw ExcepcionChat(
+                val mensajes = runCatching { resultado.documents.map { documento ->
+                        val mensaje = documento.toObject(Mensaje::class.java) ?: throw ExcepcionChat(
                             CodigoErrorChat.DATOS_INVALIDOS)
-                        mensaje.copy(id = documento.id) }
-                }
+                        mensaje.copy(id = documento.id) } }
 
-                mensajes.onSuccess {
-                    alActualizar(Result.success(it))
-                }.onFailure {
-                    alActualizar(
-                        Result.failure(
-                            ExcepcionChat(
-                                codigo = CodigoErrorChat.DATOS_INVALIDOS,
-                                causa = it))
-                    )
-                }
-            }
-    }
+                mensajes.onSuccess { alActualizar(Result.success(it)) }.onFailure { alActualizar(Result.failure(
+                            ExcepcionChat(codigo = CodigoErrorChat.DATOS_INVALIDOS,
+                                causa = it))) } } }
 
+    /**
+     * Envía un mensaje dentro de una transacción que valida que la familia
+     * exista, que el usuario sea miembro y que tenga nombre en su perfil.
+     * Si el mismo mensaje ya se guardó (reintento), no se duplica.
+     *
+     * @param tipo texto normal o registro de videollamada.
+     * @param duracionSegundos solo se guarda en los registros de llamada.
+     */
     fun enviarMensaje(familiaId: String, mensajeId: String,
                       contenido: String, tipo: String = Mensaje.TIPO_TEXTO,
                       duracionSegundos: Long = 0L, alCompletar: (Result<Unit>) -> Unit) {
         val uid = auth.currentUser?.uid
         val texto = contenido.trim()
 
-        if (uid.isNullOrBlank()) {
-            alCompletar(Result.failure(
-                ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
-            return
-        }
+        if (uid.isNullOrBlank()) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+            return }
 
-        val errorValidacion = when {
-            !esIdValido(familiaId) || !esIdValido(mensajeId) ->
+        val errorValidacion = when { !esIdValido(familiaId) || !esIdValido(mensajeId) ->
                 CodigoErrorChat.IDENTIFICADOR_INVALIDO
             texto.isEmpty() ->
                 CodigoErrorChat.MENSAJE_VACIO
             texto.length > MAXIMO_CARACTERES ->
                 CodigoErrorChat.MENSAJE_DEMASIADO_LARGO
 
-            else -> null
-        }
+            else -> null }
 
-        if (errorValidacion != null) {
-            alCompletar(
-                Result.failure(ExcepcionChat(errorValidacion)))
-            return
-        }
+        if (errorValidacion != null) { alCompletar(Result.failure(ExcepcionChat(errorValidacion)))
+            return }
 
         val familiaRef = familias.document(familiaId)
         val miembroRef = familiaRef
@@ -121,57 +101,30 @@ class ChatFamiliaRepository {
             val usuario = transaccion.get(usuarioRef)
             val mensajeExistente = transaccion.get(mensajeRef)
 
-            if (!familia.exists()) {
-                throw ExcepcionChat(
-                    CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
-            if (!miembro.exists()) { throw ExcepcionChat(
-                CodigoErrorChat.SIN_ACCESO) }
-            if (!usuario.exists()) { throw ExcepcionChat(
-                CodigoErrorChat.PERFIL_NO_DISPONIBLE) }
+            if (!familia.exists()) { throw ExcepcionChat(CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
+            if (!miembro.exists()) { throw ExcepcionChat(CodigoErrorChat.SIN_ACCESO) }
+            if (!usuario.exists()) { throw ExcepcionChat(CodigoErrorChat.PERFIL_NO_DISPONIBLE) }
             val nombre = usuario
                 .getString(CAMPO_NOMBRE)
                 .orEmpty().trim()
-            if (nombre.isEmpty()) { throw ExcepcionChat(
-                CodigoErrorChat.NOMBRE_REQUERIDO) }
-            if (mensajeExistente.exists()) {
-                val mismoRemitente = mensajeExistente.getString(
-                    CAMPO_REMITENTE_ID
-                ) == uid
-                val mismoContenido = mensajeExistente.getString(
-                    CAMPO_CONTENIDO
-                ) == texto
-                if (!mismoRemitente || !mismoContenido) {
-                    throw ExcepcionChat(
-                        CodigoErrorChat.CONFLICTO_MENSAJE)
-                }
-            } else {
-                val datos = mutableMapOf<String, Any>(
-                    CAMPO_REMITENTE_ID to uid,
+            if (nombre.isEmpty()) { throw ExcepcionChat(CodigoErrorChat.NOMBRE_REQUERIDO) }
+            if (mensajeExistente.exists()) { val mismoRemitente = mensajeExistente.getString(CAMPO_REMITENTE_ID) == uid
+                val mismoContenido = mensajeExistente.getString(CAMPO_CONTENIDO) == texto
+                if (!mismoRemitente || !mismoContenido) { throw ExcepcionChat(CodigoErrorChat.CONFLICTO_MENSAJE) }
+            } else { val datos = mutableMapOf<String, Any>(CAMPO_REMITENTE_ID to uid,
                     CAMPO_NOMBRE_REMITENTE to nombre,
                     CAMPO_CONTENIDO to texto,
-                    CAMPO_FECHA_ENVIO to FieldValue.serverTimestamp()
-                )
+                    CAMPO_FECHA_ENVIO to FieldValue.serverTimestamp())
                 // Solo los registros de llamada llevan campos extra; los
                 // mensajes de texto se guardan exactamente igual que antes.
-                if (tipo != Mensaje.TIPO_TEXTO) {
-                    datos[CAMPO_TIPO] = tipo
-                    datos[CAMPO_DURACION_SEGUNDOS] = duracionSegundos
-                }
-                transaccion.set(mensajeRef, datos)
-            }
-            Unit
-        }.addOnSuccessListener {
-            alCompletar(Result.success(Unit))
+                if (tipo != Mensaje.TIPO_TEXTO) { datos[CAMPO_TIPO] = tipo
+                    datos[CAMPO_DURACION_SEGUNDOS] = duracionSegundos }
+                transaccion.set(mensajeRef, datos) }
+            Unit }.addOnSuccessListener { alCompletar(Result.success(Unit)) }.addOnFailureListener { error ->
+            alCompletar(Result.failure(ExcepcionChat.desde(error))) } }
 
-        }.addOnFailureListener { error ->
-            alCompletar(
-                Result.failure(ExcepcionChat.desde(error))
-            )
-        }
-    }
-
-    private fun esIdValido(id: String): Boolean {
-        return id.isNotBlank() &&
+    /** Un id válido de Firestore no está vacío ni contiene '/'. */
+    private fun esIdValido(id: String): Boolean { return id.isNotBlank() &&
                 !id.contains("/") &&
                 id != "." &&
                 id != ".."
@@ -192,5 +145,4 @@ class ChatFamiliaRepository {
         private const val CAMPO_FECHA_ENVIO = "fechaEnvio"
         private const val CAMPO_TIPO = "tipo"
         private const val CAMPO_DURACION_SEGUNDOS = "duracionSegundos"
-    }
-}
+    } }

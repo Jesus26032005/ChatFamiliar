@@ -2,6 +2,7 @@ package com.example.chatfamiliar.navigation
 
 import android.net.Uri
 
+/** Rutas de navegación y funciones para construirlas con sus argumentos codificados. */
 object Rutas {
     const val LOGIN = "login"
     const val REGISTRO = "registro"
@@ -16,13 +17,13 @@ object Rutas {
     const val CHAT_PRIVADO =
         "chat_privado/{conversacionId}"
 
-    fun crearRutaGestionFamilia(familiaId: String?): String {
-        return if (familiaId.isNullOrBlank()) { GESTION_FAMILIA }
+    /** Ruta de gestión de familia; sin id abre la opción de crear o unirse. */
+    fun crearRutaGestionFamilia(familiaId: String?): String { return if (familiaId.isNullOrBlank()) { GESTION_FAMILIA }
         else { "$GESTION_FAMILIA?familiaId=${Uri.encode(familiaId)}" } }
+    /** Ruta del chat de una familia con su nombre para la cabecera. */
     fun crearRutaChatFamilia(familiaId: String, nombre: String): String {
         return "chat_familia/${Uri.encode(familiaId)}" +
                 "?nombre=${Uri.encode(nombre)}" }
 
-    fun crearRutaChatPrivado(conversacionId: String): String {
-        return "chat_privado/${Uri.encode(conversacionId)}" }
-}
+    /** Ruta de un chat privado. */
+    fun crearRutaChatPrivado(conversacionId: String): String { return "chat_privado/${Uri.encode(conversacionId)}" } }

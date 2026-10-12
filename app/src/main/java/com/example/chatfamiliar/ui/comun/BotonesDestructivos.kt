@@ -13,13 +13,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Botón con contorno rojo para acciones peligrosas (abrir la confirmación). */
 @Composable
 fun BotonDestructivo(onClick: () -> Unit, modifier: Modifier = Modifier,
     enabled: Boolean = true, shape: Shape = RoundedCornerShape(16.dp),
-    content: @Composable RowScope.() -> Unit) {
-    val colores = MaterialTheme.funcional
-    OutlinedButton(
-        onClick = onClick,
+    content: @Composable RowScope.() -> Unit) { val colores = MaterialTheme.funcional
+    OutlinedButton(onClick = onClick,
         modifier = modifier,
         enabled = enabled,
         shape = shape,
@@ -28,13 +27,10 @@ fun BotonDestructivo(onClick: () -> Unit, modifier: Modifier = Modifier,
             } else { MaterialTheme.colorScheme.outlineVariant }),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = colores.destructivo),
         content = content) }
+/** Botón relleno rojo para confirmar una acción irreversible. */
 @Composable
-fun BotonConfirmarDestructivo(
-    onClick: () -> Unit, modifier: Modifier = Modifier,
-    enabled: Boolean = true, content: @Composable RowScope.() -> Unit) {
-    val colores = MaterialTheme.funcional
+fun BotonConfirmarDestructivo(onClick: () -> Unit, modifier: Modifier = Modifier,
+    enabled: Boolean = true, content: @Composable RowScope.() -> Unit) { val colores = MaterialTheme.funcional
     Button(onClick = onClick, modifier = modifier, enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colores.destructivo,
-            contentColor = colores.sobreDestructivo), content = content)
-}
+        colors = ButtonDefaults.buttonColors(containerColor = colores.destructivo,
+            contentColor = colores.sobreDestructivo), content = content) }

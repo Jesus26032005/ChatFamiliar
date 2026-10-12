@@ -11,44 +11,41 @@ import androidx.compose.ui.res.stringResource
 import com.example.chatfamiliar.data.language.IdiomaRepository
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.os.ConfigurationCompat
-typealias TraducirTexto = (
-    texto: String, codigoDestino: String,
-    alCompletar: (Result<String>) -> Unit
-) -> Unit
+/** Función que traduce un texto al idioma destino y devuelve el resultado por callback. */
+typealias TraducirTexto = (texto: String, codigoDestino: String,
+    alCompletar: (Result<String>) -> Unit) -> Unit
+/** Acceso a los textos de la app ya traducidos al idioma efectivo. */
 class TextosApp internal constructor(
     private val idiomaEfectivo: String,
-    private val traducir: TraducirTexto
-) { @Composable
-    fun texto(@StringRes recurso: Int): String {
-        return textoApp(recurso = recurso,
+    private val traducir: TraducirTexto) {
+    /** Texto del recurso en el idioma efectivo. */
+    @Composable
+    fun texto(@StringRes recurso: Int): String { return textoApp(recurso = recurso,
             idiomaEfectivo = idiomaEfectivo,
-            traducir = traducir) }
-}
+            traducir = traducir) } }
+/** Recuerda un TextosApp mientras no cambie el idioma. */
 @Composable
 fun recordarTextosApp(idiomaEfectivo: String,
-    traducir: TraducirTexto
-): TextosApp {
-    return remember(idiomaEfectivo, traducir
+    traducir: TraducirTexto): TextosApp { return remember(idiomaEfectivo, traducir
     ) { TextosApp(idiomaEfectivo = idiomaEfectivo,
-            traducir = traducir) }
-}
+            traducir = traducir) } }
 
+/**
+ * Devuelve el texto de un recurso. En español e inglés usa los recursos de
+ * Android; en otros idiomas muestra el texto base y lo reemplaza al traducirse.
+ */
 @Composable
 fun textoApp(
     @StringRes recurso: Int, idiomaEfectivo: String,
-    traducir: TraducirTexto
-): String {
-    val textoLocal = stringResource(recurso)
+    traducir: TraducirTexto): String { val textoLocal = stringResource(recurso)
     val esIdiomaLocal = idiomaEfectivo ==
             IdiomaRepository.ESPANOL
             || idiomaEfectivo == IdiomaRepository.INGLES
     if (esIdiomaLocal) { return textoLocal }
     var textoTraducido by remember(recurso,
-        idiomaEfectivo, textoLocal) {
-        mutableStateOf(textoLocal) }
+        idiomaEfectivo, textoLocal) { mutableStateOf(textoLocal) }
     LaunchedEffect(recurso, idiomaEfectivo,
-        textoLocal) {
-        traducir(textoLocal,
+        textoLocal) { traducir(textoLocal,
             idiomaEfectivo) { resultado ->
             resultado.onSuccess { traduccion ->
                 textoTraducido = traduccion }
@@ -57,6 +54,7 @@ fun textoApp(
                         "No se pudo traducir a $idiomaEfectivo: ${error.message}", error)
                     textoTraducido = textoLocal } } }
     return textoTraducido }
+/** Idioma elegido o, si se sigue el sistema, el idioma del dispositivo. */
 @Composable
 fun recordarIdiomaEfectivo(idiomaSeleccionado: String?)
 : String { val configuracion = LocalConfiguration.current
@@ -64,5 +62,4 @@ fun recordarIdiomaEfectivo(idiomaSeleccionado: String?)
         ConfigurationCompat
             .getLocales(configuracion)[0]
             ?.language ?: IdiomaRepository.ESPANOL
-    return idiomaSeleccionado ?: idiomaSistema
-}
+    return idiomaSeleccionado ?: idiomaSistema }

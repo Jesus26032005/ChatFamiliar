@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import androidx.lifecycle.viewModelScope
 import com.example.chatfamiliar.util.TimeoutSolicitud
 
+/** Estado y lógica de la pantalla de registro. */
 class RegistroViewModel : ViewModel() {
     private val authRepository =
         AuthRepository()
@@ -37,14 +38,14 @@ class RegistroViewModel : ViewModel() {
 
     fun actualizarCorreo(nuevoCorreo: String) { correo = nuevoCorreo
         errorRecurso = null }
-    fun actualizarPassword(nuevoPassword: String) {
-        password = nuevoPassword
+    fun actualizarPassword(nuevoPassword: String) { password = nuevoPassword
         errorRecurso = null }
-    fun actualizarConfirmarPassword(nuevoPassword: String) {
-        confirmarPassword = nuevoPassword
+    fun actualizarConfirmarPassword(nuevoPassword: String) { confirmarPassword = nuevoPassword
         errorRecurso = null }
-    fun crearCuenta(alTenerExito: () -> Unit) {
-        if (cargando) { return }
+    /**
+     * Valida el formulario, crea la cuenta en Firebase Authentication y después su perfil en Firestore.
+     */
+    fun crearCuenta(alTenerExito: () -> Unit) { if (cargando) { return }
 
         val correoLimpio = correo.trim()
 
@@ -54,72 +55,41 @@ class RegistroViewModel : ViewModel() {
 
         val solicitud = timeoutRegistro.iniciar(scope = viewModelScope) {
                 errorRecurso = R.string.register_error_network }
-        authRepository.crearUsuario(
-            correo = correoLimpio,
-            password = password
-        ) { resultadoAuth ->
+        authRepository.crearUsuario(correo = correoLimpio,
+            password = password) { resultadoAuth ->
             timeoutRegistro.completar(solicitud)
             resultadoAuth
                 .onSuccess { usuarioFirebase ->
-                    usuarioRepository.crearUsuario(
-                        uid = usuarioFirebase.uid,
-                        correo = usuarioFirebase.email ?: correoLimpio
-                    ) { resultadoFirestore ->
+                    usuarioRepository.crearUsuario(uid = usuarioFirebase.uid,
+                        correo = usuarioFirebase.email ?: correoLimpio) { resultadoFirestore ->
                         cargando = false
                         resultadoFirestore
-                            .onSuccess {
-                                alTenerExito() }
-                            .onFailure {
-                                errorRecurso =
+                            .onSuccess { alTenerExito() }
+                            .onFailure { errorRecurso =
                                     R.string
-                                        .register_error_profile_creation
-                            }
-                    }
-                }
+                                        .register_error_profile_creation } } }
                 .onFailure { excepcion ->
                     cargando = false
-                    errorRecurso = obtenerMensajeError(excepcion)
-                }
-        }
-    }
+                    errorRecurso = obtenerMensajeError(excepcion) } } }
 
-    private fun validarFormulario(correo: String): Boolean {
-        if (correo.isBlank() || password.isBlank()
-            || confirmarPassword.isBlank()) {
-            errorRecurso = R.string.register_error_empty_fields
-            return false
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
-            errorRecurso = R.string.register_error_invalid_email
-            return false
-        }
-        if (password.length < 6) {
-            errorRecurso = R.string.register_error_short_password
-            return false
-        }
-        if (password != confirmarPassword) {
-            errorRecurso = R.string.register_error_password_mismatch
-            return false
-        }
-        return true
-    }
+    /** Campos completos, correo válido, mínimo 6 caracteres y contraseñas iguales. */
+    private fun validarFormulario(correo: String): Boolean { if (correo.isBlank() || password.isBlank()
+            || confirmarPassword.isBlank()) { errorRecurso = R.string.register_error_empty_fields
+            return false }
+        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) { errorRecurso = R.string.register_error_invalid_email
+            return false }
+        if (password.length < 6) { errorRecurso = R.string.register_error_short_password
+            return false }
+        if (password != confirmarPassword) { errorRecurso = R.string.register_error_password_mismatch
+            return false }
+        return true }
 
+    /** Traduce la excepción de Firebase al texto que verá el usuario. */
     @StringRes
-    private fun obtenerMensajeError(
-        excepcion: Throwable
-    ): Int {
-        return when (excepcion) {
-            is FirebaseNetworkException -> {
-                R.string.register_error_network }
-            is FirebaseTooManyRequestsException -> {
-                R.string.register_error_too_many_requests }
-            is FirebaseAuthUserCollisionException -> {
-                R.string.register_error_email_in_use }
-            is FirebaseAuthWeakPasswordException -> {
-                R.string.register_error_weak_password }
-            is FirebaseAuthInvalidCredentialsException -> {
-                R.string.register_error_invalid_email_firebase }
-            else -> { R.string.register_error_generic }
-        }
-    }
-}
+    private fun obtenerMensajeError(excepcion: Throwable): Int { return when (excepcion) {
+            is FirebaseNetworkException -> { R.string.register_error_network }
+            is FirebaseTooManyRequestsException -> { R.string.register_error_too_many_requests }
+            is FirebaseAuthUserCollisionException -> { R.string.register_error_email_in_use }
+            is FirebaseAuthWeakPasswordException -> { R.string.register_error_weak_password }
+            is FirebaseAuthInvalidCredentialsException -> { R.string.register_error_invalid_email_firebase }
+            else -> { R.string.register_error_generic } } } }

@@ -6,35 +6,33 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
 
+/** Busca una familia que el usuario actual comparta con otra persona. */
 class FamiliaCompartidaRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val familias = firestore.collection(COLECCION_FAMILIAS)
+    /**
+     * Devuelve el id de una familia en la que ambos sigan siendo miembros, o
+     * null si ya no comparten ninguna. Se consulta al servidor y se revisa
+     * primero la familia preferida.
+     */
     fun buscarFamiliaCompartida(otroUsuarioId: String,
         familiaPreferidaId: String? = null,
-        alCompletar: (Result<String?>) -> Unit) {
-        val uid = auth.currentUser?.uid
-        if (uid.isNullOrBlank()) {
-            alCompletar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+        alCompletar: (Result<String?>) -> Unit) { val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
             return }
-        if (!esIdValido(otroUsuarioId) || otroUsuarioId == uid) {
-            alCompletar(Result.failure(
+        if (!esIdValido(otroUsuarioId) || otroUsuarioId == uid) { alCompletar(Result.failure(
                     ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)))
-            return
-        }
+            return }
 
         firestore
             .collectionGroup(SUBCOLECCION_MIEMBROS)
             .whereEqualTo(CAMPO_UID, uid)
             .get(Source.SERVER)
             .addOnSuccessListener { resultado ->
-                if (auth.currentUser?.uid != uid) {
-                    alCompletar(Result.failure(
-                            ExcepcionChat(
+                if (auth.currentUser?.uid != uid) { alCompletar(Result.failure(ExcepcionChat(
                                 CodigoErrorChat.SESION_REQUERIDA)))
-                    return@addOnSuccessListener
-                }
+                    return@addOnSuccessListener }
                 val familiasDelUsuario = resultado.documents
                     .mapNotNull { documento ->
                         documento.reference.parent.parent }
@@ -43,39 +41,24 @@ class FamiliaCompartidaRepository {
                     .map { familiaRef ->
                         familiaRef.id }
                     .distinct()
-                    .sortedWith(
-                        compareByDescending<String> {
-                            it == familiaPreferidaId
-                        }.thenBy { it })
+                    .sortedWith(compareByDescending<String> { it == familiaPreferidaId }.thenBy { it })
                 comprobarFamilias(uid = uid,
                     otroUsuarioId = otroUsuarioId,
                     familiasIds = familiasDelUsuario,
                     indice = 0, primerError = null,
-                    alCompletar = alCompletar)
-            }.addOnFailureListener { error ->
-                alCompletar(
-                    Result.failure(ExcepcionChat.desde(error)))
-            }
-    }
+                    alCompletar = alCompletar) }.addOnFailureListener { error ->
+                alCompletar(Result.failure(ExcepcionChat.desde(error))) } }
 
+    /** Revisa las familias una por una hasta encontrar una donde también esté el otro usuario. */
     private fun comprobarFamilias(uid: String, otroUsuarioId: String,
         familiasIds: List<String>, indice: Int,
         primerError: Throwable?,
-        alCompletar: (Result<String?>) -> Unit) {
-        if (auth.currentUser?.uid != uid) {
-            alCompletar(Result.failure(
+        alCompletar: (Result<String?>) -> Unit) { if (auth.currentUser?.uid != uid) { alCompletar(Result.failure(
                     ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
-            return
-        }
-        if (indice >= familiasIds.size) {
-            if (primerError != null) {
-                alCompletar(Result.failure(
-                        ExcepcionChat.desde(primerError)))
-            } else {
-                alCompletar(Result.success(null))
-            }
-            return
-        }
+            return }
+        if (indice >= familiasIds.size) { if (primerError != null) { alCompletar(Result.failure(
+                        ExcepcionChat.desde(primerError))) } else { alCompletar(Result.success(null)) }
+            return }
         val familiaId = familiasIds[indice]
         val familiaRef = familias.document(familiaId)
 
@@ -88,40 +71,28 @@ class FamiliaCompartidaRepository {
 
         Tasks.whenAllSuccess<DocumentSnapshot>(tareas)
             .addOnSuccessListener { documentos ->
-                if (auth.currentUser?.uid != uid) {
-                    alCompletar(
-                        Result.failure(
-                            ExcepcionChat(
-                                CodigoErrorChat.SESION_REQUERIDA))
-                    )
-                    return@addOnSuccessListener
-                }
+                if (auth.currentUser?.uid != uid) { alCompletar(Result.failure(ExcepcionChat(
+                                CodigoErrorChat.SESION_REQUERIDA)))
+                    return@addOnSuccessListener }
                 val familia = documentos[0]
                 val otroMiembro = documentos[1]
-                if (familia.exists() && otroMiembro.exists()) {
-                    alCompletar(Result.success(familiaId))
-                } else {
+                if (familia.exists() && otroMiembro.exists()) { alCompletar(Result.success(familiaId)) } else {
                     comprobarFamilias(uid = uid,
                         otroUsuarioId = otroUsuarioId,
                         familiasIds = familiasIds,
                         indice = indice + 1,
                         primerError = primerError,
-                        alCompletar = alCompletar) }
-            }.addOnFailureListener { error ->
-                comprobarFamilias(
-                    uid = uid, otroUsuarioId = otroUsuarioId,
+                        alCompletar = alCompletar) } }.addOnFailureListener { error ->
+                comprobarFamilias(uid = uid, otroUsuarioId = otroUsuarioId,
                     familiasIds = familiasIds, indice = indice + 1,
                     primerError = primerError ?: error,
-                    alCompletar = alCompletar)
-            }
-    }
-    private fun esIdValido(id: String): Boolean {
-        return id.isNotBlank() &&
+                    alCompletar = alCompletar) } }
+    /** Un id válido de Firestore no está vacío ni contiene '/'. */
+    private fun esIdValido(id: String): Boolean { return id.isNotBlank() &&
                 !id.contains("/") && id != "." && id != ".." }
 
     companion object {
         private const val COLECCION_FAMILIAS = "familias"
         private const val SUBCOLECCION_MIEMBROS = "miembros"
         private const val CAMPO_UID = "uid"
-    }
-}
+    } }

@@ -7,33 +7,27 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import java.security.MessageDigest
 
+/** Crea y observa el documento de cada conversación privada entre dos usuarios. */
 class ConversacionPrivadaRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private val conversaciones = firestore.collection(
-        COLECCION_CONVERSACIONES_PRIVADAS)
+    private val conversaciones = firestore.collection(COLECCION_CONVERSACIONES_PRIVADAS)
 
     private val familias = firestore.collection(COLECCION_FAMILIAS)
 
+    /**
+     * Devuelve el id de la conversación con otro usuario y la crea si no existe.
+     * Comprueba que ambos sean miembros de la familia indicada.
+     */
     fun obtenerOCrearConversacion(familiaId: String,
         otroUsuarioId: String,
-        alCompletar: (Result<String>) -> Unit) {
-        val uid = auth.currentUser?.uid
-        if (uid.isNullOrBlank()) {
-            alCompletar(
-                Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)
-                ))
-            return
-        }
+        alCompletar: (Result<String>) -> Unit) { val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+            return }
         if (!esIdValido(familiaId) ||
             !esIdValido(otroUsuarioId) ||
-            otroUsuarioId == uid) {
-            alCompletar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)
-                ))
-            return
-        }
+            otroUsuarioId == uid) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)))
+            return }
 
         val participantes = listOf(uid, otroUsuarioId).sorted()
         val conversacionId = generarConversacionId(participantes)
@@ -50,108 +44,61 @@ class ConversacionPrivadaRepository {
             val miembroActual = transaccion.get(miembroActualRef)
             val otroMiembro = transaccion.get(otroMiembroRef)
             val conversacion = transaccion.get(conversacionRef)
-            if (!familia.exists()) {
-                throw ExcepcionChat(
-                    CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
-            if (!miembroActual.exists() || !otroMiembro.exists()) {
-                throw ExcepcionChat(CodigoErrorChat.SIN_ACCESO)
-            }
-            if (conversacion.exists()) {
-                val participantesGuardados = conversacion.get(
-                    CAMPO_PARTICIPANTES) as? List<*>
-                if (participantesGuardados != participantes) {
-                    throw ExcepcionChat(
-                        CodigoErrorChat.DATOS_INVALIDOS) }
-                val familiaAnterior = conversacion.getString(
-                    CAMPO_FAMILIA_REFERENCIA_ID)
-                if (familiaAnterior != familiaId) {
-                    transaccion.update(
-                        conversacionRef,
+            if (!familia.exists()) { throw ExcepcionChat(CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
+            if (!miembroActual.exists() || !otroMiembro.exists()) { throw ExcepcionChat(CodigoErrorChat.SIN_ACCESO) }
+            if (conversacion.exists()) { val participantesGuardados = conversacion.get(CAMPO_PARTICIPANTES) as? List<*>
+                if (participantesGuardados != participantes) { throw ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS) }
+                val familiaAnterior = conversacion.getString(CAMPO_FAMILIA_REFERENCIA_ID)
+                if (familiaAnterior != familiaId) { transaccion.update(conversacionRef,
                         CAMPO_FAMILIA_REFERENCIA_ID,
-                        familiaId)
-                }
-            } else {
-                val datos = mapOf(
-                    CAMPO_PARTICIPANTES to participantes,
+                        familiaId) } } else { val datos = mapOf(CAMPO_PARTICIPANTES to participantes,
                     CAMPO_FAMILIA_REFERENCIA_ID to familiaId,
                     CAMPO_FECHA_CREACION to FieldValue.serverTimestamp(),
                     CAMPO_ULTIMO_MENSAJE_ID to "",
                     CAMPO_ULTIMO_MENSAJE to "",
                     CAMPO_ULTIMO_REMITENTE_ID to "",
                     CAMPO_NOMBRE_ULTIMO_REMITENTE to "",
-                    CAMPO_FECHA_ULTIMO_MENSAJE to null
-                )
-                transaccion.set(conversacionRef, datos)
-            }
-            conversacionId
+                    CAMPO_FECHA_ULTIMO_MENSAJE to null)
+                transaccion.set(conversacionRef, datos) }
+            conversacionId }.addOnSuccessListener { id ->
+            alCompletar(Result.success(id)) }.addOnFailureListener { error ->
+            alCompletar(Result.failure(ExcepcionChat.desde(error))) } }
 
-        }.addOnSuccessListener { id ->
-            alCompletar(Result.success(id))
-        }.addOnFailureListener { error ->
-            alCompletar(
-                Result.failure(ExcepcionChat.desde(error)))
-        }
-    }
-
-    fun escucharConversacion(
-        conversacionId: String,
-        alActualizar: (Result<ConversacionPrivada>) -> Unit
-    ): ListenerRegistration? {
-        val uid = auth.currentUser?.uid
-        if (uid.isNullOrBlank()) {
-            alActualizar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+    /** Escucha el documento de la conversación y valida que el usuario sea participante. */
+    fun escucharConversacion(conversacionId: String,
+        alActualizar: (Result<ConversacionPrivada>) -> Unit): ListenerRegistration? { val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) { alActualizar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
             return null }
-        if (!esIdValido(conversacionId)) { alActualizar(
-                Result.failure(
+        if (!esIdValido(conversacionId)) { alActualizar(Result.failure(
                     ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)))
             return null }
 
         return conversaciones
             .document(conversacionId)
             .addSnapshotListener { documento, error ->
-                if (error != null) {
-                    alActualizar(
-                        Result.failure(ExcepcionChat.desde(error)))
-                    return@addSnapshotListener
-                }
-                if (documento == null || !documento.exists()) {
-                    alActualizar(Result.failure(
-                            ExcepcionChat(
+                if (error != null) { alActualizar(Result.failure(ExcepcionChat.desde(error)))
+                    return@addSnapshotListener }
+                if (documento == null || !documento.exists()) { alActualizar(Result.failure(ExcepcionChat(
                                 CodigoErrorChat.DATOS_INVALIDOS)))
-                    return@addSnapshotListener
-                }
-                val resultado = runCatching {
-                    val conversacion = documento.toObject(
-                        ConversacionPrivada::class.java
-                    ) ?: throw ExcepcionChat(
-                        CodigoErrorChat.DATOS_INVALIDOS)
+                    return@addSnapshotListener }
+                val resultado = runCatching { val conversacion = documento.toObject(ConversacionPrivada::class.java
+                    ) ?: throw ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)
                     val participantes = conversacion.participantes
                     if (participantes.size != 2 ||
-                        participantes.distinct().size != 2
-                    ) { throw ExcepcionChat(
-                            CodigoErrorChat.DATOS_INVALIDOS) }
-                    if (uid !in participantes) {
-                        throw ExcepcionChat(
-                            CodigoErrorChat.SIN_ACCESO) }
+                        participantes.distinct().size != 2) { throw ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS) }
+                    if (uid !in participantes) { throw ExcepcionChat(CodigoErrorChat.SIN_ACCESO) }
                     conversacion.copy(id = documento.id) }
-                resultado.onSuccess {
-                    alActualizar(Result.success(it))
-                }.onFailure { errorLectura ->
-                    val errorChat = if (errorLectura is ExcepcionChat) {
-                        errorLectura
-                    } else {
-                        ExcepcionChat(
+                resultado.onSuccess { alActualizar(Result.success(it)) }.onFailure { errorLectura ->
+                    val errorChat = if (errorLectura is ExcepcionChat) { errorLectura } else { ExcepcionChat(
                             codigo = CodigoErrorChat.DATOS_INVALIDOS,
                             causa = errorLectura) }
-                    alActualizar(Result.failure(errorChat))
-                }
-            }
-    }
+                    alActualizar(Result.failure(errorChat)) } } }
 
-    private fun generarConversacionId(
-        participantes: List<String>
-    ): String {
+    /**
+     * Id determinista a partir de los dos participantes (SHA-256), de modo
+     * que la misma pareja siempre usa la misma conversación.
+     */
+    private fun generarConversacionId(participantes: List<String>): String {
         val contenido = participantes.joinToString(separator = "") {
             "${it.length}:$it"
         }
@@ -163,12 +110,10 @@ class ConversacionPrivadaRepository {
         return resumen.joinToString(separator = "") { byte ->
             (byte.toInt() and 0xff)
                 .toString(16)
-                .padStart(2, '0')
-        }
-    }
+                .padStart(2, '0') } }
 
-    private fun esIdValido(id: String): Boolean {
-        return id.isNotBlank() &&
+    /** Un id válido de Firestore no está vacío ni contiene '/'. */
+    private fun esIdValido(id: String): Boolean { return id.isNotBlank() &&
                 !id.contains("/") &&
                 id != "." &&
                 id != ".."
@@ -193,5 +138,4 @@ class ConversacionPrivadaRepository {
             "nombreUltimoRemitente"
         private const val CAMPO_FECHA_ULTIMO_MENSAJE =
             "fechaUltimoMensaje"
-    }
-}
+    } }

@@ -10,9 +10,9 @@ import com.example.chatfamiliar.model.ConversacionResumen
 import com.example.chatfamiliar.model.Familia
 import com.example.chatfamiliar.ui.language.TraducirTexto
 
+/** Pestaña Inicio: reúne los chats familiares y privados en una sola lista. */
 @Composable
-fun PantallaInicioConversaciones(
-    uidActual: String,
+fun PantallaInicioConversaciones(uidActual: String,
     familiasConfirmadas: List<Familia>?,
     cargandoFamilias: Boolean,
     @StringRes errorFamiliasRecurso: Int?,
@@ -27,45 +27,32 @@ fun PantallaInicioConversaciones(
     modifier: Modifier = Modifier,
     familiasViewModel: FamiliasInicioViewModel = viewModel(),
     privadosViewModel: PrivadosInicioViewModel = viewModel(),
-    inicioViewModel: InicioConversacionesViewModel = viewModel()
-) {
-    DisposableEffect(uidActual,
+    inicioViewModel: InicioConversacionesViewModel = viewModel()) { DisposableEffect(uidActual,
         familiasViewModel,
         privadosViewModel,
-        inicioViewModel
-    ) {
-        inicioViewModel.limpiar()
+        inicioViewModel) { inicioViewModel.limpiar()
         familiasViewModel.detener()
         privadosViewModel.detener()
         if (uidActual.isNotBlank()) { privadosViewModel.iniciar() }
         onDispose { familiasViewModel.detener()
             privadosViewModel.detener()
-            inicioViewModel.limpiar()
-        }
-    }
+            inicioViewModel.limpiar() } }
 
-    LaunchedEffect(uidActual, familiasConfirmadas, familiasViewModel) {
-        if (uidActual.isNotBlank()) {
+    LaunchedEffect(uidActual, familiasConfirmadas, familiasViewModel) { if (uidActual.isNotBlank()) {
             familiasConfirmadas?.let { familias ->
-                familiasViewModel.sincronizarFamilias(familias) } }
-    }
+                familiasViewModel.sincronizarFamilias(familias) } } }
 
     LaunchedEffect(uidActual,
         familiasViewModel.conversaciones,
         privadosViewModel.conversaciones,
-        inicioViewModel
-    ) {
-        if (uidActual.isNotBlank()) {
-            inicioViewModel.actualizarConversaciones(
+        inicioViewModel) { if (uidActual.isNotBlank()) { inicioViewModel.actualizarConversaciones(
                 familiasViewModel.conversaciones,
-                privadosViewModel.conversaciones) }
-    }
+                privadosViewModel.conversaciones) } }
 
     val errorFamiliasVisible =
         errorFamiliasRecurso
             ?: familiasViewModel.errorSesionRecurso
-    ContenidoInicioConversaciones(
-        uidActual = uidActual,
+    ContenidoInicioConversaciones(uidActual = uidActual,
         conversaciones = inicioViewModel.conversaciones,
         conversacionesFiltradas =
             inicioViewModel.conversacionesFiltradas,
@@ -90,17 +77,11 @@ fun PantallaInicioConversaciones(
             inicioViewModel::seleccionarFiltro,
         alAbrirConversacion = alAbrirConversacion,
         alReintentarConversacion = { conversacion ->
-            when (conversacion.tipo) {
-                ConversacionResumen.TIPO_FAMILIA -> {
-                    familiasViewModel.reintentarFamilia(
+            when (conversacion.tipo) { ConversacionResumen.TIPO_FAMILIA -> { familiasViewModel.reintentarFamilia(
                         conversacion.id) }
-                ConversacionResumen.TIPO_PRIVADO -> {
-                    privadosViewModel.reintentarConversacion(
-                        conversacion.id) } } },
+                ConversacionResumen.TIPO_PRIVADO -> { privadosViewModel.reintentarConversacion(conversacion.id) } } },
         alReintentarFamilias = alReintentarFamilias,
         alReintentarPrivados = privadosViewModel::recargar,
         alVerFamilias = alVerFamilias,
         alNuevoMensaje = alNuevoMensaje,
-        modifier = modifier
-    )
-}
+        modifier = modifier) }

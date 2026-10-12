@@ -26,20 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/** Tarjeta que se muestra cuando el usuario aún no pertenece a ninguna familia. */
 @Composable
-fun EstadoSinFamilia(
-    titulo: String, descripcion: String, textoCrear: String, textoUnirse: String,
+fun EstadoSinFamilia(titulo: String, descripcion: String, textoCrear: String, textoUnirse: String,
     alCrearFamilia: () -> Unit, alUnirseFamilia: () -> Unit, modifier: Modifier = Modifier) {
     Surface(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer
-    ) { Column(modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainer) { Column(modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-        ) { Spacer(modifier = Modifier.height(24.dp))
+        verticalArrangement = Arrangement.Center) { Spacer(modifier = Modifier.height(24.dp))
             Surface(modifier = Modifier.size(64.dp), shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) { Box(contentAlignment = Alignment.Center
+                color = MaterialTheme.colorScheme.primaryContainer) { Box(contentAlignment = Alignment.Center
                 ) { Icon(imageVector = Icons.Filled.Home, contentDescription = null,
                         modifier = Modifier.size(32.dp),
                 tint = MaterialTheme.colorScheme.primary) } }
@@ -52,13 +49,11 @@ fun EstadoSinFamilia(
                 color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = alCrearFamilia, modifier = Modifier.fillMaxWidth(0.85f),
-                shape = RoundedCornerShape(16.dp)) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                shape = RoundedCornerShape(16.dp)) { Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = textoCrear, fontWeight = FontWeight.SemiBold) }
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedButton(onClick = alUnirseFamilia, modifier = Modifier.fillMaxWidth(
                 0.85f), shape = RoundedCornerShape(16.dp)
             ) { Text(text = textoUnirse, fontWeight = FontWeight.SemiBold) }
-            Spacer(modifier = Modifier.height(24.dp)) } }
-}
+            Spacer(modifier = Modifier.height(24.dp)) } } }

@@ -17,6 +17,10 @@ import com.example.chatfamiliar.model.Mensaje
 import com.example.chatfamiliar.util.TimeoutSolicitud
 import com.google.firebase.firestore.ListenerRegistration
 
+/**
+ * Sincroniza el marcador de lectura de un chat con Firestore: lo escucha y
+ * lo avanza conforme el usuario ve los mensajes.
+ */
 class LecturaChatViewModel : ViewModel() {
     private val authRepository = AuthRepository()
     private val familiaRepository = LecturaFamiliaRepository()
@@ -49,50 +53,43 @@ class LecturaChatViewModel : ViewModel() {
         private set
     val necesitaHistorialAnterior: Boolean
         get() { val actual = lectura ?: return false
-            if (!lecturaDisponible || historialCompleto || mensajesActuales.isEmpty()) {
-                return false }
-            val cursorPresente = mensajesActuales.any {
-                it.id == actual.ultimoMensajeLeidoId && it.fechaEnvio ==
+            if (!lecturaDisponible || historialCompleto || mensajesActuales.isEmpty()) { return false }
+            val cursorPresente = mensajesActuales.any { it.id == actual.ultimoMensajeLeidoId && it.fechaEnvio ==
                         actual.fechaUltimoMensajeLeido }
             return !cursorPresente }
-    fun iniciar(tipo: String, id: String) {
-        val uid = authRepository.obtenerUsuarioActual()?.uid
-        if (uid.isNullOrBlank()) {
-            detener()
+    /** Empieza a escuchar la lectura de una conversación familiar o privada. */
+    fun iniciar(tipo: String, id: String) { val uid = authRepository.obtenerUsuarioActual()?.uid
+        if (uid.isNullOrBlank()) { detener()
             errorLecturaRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA)
             return }
         val tipoValido = tipo == ConversacionResumen.TIPO_FAMILIA ||
                     tipo == ConversacionResumen.TIPO_PRIVADO
         val idValido = id.isNotBlank() && "/" !in id && id != "." && id != ".."
-        if (!tipoValido || !idValido) {
-            detener()
+        if (!tipoValido || !idValido) { detener()
             errorLecturaRecurso = recursoError(CodigoErrorChat.IDENTIFICADOR_INVALIDO)
             return }
-        if (uidActual == uid && tipoActual == tipo && conversacionId == id && escucha != null) {
-            return }
+        if (uidActual == uid && tipoActual == tipo && conversacionId == id && escucha != null) { return }
         detener()
         uidActual = uid
         tipoActual = tipo
         conversacionId = id
         escucharLectura() }
-    fun actualizarHistorial(mensajes: List<Mensaje>, completo: Boolean) {
-        mensajesActuales = mensajes.toList()
+    /** Recibe los mensajes cargados por el chat e intenta avanzar la lectura. */
+    fun actualizarHistorial(mensajes: List<Mensaje>, completo: Boolean) { mensajesActuales = mensajes.toList()
         historialCompleto = completo
         intentarGuardarAvance() }
-    fun registrarMensajesVisibles(ids: Set<String>) {
-        controlLectura.registrarMensajesVisibles(idsVisibles = ids,
+    /** Recibe los mensajes visibles en pantalla e intenta avanzar la lectura. */
+    fun registrarMensajesVisibles(ids: Set<String>) { controlLectura.registrarMensajesVisibles(idsVisibles = ids,
             mensajesCargados = mensajesActuales)
         intentarGuardarAvance() }
-    fun reintentar() {
-        if (!sesionVigente(versionSesion)) return
+    /** Reintenta la escucha o el guardado después de un error. */
+    fun reintentar() { if (!sesionVigente(versionSesion)) return
         if (!lecturaDisponible) { escucharLectura() }
-        if (!guardandoLectura) {
-            guardadoBloqueado = false
+        if (!guardandoLectura) { guardadoBloqueado = false
             errorGuardadoRecurso = null
-            intentarGuardarAvance() }
-    }
-    private fun escucharLectura() {
-        if (!sesionVigente(versionSesion)) return
+            intentarGuardarAvance() } }
+    /** Escucha el marcador de lectura guardado en Firestore. */
+    private fun escucharLectura() { if (!sesionVigente(versionSesion)) return
         escucha?.remove()
         escucha = null
         timeoutEscucha.cancelar()
@@ -101,22 +98,18 @@ class LecturaChatViewModel : ViewModel() {
         lecturaDisponible = false
         cargandoLectura = true
         errorLecturaRecurso = null
-        timeoutEscucha.iniciar(scope = viewModelScope) {
-            if (sesionVigente(sesion) && numeroEscucha == versionEscucha) {
+        timeoutEscucha.iniciar(scope = viewModelScope) { if (sesionVigente(sesion) && numeroEscucha == versionEscucha) {
                 cargandoLectura = false
                 errorLecturaRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
         val alRecibir: (Result<LecturaConversacion>) -> Unit =
             respuesta@{ resultado ->
-                if (!sesionVigente(sesion) || numeroEscucha != versionEscucha) {
-                    return@respuesta }
+                if (!sesionVigente(sesion) || numeroEscucha != versionEscucha) { return@respuesta }
                 timeoutEscucha.cancelar()
                 cargandoLectura = false
                 resultado
                     .onSuccess { nuevaLectura ->
-                        if (!esLecturaValida(nuevaLectura)) {
-                            lecturaDisponible = false
-                            errorLecturaRecurso = recursoError(CodigoErrorChat.DATOS_INVALIDOS)
-                        } else {
+                        if (!esLecturaValida(nuevaLectura)) { lecturaDisponible = false
+                            errorLecturaRecurso = recursoError(CodigoErrorChat.DATOS_INVALIDOS) } else {
                             aplicarLectura(nuevaLectura)
                             lecturaDisponible = true
                             errorLecturaRecurso = null
@@ -124,15 +117,12 @@ class LecturaChatViewModel : ViewModel() {
                     .onFailure { error ->
                         lecturaDisponible = false
                         errorLecturaRecurso = obtenerRecursoErrorChat(error) } }
-        escucha = when (tipoActual) {
-            ConversacionResumen.TIPO_FAMILIA -> {
+        escucha = when (tipoActual) { ConversacionResumen.TIPO_FAMILIA -> {
                 familiaRepository.escucharLectura(conversacionId, alRecibir)}
-            ConversacionResumen.TIPO_PRIVADO -> {
-                privadoRepository.escucharLectura(conversacionId, alRecibir) }
-            else -> null
-        } }
-    private fun intentarGuardarAvance() {
-        if (!sesionVigente(versionSesion) || !lecturaDisponible ||
+            ConversacionResumen.TIPO_PRIVADO -> { privadoRepository.escucharLectura(conversacionId, alRecibir) }
+            else -> null } }
+    /** Si hay un mensaje más lejano que se puede marcar como leído, lo guarda. */
+    private fun intentarGuardarAvance() { if (!sesionVigente(versionSesion) || !lecturaDisponible ||
             guardandoLectura || guardadoBloqueado) { return }
         val lecturaActual = lectura ?: return
         val candidato = controlLectura.buscarSiguienteLectura(uidActual = uidActual,
@@ -144,21 +134,17 @@ class LecturaChatViewModel : ViewModel() {
         guardandoLectura = true
         errorGuardadoRecurso = null
         val solicitud = timeoutGuardado.iniciar(scope = viewModelScope) {
-            if (sesionVigente(sesion) && guardado == versionGuardado) {
-                versionGuardado++
+            if (sesionVigente(sesion) && guardado == versionGuardado) { versionGuardado++
                 guardandoLectura = false
                 guardadoBloqueado = true
-                errorGuardadoRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) }
-        }
+                errorGuardadoRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
 
         val alGuardar: (Result<Unit>) -> Unit =
             respuesta@{ resultado ->
-                if (!sesionVigente(sesion) || guardado != versionGuardado) {
-                    return@respuesta }
+                if (!sesionVigente(sesion) || guardado != versionGuardado) { return@respuesta }
                 if (!timeoutGuardado.completar(solicitud)) { return@respuesta }
                 guardandoLectura = false
-                resultado.onSuccess {
-                        aplicarLectura(LecturaConversacion(
+                resultado.onSuccess { aplicarLectura(LecturaConversacion(
                                 uid = uidActual, ultimoMensajeLeidoId = candidato.id,
                                 fechaUltimoMensajeLeido = fechaCandidato))
                         errorGuardadoRecurso = null
@@ -166,28 +152,23 @@ class LecturaChatViewModel : ViewModel() {
                     .onFailure { error ->
                         guardadoBloqueado = true
                         errorGuardadoRecurso = obtenerRecursoErrorChat(error) } }
-        when (tipoActual) {
-            ConversacionResumen.TIPO_FAMILIA -> {
-                familiaRepository.actualizarLectura(conversacionId,
+        when (tipoActual) { ConversacionResumen.TIPO_FAMILIA -> { familiaRepository.actualizarLectura(conversacionId,
                     candidato.id, alGuardar) }
-            ConversacionResumen.TIPO_PRIVADO -> {
-                privadoRepository.actualizarLectura(conversacionId,
-                    candidato.id, alGuardar) }
-        } }
+            ConversacionResumen.TIPO_PRIVADO -> { privadoRepository.actualizarLectura(conversacionId,
+                    candidato.id, alGuardar) } } }
 
-    private fun aplicarLectura(nueva: LecturaConversacion) {
-        val anterior = lectura
-        if (anterior == null || compararLecturas(nueva, anterior) > 0) {
-            lectura = nueva }
-        lectura?.let { controlLectura.descartarHastaLecturaConfirmada(it) }
-    }
+    /** Actualiza la lectura local si la nueva es más reciente. */
+    private fun aplicarLectura(nueva: LecturaConversacion) { val anterior = lectura
+        if (anterior == null || compararLecturas(nueva, anterior) > 0) { lectura = nueva }
+        lectura?.let { controlLectura.descartarHastaLecturaConfirmada(it) } }
 
-    private fun esLecturaValida(valor: LecturaConversacion): Boolean {
-        if (valor.uid != uidActual) return false
+    /** La lectura debe ser del usuario actual y tener id y fecha juntos (o ninguno). */
+    private fun esLecturaValida(valor: LecturaConversacion): Boolean { if (valor.uid != uidActual) return false
         val tieneId = valor.ultimoMensajeLeidoId.isNotBlank()
         val tieneFecha = valor.fechaUltimoMensajeLeido != null
         return tieneId == tieneFecha }
 
+    /** Compara dos lecturas por fecha y, si empatan, por id. */
     private fun compararLecturas(primera: LecturaConversacion, segunda: LecturaConversacion): Int {
         val fechaPrimera = primera.fechaUltimoMensajeLeido
         val fechaSegunda = segunda.fechaUltimoMensajeLeido
@@ -198,17 +179,16 @@ class LecturaChatViewModel : ViewModel() {
         return if (porFecha != 0) { porFecha } else {
             primera.ultimoMensajeLeidoId.compareTo(segunda.ultimoMensajeLeidoId) } }
 
-    private fun sesionVigente(version: Int): Boolean {
-        return version == versionSesion && uidActual.isNotBlank() &&
+    /** true si la operación pertenece a la sesión y al usuario actuales. */
+    private fun sesionVigente(version: Int): Boolean { return version == versionSesion && uidActual.isNotBlank() &&
                 authRepository.obtenerUsuarioActual()?.uid == uidActual }
 
+    /** Texto de error para un código de chat. */
     @StringRes
-    private fun recursoError(codigo: CodigoErrorChat): Int {
-        return obtenerRecursoErrorChat(ExcepcionChat(codigo))
-    }
+    private fun recursoError(codigo: CodigoErrorChat): Int { return obtenerRecursoErrorChat(ExcepcionChat(codigo)) }
 
-    fun detener() {
-        versionSesion++
+    /** Retira la escucha y limpia el estado. */
+    fun detener() { versionSesion++
         versionEscucha++
         versionGuardado++
         escucha?.remove()
@@ -227,11 +207,7 @@ class LecturaChatViewModel : ViewModel() {
         cargandoLectura = false
         guardandoLectura = false
         errorLecturaRecurso = null
-        errorGuardadoRecurso = null
-    }
+        errorGuardadoRecurso = null }
 
-    override fun onCleared() {
-        detener()
-        super.onCleared()
-    }
-}
+    override fun onCleared() { detener()
+        super.onCleared() } }

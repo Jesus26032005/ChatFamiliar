@@ -55,9 +55,9 @@ import com.example.chatfamiliar.ui.theme.funcional
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
+/** Lista de chats de Inicio con buscador, filtros, estados de carga, vacío y error. */
 @Composable
-fun ContenidoInicioConversaciones(
-    uidActual: String, conversaciones: List<EstadoConversacionInicio>,
+fun ContenidoInicioConversaciones(uidActual: String, conversaciones: List<EstadoConversacionInicio>,
     conversacionesFiltradas: List<EstadoConversacionInicio>, busqueda: String,
     filtroSeleccionado: FiltroConversaciones, hayConteosPendientes: Boolean,
     hayFamilias: Boolean, cargandoFamilias: Boolean,
@@ -69,39 +69,26 @@ fun ContenidoInicioConversaciones(
     alAbrirConversacion: (ConversacionResumen) -> Unit,
     alReintentarConversacion: (ConversacionResumen) -> Unit,
     alReintentarFamilias: () -> Unit, alReintentarPrivados: () -> Unit,
-    alVerFamilias: () -> Unit, alNuevoMensaje: () -> Unit, modifier: Modifier = Modifier
-) {
-    val textos = recordarTextosApp(
-        idiomaEfectivo = idiomaEfectivo,
+    alVerFamilias: () -> Unit, alNuevoMensaje: () -> Unit, modifier: Modifier = Modifier) {
+    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
         traducir = traducir)
     val funcional = MaterialTheme.funcional
     val contexto = LocalContext.current
     val estadoLista = rememberLazyListState()
 
-    var ahoraMillis by remember {
-        mutableStateOf(System.currentTimeMillis())
-    }
+    var ahoraMillis by remember { mutableStateOf(System.currentTimeMillis()) }
 
-    LaunchedEffect(Unit) {
-        while (isActive) {
-            ahoraMillis = System.currentTimeMillis()
-            delay(60_000L)
-        }
-    }
+    LaunchedEffect(Unit) { while (isActive) { ahoraMillis = System.currentTimeMillis()
+            delay(60_000L) } }
 
-    LaunchedEffect(busqueda, filtroSeleccionado) {
-        estadoLista.scrollToItem(0)
-    }
+    LaunchedEffect(busqueda, filtroSeleccionado) { estadoLista.scrollToItem(0) }
 
     // Si estás arriba y llega un chat nuevo (o cambia cuál es el más
     // reciente), la lista se queda arriba para que lo veas. Si bajaste
     // tú mismo, se respeta tu posición.
     val primeraClave = conversacionesFiltradas.firstOrNull()?.clave
-    LaunchedEffect(primeraClave) {
-        if (primeraClave != null && estadoLista.firstVisibleItemIndex <= 1) {
-            estadoLista.scrollToItem(0)
-        }
-    }
+    LaunchedEffect(primeraClave) { if (primeraClave != null && estadoLista.firstVisibleItemIndex <= 1) {
+            estadoLista.scrollToItem(0) } }
 
     val formato24Horas = DateFormat.is24HourFormat(contexto)
     val textoAyer = textos.texto(R.string.chat_date_yesterday)
@@ -120,406 +107,196 @@ fun ContenidoInicioConversaciones(
                 (incluyePrivados && errorPrivadosRecurso != null)
 
     val conversacionesDelTipo = conversaciones.filter { estado ->
-        when (filtroSeleccionado) {
-            FiltroConversaciones.FAMILIAS ->
+        when (filtroSeleccionado) { FiltroConversaciones.FAMILIAS ->
                 estado.resumen.tipo == ConversacionResumen.TIPO_FAMILIA
 
             FiltroConversaciones.PRIVADOS ->
                 estado.resumen.tipo == ConversacionResumen.TIPO_PRIVADO
 
-            else -> true
-        }
-    }
+            else -> true } }
 
-    val nombresPendientes = conversacionesDelTipo.any {
-        it.cargandoNombre || it.errorNombreRecurso != null
-    }
+    val nombresPendientes = conversacionesDelTipo.any { it.cargandoNombre || it.errorNombreRecurso != null }
 
-    val hayErroresDeConteo = conversaciones.any {
-        it.errorConteoRecurso != null
-    }
+    val hayErroresDeConteo = conversaciones.any { it.errorConteoRecurso != null }
 
-    val hayErroresDeNombre = conversacionesDelTipo.any {
-        it.errorNombreRecurso != null
-    }
+    val hayErroresDeNombre = conversacionesDelTipo.any { it.errorNombreRecurso != null }
 
-    val reintentarConteos: () -> Unit = {
-        conversaciones
+    val reintentarConteos: () -> Unit = { conversaciones
             .filter { it.errorConteoRecurso != null }
-            .forEach { alReintentarConversacion(it.resumen) }
-    }
+            .forEach { alReintentarConversacion(it.resumen) } }
 
-    val reintentarNombres: () -> Unit = {
-        conversacionesDelTipo
+    val reintentarNombres: () -> Unit = { conversacionesDelTipo
             .filter { it.errorNombreRecurso != null }
-            .forEach { alReintentarConversacion(it.resumen) }
-    }
+            .forEach { alReintentarConversacion(it.resumen) } }
 
-    Column(
-        modifier = modifier
+    Column(modifier = modifier
             .fillMaxSize()
             .safeDrawingPadding()
-            .imePadding()
-    ) {
-        Row(
-            modifier = Modifier
+            .imePadding()) { Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = textos.texto(R.string.chat_home_title),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) { Text(text = textos.texto(R.string.chat_home_title),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = funcional.encabezado
-            )
+                color = funcional.encabezado)
 
-            ControlIdiomaCompacto(
-                idiomaSeleccionado = idiomaSeleccionado,
+            ControlIdiomaCompacto(idiomaSeleccionado = idiomaSeleccionado,
                 idiomaEfectivo = idiomaEfectivo,
                 traducir = traducir,
-                alSeleccionarIdioma = alSeleccionarIdioma
-            )
-        }
+                alSeleccionarIdioma = alSeleccionarIdioma) }
 
-        TarjetaBienvenida(
-            titulo = textos.texto(R.string.chat_home_intro),
-            descripcion = textos.texto(R.string.chat_home_intro_description)
-        )
+        TarjetaBienvenida(titulo = textos.texto(R.string.chat_home_intro),
+            descripcion = textos.texto(R.string.chat_home_intro_description))
 
-        BuscadorFiltrosConversaciones(
-            busqueda = busqueda,
+        BuscadorFiltrosConversaciones(busqueda = busqueda,
             filtroSeleccionado = filtroSeleccionado,
             hayConteosPendientes = hayConteosPendientes,
             idiomaEfectivo = idiomaEfectivo,
             traducir = traducir,
             alCambiarBusqueda = alCambiarBusqueda,
             alLimpiarBusqueda = alLimpiarBusqueda,
-            alSeleccionarFiltro = alSeleccionarFiltro
-        )
+            alSeleccionarFiltro = alSeleccionarFiltro)
 
-        Box(
-            modifier = Modifier
+        Box(modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                .weight(1f)) { LazyColumn(modifier = Modifier.fillMaxSize(),
                 state = estadoLista,
-                contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = 100.dp
-                )
-            ) {
-                if (incluyeFamilias && errorFamiliasRecurso != null) {
-                    item(key = "error_familias") {
-                        EstadoErrorConversaciones(
-                            titulo = textos.texto(
-                                R.string.chat_home_family_error
-                            ),
+                contentPadding = PaddingValues(top = 8.dp,
+                    bottom = 100.dp)) { if (incluyeFamilias && errorFamiliasRecurso != null) {
+                    item(key = "error_familias") { EstadoErrorConversaciones(titulo = textos.texto(
+                                R.string.chat_home_family_error),
                             mensaje = textos.texto(errorFamiliasRecurso),
-                            textoReintentar = textos.texto(
-                                R.string.chat_item_retry
-                            ),
-                            alReintentar = alReintentarFamilias
-                        )
-                    }
-                }
+                            textoReintentar = textos.texto(R.string.chat_item_retry),
+                            alReintentar = alReintentarFamilias) } }
 
-                if (incluyePrivados && errorPrivadosRecurso != null) {
-                    item(key = "error_privados") {
-                        EstadoErrorConversaciones(
-                            titulo = textos.texto(
-                                R.string.chat_home_private_error
-                            ),
+                if (incluyePrivados && errorPrivadosRecurso != null) { item(key = "error_privados") {
+                        EstadoErrorConversaciones(titulo = textos.texto(R.string.chat_home_private_error),
                             mensaje = textos.texto(errorPrivadosRecurso),
-                            textoReintentar = textos.texto(
-                                R.string.chat_item_retry
-                            ),
-                            alReintentar = alReintentarPrivados
-                        )
-                    }
-                }
+                            textoReintentar = textos.texto(R.string.chat_item_retry),
+                            alReintentar = alReintentarPrivados) } }
 
                 // El indicador de carga va ARRIBA de la lista. Si quedaba abajo,
                 // la lista se "anclaba" a él y al llegar los chats se veía
                 // el final en lugar del primero.
-                if (cargandoFuentes) {
-                    item(key = "carga_fuentes") {
-                        EstadoCargaConversaciones(
-                            titulo = textos.texto(
-                                R.string.chat_list_loading_title
-                            ),
-                            descripcion = textos.texto(
-                                R.string.chat_list_loading_description
-                            )
-                        )
-                    }
-                }
+                if (cargandoFuentes) { item(key = "carga_fuentes") { EstadoCargaConversaciones(titulo = textos.texto(
+                                R.string.chat_list_loading_title),
+                            descripcion = textos.texto(R.string.chat_list_loading_description)) } }
 
-                items(
-                    items = conversacionesFiltradas,
-                    key = { it.clave }
-                ) { estado ->
-                    val fechaVisible = formatearFechaConversacion(
-                        fecha = estado.resumen.fechaUltimoMensaje,
+                items(items = conversacionesFiltradas,
+                    key = { it.clave }) { estado ->
+                    val fechaVisible = formatearFechaConversacion(fecha = estado.resumen.fechaUltimoMensaje,
                         idiomaEfectivo = idiomaEfectivo,
                         formato24Horas = formato24Horas,
                         textoAyer = textoAyer,
-                        ahoraMillis = ahoraMillis
-                    )
+                        ahoraMillis = ahoraMillis)
 
-                    ItemConversacion(
-                        estado = estado,
+                    ItemConversacion(estado = estado,
                         uidActual = uidActual,
                         textoFecha = fechaVisible,
                         idiomaEfectivo = idiomaEfectivo,
                         traducir = traducir,
-                        alAbrir = {
-                            alAbrirConversacion(estado.resumen)
-                        },
-                        alReintentar = {
-                            alReintentarConversacion(estado.resumen)
-                        }
-                    )
-                }
+                        alAbrir = { alAbrirConversacion(estado.resumen) },
+                        alReintentar = { alReintentarConversacion(estado.resumen) }) }
 
-                if (
-                    conversacionesFiltradas.isEmpty() &&
+                if (conversacionesFiltradas.isEmpty() &&
                     !cargandoFuentes &&
-                    !hayErrorFuentes
-                ) {
-                    item(key = "estado_sin_resultados") {
-                        when {
-                            filtroSeleccionado ==
+                    !hayErrorFuentes) { item(key = "estado_sin_resultados") { when { filtroSeleccionado ==
                                     FiltroConversaciones.NO_LEIDOS &&
-                                    hayConteosPendientes -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_home_pending_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_unread_pending
-                                    ),
-                                    textoAccion = if (hayErroresDeConteo) {
-                                        textos.texto(R.string.chat_item_retry)
-                                    } else {
-                                        null
-                                    },
-                                    alAccion = if (hayErroresDeConteo) {
-                                        reintentarConteos
-                                    } else {
-                                        null
-                                    }
-                                )
-                            }
+                                    hayConteosPendientes -> { EstadoVacioConversaciones(titulo = textos.texto(
+                                        R.string.chat_home_pending_title),
+                                    descripcion = textos.texto(R.string.chat_unread_pending),
+                                    textoAccion = if (hayErroresDeConteo) { textos.texto(R.string.chat_item_retry)
+                                    } else { null },
+                                    alAccion = if (hayErroresDeConteo) { reintentarConteos } else { null }) }
 
-                            busqueda.isNotBlank() && nombresPendientes -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_home_search_incomplete_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_home_search_incomplete_description
-                                    ),
-                                    textoAccion = if (hayErroresDeNombre) {
-                                        textos.texto(R.string.chat_item_retry)
-                                    } else {
-                                        null
-                                    },
-                                    alAccion = if (hayErroresDeNombre) {
-                                        reintentarNombres
-                                    } else {
-                                        null
-                                    }
-                                )
-                            }
+                            busqueda.isNotBlank() && nombresPendientes -> { EstadoVacioConversaciones(
+                                    titulo = textos.texto(R.string.chat_home_search_incomplete_title),
+                                    descripcion = textos.texto(R.string.chat_home_search_incomplete_description),
+                                    textoAccion = if (hayErroresDeNombre) { textos.texto(R.string.chat_item_retry)
+                                    } else { null },
+                                    alAccion = if (hayErroresDeNombre) { reintentarNombres } else { null }) }
 
-                            busqueda.isNotBlank() -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_list_no_results_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_list_no_results_description
-                                    ),
-                                    textoAccion = textos.texto(
-                                        R.string.chat_search_clear
-                                    ),
-                                    alAccion = alLimpiarBusqueda
-                                )
-                            }
+                            busqueda.isNotBlank() -> { EstadoVacioConversaciones(titulo = textos.texto(
+                                        R.string.chat_list_no_results_title),
+                                    descripcion = textos.texto(R.string.chat_list_no_results_description),
+                                    textoAccion = textos.texto(R.string.chat_search_clear),
+                                    alAccion = alLimpiarBusqueda) }
 
                             filtroSeleccionado ==
-                                    FiltroConversaciones.NO_LEIDOS -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_list_no_unread_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_list_no_unread_description
-                                    )
-                                )
-                            }
+                                    FiltroConversaciones.NO_LEIDOS -> { EstadoVacioConversaciones(titulo = textos.texto(
+                                        R.string.chat_list_no_unread_title),
+                                    descripcion = textos.texto(R.string.chat_list_no_unread_description)) }
 
                             filtroSeleccionado ==
-                                    FiltroConversaciones.FAMILIAS -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_list_no_families_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_list_no_families_description
-                                    ),
-                                    textoAccion = textos.texto(
-                                        R.string.chat_list_view_families
-                                    ),
-                                    alAccion = alVerFamilias
-                                )
-                            }
+                                    FiltroConversaciones.FAMILIAS -> { EstadoVacioConversaciones(titulo = textos.texto(
+                                        R.string.chat_list_no_families_title),
+                                    descripcion = textos.texto(R.string.chat_list_no_families_description),
+                                    textoAccion = textos.texto(R.string.chat_list_view_families),
+                                    alAccion = alVerFamilias) }
 
                             filtroSeleccionado ==
-                                    FiltroConversaciones.PRIVADOS -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_list_no_private_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_list_no_private_description
-                                    ),
-                                    textoAccion = textos.texto(
-                                        if (hayFamilias) {
-                                            R.string.chat_list_new_message
-                                        } else {
-                                            R.string.chat_list_view_families
-                                        }
-                                    ),
-                                    alAccion = if (hayFamilias) {
-                                        alNuevoMensaje
-                                    } else {
-                                        alVerFamilias
-                                    }
-                                )
-                            }
+                                    FiltroConversaciones.PRIVADOS -> { EstadoVacioConversaciones(titulo = textos.texto(
+                                        R.string.chat_list_no_private_title),
+                                    descripcion = textos.texto(R.string.chat_list_no_private_description),
+                                    textoAccion = textos.texto(if (hayFamilias) { R.string.chat_list_new_message
+                                        } else { R.string.chat_list_view_families }),
+                                    alAccion = if (hayFamilias) { alNuevoMensaje } else { alVerFamilias }) }
 
-                            else -> {
-                                EstadoVacioConversaciones(
-                                    titulo = textos.texto(
-                                        R.string.chat_list_empty_title
-                                    ),
-                                    descripcion = textos.texto(
-                                        R.string.chat_list_empty_description
-                                    ),
-                                    textoAccion = textos.texto(
-                                        R.string.chat_list_view_families
-                                    ),
-                                    alAccion = alVerFamilias
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+                            else -> { EstadoVacioConversaciones(titulo = textos.texto(R.string.chat_list_empty_title),
+                                    descripcion = textos.texto(R.string.chat_list_empty_description),
+                                    textoAccion = textos.texto(R.string.chat_list_view_families),
+                                    alAccion = alVerFamilias) } } } } }
 
-            ExtendedFloatingActionButton(
-                onClick = if (hayFamilias) {
-                    alNuevoMensaje
-                } else {
-                    alVerFamilias
-                },
+            ExtendedFloatingActionButton(onClick = if (hayFamilias) { alNuevoMensaje } else { alVerFamilias },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
                 shape = RoundedCornerShape(18.dp),
                 containerColor = funcional.accionPrincipal,
-                contentColor = funcional.sobreAccionPrincipal
-            ) {
-                Icon(
-                    imageVector = if (hayFamilias) {
-                        Icons.AutoMirrored.Filled.Chat
-                    } else {
-                        Icons.Filled.Groups
-                    },
+                contentColor = funcional.sobreAccionPrincipal) { Icon(imageVector = if (hayFamilias) {
+                        Icons.AutoMirrored.Filled.Chat } else { Icons.Filled.Groups },
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp)
-                )
+                    modifier = Modifier.size(22.dp))
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                Text(
-                    text = textos.texto(
-                        if (hayFamilias) {
-                            R.string.chat_list_new_message
-                        } else {
-                            R.string.chat_list_view_families
-                        }
-                    ),
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
-    }
-}
+                Text(text = textos.texto(if (hayFamilias) { R.string.chat_list_new_message } else {
+                            R.string.chat_list_view_families }),
+                    fontWeight = FontWeight.SemiBold) } } } }
 
 /**
  * Tarjeta de bienvenida compacta: icono más chico, menos relleno y
  * descripción en una sola línea para que ocupe poco alto.
  */
 @Composable
-private fun TarjetaBienvenida(
-    titulo: String,
-    descripcion: String
-) {
-    val funcional = MaterialTheme.funcional
+private fun TarjetaBienvenida(titulo: String,
+    descripcion: String) { val funcional = MaterialTheme.funcional
 
-    Surface(
-        modifier = Modifier
+    Surface(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
         shape = RoundedCornerShape(18.dp),
-        color = funcional.tarjeta
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+        color = funcional.tarjeta) { Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) { Box(modifier = Modifier
                     .size(36.dp)
-                    .background(
-                        color = funcional.accionPrincipal,
-                        shape = RoundedCornerShape(10.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    .background(color = funcional.accionPrincipal,
+                        shape = RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center) { Icon(imageVector = Icons.AutoMirrored.Filled.Chat,
                     contentDescription = null,
                     tint = funcional.sobreAccionPrincipal,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+                    modifier = Modifier.size(20.dp)) }
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = titulo,
+            Column(modifier = Modifier.weight(1f)) { Text(text = titulo,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = descripcion,
+                    overflow = TextOverflow.Ellipsis)
+                Text(text = descripcion,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
+                    overflow = TextOverflow.Ellipsis) } } } }

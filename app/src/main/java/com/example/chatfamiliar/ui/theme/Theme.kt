@@ -13,8 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
-internal val EsquemaClaroBase = lightColorScheme(
-    primary = FamiliaPrimary,
+internal val EsquemaClaroBase = lightColorScheme(primary = FamiliaPrimary,
     onPrimary = FamiliaOnPrimary,
     primaryContainer = FamiliaPrimaryContainer,
     onPrimaryContainer = FamiliaOnPrimaryContainer,
@@ -44,11 +43,9 @@ internal val EsquemaClaroBase = lightColorScheme(
     error = FamiliaError,
     onError = FamiliaOnError,
     errorContainer = FamiliaErrorContainer,
-    onErrorContainer = FamiliaOnErrorContainer
-)
+    onErrorContainer = FamiliaOnErrorContainer)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = FamiliaPrimaryDark,
+private val DarkColorScheme = darkColorScheme(primary = FamiliaPrimaryDark,
     onPrimary = FamiliaOnPrimaryDark,
     primaryContainer = FamiliaPrimaryContainerDark,
     onPrimaryContainer = FamiliaOnPrimaryContainerDark,
@@ -83,29 +80,18 @@ private val DarkColorScheme = darkColorScheme(
     error = FamiliaErrorDark,
     onError = FamiliaOnErrorDark,
     errorContainer = FamiliaErrorContainerDark,
-    onErrorContainer = FamiliaOnErrorContainerDark
-)
+    onErrorContainer = FamiliaOnErrorContainerDark)
 
+/** Tema de ChatFamiliar: esquema claro u oscuro según el sistema y colores funcionales. */
 @Composable
 fun ChatFamiliarTheme(darkTheme: Boolean = isSystemInDarkTheme(),
                       dynamicColor: Boolean = false,
-                      content: @Composable () -> Unit) {
-    val colorScheme = when {
+                      content: @Composable () -> Unit) { val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >=
-                Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) { dynamicDarkColorScheme(context)
-            } else { dynamicLightColorScheme(context)
-            }
-        }
+                Build.VERSION_CODES.S -> { val context = LocalContext.current
+            if (darkTheme) { dynamicDarkColorScheme(context) } else { dynamicLightColorScheme(context) } }
         darkTheme -> DarkColorScheme
-        else -> EsquemaClaroBase
-    }
-    val funcionales = remember(colorScheme, darkTheme) {
-        coloresFuncionales(colorScheme, oscuro = darkTheme)
-    }
-    CompositionLocalProvider(LocalColoresFuncionales provides funcionales) {
-        MaterialTheme(colorScheme = colorScheme,
-            typography = Typography, content = content)
-    }
-}
+        else -> EsquemaClaroBase }
+    val funcionales = remember(colorScheme, darkTheme) { coloresFuncionales(colorScheme, oscuro = darkTheme) }
+    CompositionLocalProvider(LocalColoresFuncionales provides funcionales) { MaterialTheme(colorScheme = colorScheme,
+            typography = Typography, content = content) } }

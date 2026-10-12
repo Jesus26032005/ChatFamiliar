@@ -22,33 +22,30 @@ import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.ui.theme.funcional
 import java.util.Locale
 
+/**
+ * Avatar circular con iniciales o icono; su color sale de la semilla, así cada persona o familia conserva su tono.
+ */
 @Composable
-fun AvatarIdentidad(
-    semilla: String,
+fun AvatarIdentidad(semilla: String,
     modifier: Modifier = Modifier,
     nombre: String = "",
     icono: ImageVector? = null,
     esGrupo: Boolean = false,
     tamano: Dp = 54.dp,
-    idioma: String = Locale.getDefault().toLanguageTag()
-) {
-    val tono = MaterialTheme.funcional.tonoPara(semilla)
+    idioma: String = Locale.getDefault().toLanguageTag()) { val tono = MaterialTheme.funcional.tonoPara(semilla)
     val forma: Shape = if (esGrupo) RoundedCornerShape(tamano * 0.3f) else CircleShape
     val iniciales = inicialesDe(nombre, idioma)
     Surface(modifier = modifier.size(tamano).clearAndSetSemantics { },
         shape = forma, color = tono.contenedor, contentColor = tono.sobreContenedor) {
-        Box(contentAlignment = Alignment.Center) {
-            if (icono != null || iniciales.isBlank()) {
+        Box(contentAlignment = Alignment.Center) { if (icono != null || iniciales.isBlank()) {
                 Icon(imageVector = icono ?: Icons.Filled.Person,
                     contentDescription = null,
-                    modifier = Modifier.size(tamano * 0.5f))
-            } else {
-                Text(text = iniciales,
+                    modifier = Modifier.size(tamano * 0.5f)) } else { Text(text = iniciales,
                     style = if (tamano >= 48.dp) { MaterialTheme.typography.titleMedium
                     } else { MaterialTheme.typography.labelLarge },
-                    fontWeight = FontWeight.SemiBold) } } }
-}
+                    fontWeight = FontWeight.SemiBold) } } } }
 
+/** Primeras letras de hasta dos palabras del nombre, en mayúsculas. */
 fun inicialesDe(nombre: String, idioma: String): String = nombre
     .trim().split(Regex("\\s+")).filter { it.isNotBlank() }
     .take(2).joinToString(separator = "") { it.take(1) }

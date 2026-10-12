@@ -39,83 +39,63 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.profile.PantallaPerfil
 import com.example.chatfamiliar.ui.theme.funcional
 
+/**
+ * Pantalla principal con barra inferior de tres pestañas: Inicio (chats),
+ * Familias y Perfil. También pide el nombre la primera vez que se entra.
+ */
 @Composable
-fun PantallaPrincipal(
-    idiomaViewModel: IdiomaViewModel,
+fun PantallaPrincipal(idiomaViewModel: IdiomaViewModel,
     homeViewModel: HomeViewModel,
     alAbrirConversacion: (ConversacionResumen) -> Unit,
     alNuevoMensaje: () -> Unit,
     alGestionarFamilia: (String?) -> Unit,
-    alCerrarSesion: () -> Unit
-) {
-    val idiomaEfectivo = recordarIdiomaEfectivo(
-        idiomaViewModel.idiomaSeleccionado)
+    alCerrarSesion: () -> Unit) { val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
         traducir = idiomaViewModel::traducir)
-    LaunchedEffect(homeViewModel) {
-        if (homeViewModel.usuario == null &&
-            !homeViewModel.cargando) {
-            homeViewModel.cargarUsuario() } }
+    LaunchedEffect(homeViewModel) { if (homeViewModel.usuario == null &&
+            !homeViewModel.cargando) { homeViewModel.cargarUsuario() } }
     val usuario = homeViewModel.usuario
-    if (usuario == null) {
-        val error = homeViewModel.errorRecurso
+    if (usuario == null) { val error = homeViewModel.errorRecurso
         Box(modifier = Modifier.fillMaxSize()
             .safeDrawingPadding(),
-            contentAlignment = Alignment.Center) {
-            if (homeViewModel.cargando || error == null) {
-                EstadoCargaConversaciones(
-                    titulo = textos.texto(R.string.home_loading_title),
-                    descripcion = textos.texto(R.string.home_loading_description))
-            } else {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    EstadoErrorConversaciones(
+            contentAlignment = Alignment.Center) { if (homeViewModel.cargando || error == null) {
+                EstadoCargaConversaciones(titulo = textos.texto(R.string.home_loading_title),
+                    descripcion = textos.texto(R.string.home_loading_description)) } else {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) { EstadoErrorConversaciones(
                         titulo = textos.texto(R.string.main_profile_error_title),
                         mensaje = textos.texto(error),
                         textoReintentar = textos.texto(R.string.chat_item_retry),
                         alReintentar = homeViewModel::recargarHome)
-                    TextButton(onClick = {
-                        homeViewModel.cerrarSesion(alCerrarSesion = alCerrarSesion) }) {
+                    TextButton(onClick = { homeViewModel.cerrarSesion(alCerrarSesion = alCerrarSesion) }) {
                         Text(text = textos.texto(R.string.home_logout)) } } } }
         return }
     // Error del nombre: lo usan el diálogo inicial y el de editar en Perfil.
     val errorNombre = homeViewModel.errorRecurso?.takeIf {
         it == R.string.home_error_empty_name || it == R.string.home_error_save_name }
     val textoErrorNombre = errorNombre?.let { recurso -> textos.texto(recurso) }
-    var seccionSeleccionada by rememberSaveable(usuario.uid) {
-        mutableStateOf(SeccionPrincipal.INICIO) }
-    Scaffold(
-        bottomBar = {
-            val coloresPestana = NavigationBarItemDefaults.colors(
+    var seccionSeleccionada by rememberSaveable(usuario.uid) { mutableStateOf(SeccionPrincipal.INICIO) }
+    Scaffold(bottomBar = { val coloresPestana = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 selectedTextColor = MaterialTheme.funcional.encabezado,
                 indicatorColor = MaterialTheme.colorScheme.primaryContainer)
-            NavigationBar {
-                NavigationBarItem(
-                    selected = seccionSeleccionada == SeccionPrincipal.INICIO,
+            NavigationBar { NavigationBarItem(selected = seccionSeleccionada == SeccionPrincipal.INICIO,
                     onClick = { seccionSeleccionada = SeccionPrincipal.INICIO },
                     colors = coloresPestana,
                     icon = { Icon(imageVector = Icons.Filled.Forum, contentDescription = null) },
                     label = { Text(text = textos.texto(R.string.main_tab_home)) })
-                NavigationBarItem(
-                    selected = seccionSeleccionada == SeccionPrincipal.FAMILIAS,
+                NavigationBarItem(selected = seccionSeleccionada == SeccionPrincipal.FAMILIAS,
                     onClick = { seccionSeleccionada = SeccionPrincipal.FAMILIAS },
                     colors = coloresPestana,
                     icon = { Icon(imageVector = Icons.Filled.Groups, contentDescription = null) },
-                    label = { Text(text = textos.texto(
-                        R.string.families_section_title))})
-                NavigationBarItem(
-                    selected = seccionSeleccionada == SeccionPrincipal.PERFIL,
+                    label = { Text(text = textos.texto(R.string.families_section_title))})
+                NavigationBarItem(selected = seccionSeleccionada == SeccionPrincipal.PERFIL,
                     onClick = { seccionSeleccionada = SeccionPrincipal.PERFIL },
                     colors = coloresPestana,
                     icon = { Icon(imageVector = Icons.Filled.Person, contentDescription = null) },
-                    label = { Text(text = textos.texto(R.string.profile_title)) }) } }
-    ) { espacios ->
+                    label = { Text(text = textos.texto(R.string.profile_title)) }) } }) { espacios ->
         Box(modifier = Modifier.fillMaxSize()
-            .padding(espacios).consumeWindowInsets(espacios)) {
-            when (seccionSeleccionada) {
-                SeccionPrincipal.INICIO -> {
-                    PantallaInicioConversaciones(
-                        uidActual = usuario.uid,
+            .padding(espacios).consumeWindowInsets(espacios)) { when (seccionSeleccionada) {
+                SeccionPrincipal.INICIO -> { PantallaInicioConversaciones(uidActual = usuario.uid,
                         familiasConfirmadas = homeViewModel.familiasConfirmadas,
                         cargandoFamilias = homeViewModel.cargandoListadoFamilias ||
                                 (homeViewModel.familiasConfirmadas == null &&
@@ -129,8 +109,7 @@ fun PantallaPrincipal(
                         alReintentarFamilias = homeViewModel::recargarFamilias,
                         alVerFamilias = { seccionSeleccionada = SeccionPrincipal.FAMILIAS },
                         alNuevoMensaje = alNuevoMensaje) }
-                SeccionPrincipal.FAMILIAS -> {
-                    PantallaListadoFamilias(
+                SeccionPrincipal.FAMILIAS -> { PantallaListadoFamilias(
                         familiasConfirmadas = homeViewModel.familiasConfirmadas,
                         cargando = homeViewModel.cargandoListadoFamilias,
                         errorRecurso = homeViewModel.errorFamiliasRecurso,
@@ -143,8 +122,7 @@ fun PantallaPrincipal(
                             alGestionarFamilia(familia.id) },
                         alCrearOUnirse = { alGestionarFamilia(null) },
                         alRecargar = homeViewModel::recargarFamilias) }
-                SeccionPrincipal.PERFIL -> {
-                    PantallaPerfil(usuario = usuario,
+                SeccionPrincipal.PERFIL -> { PantallaPerfil(usuario = usuario,
                         idiomaSeleccionado = idiomaViewModel.idiomaSeleccionado,
                         idiomaEfectivo = idiomaEfectivo,
                         traducir = idiomaViewModel::traducir,
@@ -157,10 +135,8 @@ fun PantallaPrincipal(
                         alCambiarNombre = homeViewModel::actualizarNombre,
                         alGuardarNombre = homeViewModel::guardarNombre,
                         alCancelarEdicionNombre = homeViewModel::cancelarEdicionNombre,
-                        alCerrarSesion = { homeViewModel.cerrarSesion(
-                            alCerrarSesion = alCerrarSesion) }) } } } }
-    DialogoNombreInicial(
-        visible = homeViewModel.necesitaNombre,
+                        alCerrarSesion = { homeViewModel.cerrarSesion(alCerrarSesion = alCerrarSesion) }) } } } }
+    DialogoNombreInicial(visible = homeViewModel.necesitaNombre,
         nombre = homeViewModel.nombreNuevo,
         titulo = textos.texto(R.string.home_name_title),
         descripcion = textos.texto(R.string.home_name_description),
@@ -169,11 +145,10 @@ fun PantallaPrincipal(
         mensajeError = textoErrorNombre,
         guardando = homeViewModel.guardandoNombre,
         alCambiarNombre = homeViewModel::actualizarNombre,
-        alGuardarNombre = homeViewModel::guardarNombre)
-}
+        alGuardarNombre = homeViewModel::guardarNombre) }
 
+/** Pestañas de la barra inferior. */
 private enum class SeccionPrincipal {
     INICIO,
     FAMILIAS,
-    PERFIL
-}
+    PERFIL }

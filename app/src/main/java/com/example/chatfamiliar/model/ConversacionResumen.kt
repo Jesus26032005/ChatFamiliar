@@ -1,6 +1,7 @@
 package com.example.chatfamiliar.model
 import com.google.firebase.Timestamp
 
+/** Datos que muestra cada fila de la lista de chats, ya sea familiar o privado. */
 data class ConversacionResumen(
     val id: String = "",
     val tipo: String = TIPO_FAMILIA,
@@ -16,5 +17,4 @@ data class ConversacionResumen(
     companion object {
         const val TIPO_FAMILIA = "familia"
         const val TIPO_PRIVADO = "privado"
-    }
-}
+    } }

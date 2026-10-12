@@ -5,24 +5,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
+/** Marcador de lectura del usuario en el chat de una familia (familias/{id}/lecturas/{uid}). */
 class LecturaFamiliaRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val familias = firestore.collection(COLECCION_FAMILIAS)
 
-    fun escucharLectura(
-        familiaId: String,
-        alActualizar: (Result<LecturaConversacion>) -> Unit
-    ): ListenerRegistration? {
-        val uid = auth.currentUser?.uid
-        if (uid.isNullOrBlank()) {
-            alActualizar(
-                Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
-            return null
-        }
-        if (!esIdValido(familiaId)) {
-            alActualizar(Result.failure(
+    /** Escucha hasta qué mensaje leyó el usuario; si no hay registro devuelve una lectura vacía. */
+    fun escucharLectura(familiaId: String,
+        alActualizar: (Result<LecturaConversacion>) -> Unit): ListenerRegistration? { val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) { alActualizar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+            return null }
+        if (!esIdValido(familiaId)) { alActualizar(Result.failure(
                     ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)))
             return null }
         return familias
@@ -30,56 +24,30 @@ class LecturaFamiliaRepository {
             .collection(SUBCOLECCION_LECTURAS)
             .document(uid)
             .addSnapshotListener { documento, error ->
-                if (error != null) {
-                    alActualizar(
-                        Result.failure(ExcepcionChat.desde(error)))
-                    return@addSnapshotListener
-                }
-                if (documento == null) {
-                    alActualizar(Result.failure(
-                            ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)
-                        ))
-                    return@addSnapshotListener
-                }
-                val resultado = runCatching {
-                    if (!documento.exists()) {
-                        LecturaConversacion(uid = uid)
-                    } else {
-                        val lectura = documento.toObject(
-                            LecturaConversacion::class.java
-                        ) ?: throw ExcepcionChat(
+                if (error != null) { alActualizar(Result.failure(ExcepcionChat.desde(error)))
+                    return@addSnapshotListener }
+                if (documento == null) { alActualizar(Result.failure(ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
+                    return@addSnapshotListener }
+                val resultado = runCatching { if (!documento.exists()) { LecturaConversacion(uid = uid) } else {
+                        val lectura = documento.toObject(LecturaConversacion::class.java) ?: throw ExcepcionChat(
                             CodigoErrorChat.DATOS_INVALIDOS)
                         lectura.copy(uid = uid) } }
-                resultado.onSuccess {
-                    alActualizar(Result.success(it))
-                }.onFailure {
-                    alActualizar(
-                        Result.failure(
-                            ExcepcionChat(
-                                codigo = CodigoErrorChat.DATOS_INVALIDOS,
-                                causa = it)))
-                }
-            }
-    }
+                resultado.onSuccess { alActualizar(Result.success(it)) }.onFailure { alActualizar(Result.failure(
+                            ExcepcionChat(codigo = CodigoErrorChat.DATOS_INVALIDOS,
+                                causa = it))) } } }
 
+    /**
+     * Avanza el marcador de lectura hasta el mensaje indicado. Nunca lo
+     * regresa: solo se guarda si el mensaje es posterior al leído antes.
+     */
     fun actualizarLectura(familiaId: String, mensajeId: String,
-        alCompletar: (Result<Unit>) -> Unit) {
-        val uid = auth.currentUser?.uid
-        if (uid.isNullOrBlank()) {
-            alCompletar(
-                Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)
-                ))
-            return
-        }
+        alCompletar: (Result<Unit>) -> Unit) { val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+            return }
 
-        if (!esIdValido(familiaId) || !esIdValido(mensajeId)) {
-            alCompletar(
-                Result.failure(
-                    ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)
-                ))
-            return
-        }
+        if (!esIdValido(familiaId) || !esIdValido(mensajeId)) { alCompletar(Result.failure(
+                    ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)))
+            return }
 
         val familiaRef = familias.document(familiaId)
         val miembroRef = familiaRef
@@ -96,51 +64,28 @@ class LecturaFamiliaRepository {
             val miembro = transaccion.get(miembroRef)
             val mensaje = transaccion.get(mensajeRef)
             val lecturaActual = transaccion.get(lecturaRef)
-            if (!familia.exists()) {
-                throw ExcepcionChat(
-                    CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
-            if (!miembro.exists()) {
-                throw ExcepcionChat(
-                    CodigoErrorChat.SIN_ACCESO) }
-            if (!mensaje.exists()) {
-                throw ExcepcionChat(
-                    CodigoErrorChat.MENSAJE_NO_DISPONIBLE)}
-            val fechaMensaje = mensaje.getTimestamp(
-                CAMPO_FECHA_ENVIO
-            ) ?: throw ExcepcionChat(
+            if (!familia.exists()) { throw ExcepcionChat(CodigoErrorChat.FAMILIA_NO_DISPONIBLE) }
+            if (!miembro.exists()) { throw ExcepcionChat(CodigoErrorChat.SIN_ACCESO) }
+            if (!mensaje.exists()) { throw ExcepcionChat(CodigoErrorChat.MENSAJE_NO_DISPONIBLE)}
+            val fechaMensaje = mensaje.getTimestamp(CAMPO_FECHA_ENVIO) ?: throw ExcepcionChat(
                 CodigoErrorChat.FECHA_NO_CONFIRMADA)
-            val fechaAnterior = lecturaActual.getTimestamp(
-                CAMPO_FECHA_ULTIMO_MENSAJE_LEIDO)
-            val idAnterior = lecturaActual.getString(
-                CAMPO_ULTIMO_MENSAJE_LEIDO_ID).orEmpty()
+            val fechaAnterior = lecturaActual.getTimestamp(CAMPO_FECHA_ULTIMO_MENSAJE_LEIDO)
+            val idAnterior = lecturaActual.getString(CAMPO_ULTIMO_MENSAJE_LEIDO_ID).orEmpty()
 
-            val debeAvanzar = when {
-                fechaAnterior == null -> true
+            val debeAvanzar = when { fechaAnterior == null -> true
                 fechaMensaje > fechaAnterior -> true
                 fechaMensaje == fechaAnterior &&
                         mensajeId > idAnterior -> true
-                else -> false
-            }
-            if (debeAvanzar) {
-                val datos = mapOf(
-                    CAMPO_UID to uid,
+                else -> false }
+            if (debeAvanzar) { val datos = mapOf(CAMPO_UID to uid,
                     CAMPO_ULTIMO_MENSAJE_LEIDO_ID to mensajeId,
                     CAMPO_FECHA_ULTIMO_MENSAJE_LEIDO to fechaMensaje)
-                transaccion.set(lecturaRef, datos)
-            }
-            Unit
-        }.addOnSuccessListener {
-            alCompletar(Result.success(Unit))
+                transaccion.set(lecturaRef, datos) }
+            Unit }.addOnSuccessListener { alCompletar(Result.success(Unit)) }.addOnFailureListener { error ->
+            alCompletar(Result.failure(ExcepcionChat.desde(error))) } }
 
-        }.addOnFailureListener { error ->
-            alCompletar(
-                Result.failure(ExcepcionChat.desde(error))
-            )
-        }
-    }
-
-    private fun esIdValido(id: String): Boolean {
-        return id.isNotBlank() &&
+    /** Un id válido de Firestore no está vacío ni contiene '/'. */
+    private fun esIdValido(id: String): Boolean { return id.isNotBlank() &&
                 !id.contains("/") &&
                 id != "." &&
                 id != ".."
@@ -159,5 +104,4 @@ class LecturaFamiliaRepository {
             "ultimoMensajeLeidoId"
         private const val CAMPO_FECHA_ULTIMO_MENSAJE_LEIDO =
             "fechaUltimoMensajeLeido"
-    }
-}
+    } }

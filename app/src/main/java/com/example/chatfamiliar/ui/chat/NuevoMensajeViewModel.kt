@@ -18,6 +18,7 @@ import com.example.chatfamiliar.util.TimeoutSolicitud
 import java.text.Normalizer
 import java.util.Locale
 
+/** Estado de "Nuevo mensaje": contactos disponibles, búsqueda y apertura del chat privado. */
 class NuevoMensajeViewModel : ViewModel() {
     private val authRepository = AuthRepository()
     private val familiaRepository = FamiliaRepository()
@@ -54,45 +55,32 @@ class NuevoMensajeViewModel : ViewModel() {
     val listaIncompleta: Boolean
         get() = erroresPorFamilia.isNotEmpty()
     val contactosFiltrados: List<ContactoPrivado>
-        get() {
-            val consulta = normalizar(busqueda)
-            if (consulta.isEmpty()) {
-                return contactos }
+        get() { val consulta = normalizar(busqueda)
+            if (consulta.isEmpty()) { return contactos }
             return contactos.filter { contacto ->
-                normalizar(contacto.nombre).contains(consulta) }
-        }
-    fun cargarContactos() {
-        val uidActual = authRepository.obtenerUsuarioActual()?.uid
-        if (uidActual.isNullOrBlank()) {
-            limpiar()
+                normalizar(contacto.nombre).contains(consulta) } }
+    /** Carga las familias del usuario y, de ellas, las personas con quien puede escribir. */
+    fun cargarContactos() { val uidActual = authRepository.obtenerUsuarioActual()?.uid
+        if (uidActual.isNullOrBlank()) { limpiar()
             errorCargaRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA)
             return }
         if (uidSesion != uidActual) { limpiar()
             uidSesion = uidActual }
-        if (cargando || abriendoConversacion || conversacionParaAbrir != null) {
-            return }
+        if (cargando || abriendoConversacion || conversacionParaAbrir != null) { return }
         cargando = true
         errorCargaRecurso = null
         errorAperturaRecurso = null
         val version = ++versionCarga
-        val solicitud = timeoutCarga.iniciar(
-            scope = viewModelScope) {
-            if (version == versionCarga && validarSesion(uidActual)) {
-                versionCarga++
+        val solicitud = timeoutCarga.iniciar(scope = viewModelScope) {
+            if (version == versionCarga && validarSesion(uidActual)) { versionCarga++
                 cargando = false
-                errorCargaRecurso = recursoError(
-                    CodigoErrorChat.TIEMPO_AGOTADO) }
-        }
+                errorCargaRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
         familiaRepository.obtenerFamiliasDelUsuario(uidActual) { resultado ->
-            if (version != versionCarga || !validarSesion(uidActual)) {
-                return@obtenerFamiliasDelUsuario
-            }
+            if (version != versionCarga || !validarSesion(uidActual)) { return@obtenerFamiliasDelUsuario }
             resultado.onSuccess { familias ->
                     contactosRepository.obtenerContactos(familias) { consulta ->
-                        if (version != versionCarga || !validarSesion(uidActual)) {
-                            return@obtenerContactos }
-                        if (!timeoutCarga.completar(solicitud)) {
-                            return@obtenerContactos }
+                        if (version != versionCarga || !validarSesion(uidActual)) { return@obtenerContactos }
+                        if (!timeoutCarga.completar(solicitud)) { return@obtenerContactos }
                         cargando = false
                         consulta.onSuccess { datos ->
                                 contactos = datos.contactos
@@ -103,22 +91,18 @@ class NuevoMensajeViewModel : ViewModel() {
                             .onFailure { error -> errorCargaRecurso =
                                 obtenerRecursoErrorChat(error) } } }
                 .onFailure { error ->
-                    if (timeoutCarga.completar(solicitud)) {
-                        cargando = false
-                        errorCargaRecurso = obtenerRecursoErrorChat(error) } }
-        }
-    }
+                    if (timeoutCarga.completar(solicitud)) { cargando = false
+                        errorCargaRecurso = obtenerRecursoErrorChat(error) } } } }
     fun actualizarBusqueda(nuevoValor: String) { busqueda = nuevoValor }
     fun limpiarBusqueda() { busqueda = "" }
+    /** Busca una familia compartida con el contacto y obtiene (o crea) la conversación. */
     fun abrirConversacion(contacto: ContactoPrivado) {
         if (abriendoConversacion || conversacionParaAbrir != null) { return }
         val uidActual = uidSesion
-        if (uidActual == null || !validarSesion(uidActual)) {
-            errorAperturaRecurso = recursoError(
+        if (uidActual == null || !validarSesion(uidActual)) { errorAperturaRecurso = recursoError(
                 CodigoErrorChat.SESION_REQUERIDA)
             return }
-        val contactoActual = contactos.firstOrNull {
-            it.uid == contacto.uid }
+        val contactoActual = contactos.firstOrNull { it.uid == contacto.uid }
         if (contactoActual == null || contactoActual.uid == uidActual) {
             errorAperturaRecurso = recursoError(CodigoErrorChat.DATOS_INVALIDOS)
             return }
@@ -126,67 +110,40 @@ class NuevoMensajeViewModel : ViewModel() {
         errorAperturaRecurso = null
         val version = ++versionApertura
         val solicitud = timeoutApertura.iniciar(scope = viewModelScope) {
-            if (version == versionApertura && validarSesion(uidActual)) {
-                versionApertura++
+            if (version == versionApertura && validarSesion(uidActual)) { versionApertura++
                 contactoAbriendoUid = null
-                errorAperturaRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO)
-            }
-        }
+                errorAperturaRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
         val familiaPreferidaId = contactoActual.familiasCompartidas.firstOrNull()?.id
 
         familiaCompartidaRepository.buscarFamiliaCompartida(contactoActual.uid,
-            familiaPreferidaId
-        ) { resultado ->
-            if (version != versionApertura || !validarSesion(uidActual)
-            ) {
-                return@buscarFamiliaCompartida
-            }
+            familiaPreferidaId) { resultado ->
+            if (version != versionApertura || !validarSesion(uidActual)) { return@buscarFamiliaCompartida }
             resultado
                 .onSuccess { familiaId ->
-                    if (familiaId == null) {
-                        if (timeoutApertura.completar(solicitud)) {
-                            contactoAbriendoUid = null
-                            errorAperturaRecurso = recursoError(
-                                CodigoErrorChat.FAMILIA_NO_DISPONIBLE
-                            )
-                        }
-                    } else {
-                        conversacionRepository.obtenerOCrearConversacion(
-                            familiaId,
-                            contactoActual.uid
-                        ) { apertura ->
+                    if (familiaId == null) { if (timeoutApertura.completar(solicitud)) { contactoAbriendoUid = null
+                            errorAperturaRecurso = recursoError(CodigoErrorChat.FAMILIA_NO_DISPONIBLE) } } else {
+                        conversacionRepository.obtenerOCrearConversacion(familiaId,
+                            contactoActual.uid) { apertura ->
                             if (version != versionApertura ||
-                                !validarSesion(uidActual)
-                            ) {
-                                return@obtenerOCrearConversacion
-                            }
-                            if (!timeoutApertura.completar(solicitud)) {
-                                return@obtenerOCrearConversacion
-                            }
+                                !validarSesion(uidActual)) { return@obtenerOCrearConversacion }
+                            if (!timeoutApertura.completar(solicitud)) { return@obtenerOCrearConversacion }
                             contactoAbriendoUid = null
                             apertura.onSuccess { conversacionId ->
                                 conversacionParaAbrir = conversacionId
-                                errorAperturaRecurso = null
-                            }
+                                errorAperturaRecurso = null }
                                 .onFailure { error ->
                                     errorAperturaRecurso =
-                                        obtenerRecursoErrorChat(error)
-                                }
-                        }
-                    }
-                }
+                                        obtenerRecursoErrorChat(error) } } } }
                 .onFailure { error ->
-                    if (timeoutApertura.completar(solicitud)) {
-                        contactoAbriendoUid = null
-                        errorAperturaRecurso = obtenerRecursoErrorChat(error)
-                    } } }
-    }
+                    if (timeoutApertura.completar(solicitud)) { contactoAbriendoUid = null
+                        errorAperturaRecurso = obtenerRecursoErrorChat(error) } } } }
 
+    /** Indica que la navegación al chat ya se realizó. */
     fun consumirNavegacion(conversacionId: String) {
         if (conversacionParaAbrir == conversacionId) { conversacionParaAbrir = null } }
 
-    fun limpiar() {
-        versionCarga++
+    /** Reinicia todo el estado de la pantalla. */
+    fun limpiar() { versionCarga++
         versionApertura++
         timeoutCarga.cancelar()
         timeoutApertura.cancelar()
@@ -199,28 +156,22 @@ class NuevoMensajeViewModel : ViewModel() {
         conversacionParaAbrir = null
         errorCargaRecurso = null
         errorAperturaRecurso = null
-        erroresPorFamilia = emptyMap()
-    }
+        erroresPorFamilia = emptyMap() }
 
-    private fun validarSesion(uidEsperado: String): Boolean {
-        val vigente = uidSesion == uidEsperado &&
+    /** true si sigue abierta la sesión del usuario esperado. */
+    private fun validarSesion(uidEsperado: String): Boolean { val vigente = uidSesion == uidEsperado &&
                     authRepository.obtenerUsuarioActual()?.uid == uidEsperado
         if (!vigente) { limpiar()
-            errorCargaRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA)
-        }
-        return vigente
-    }
+            errorCargaRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA) }
+        return vigente }
 
+    /** Texto de error para un código de chat. */
     @StringRes
-    private fun recursoError(codigo: CodigoErrorChat): Int {
-        return obtenerRecursoErrorChat(ExcepcionChat(codigo))
-    }
+    private fun recursoError(codigo: CodigoErrorChat): Int { return obtenerRecursoErrorChat(ExcepcionChat(codigo)) }
 
-    private fun normalizar(texto: String): String {
-        return Normalizer.normalize(texto, Normalizer.Form.NFD)
+    /** Quita acentos y mayúsculas para que la búsqueda no dependa de ellos. */
+    private fun normalizar(texto: String): String { return Normalizer.normalize(texto, Normalizer.Form.NFD)
             .replace(Regex("\\p{M}+"), "")
             .lowercase(Locale.ROOT).trim() }
-    override fun onCleared() {
-        limpiar()
-        super.onCleared() }
-}
+    override fun onCleared() { limpiar()
+        super.onCleared() } }

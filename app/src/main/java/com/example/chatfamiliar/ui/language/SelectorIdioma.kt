@@ -31,22 +31,19 @@ import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.R
 import com.example.chatfamiliar.data.language.IdiomaRepository
 
+/** Lista de idiomas disponibles: sistema, español, inglés y los traducidos con ML Kit. */
 @Composable
-fun SelectorIdioma(
-    idiomaSeleccionado: String?,
+fun SelectorIdioma(idiomaSeleccionado: String?,
     idiomaEfectivo: String,
     traducir: TraducirTexto,
     alSeleccionarIdioma: (String?) -> Unit,
-    alCerrar: () -> Unit
-) {
-    val textos = recordarTextosApp(idiomaEfectivo =
+    alCerrar: () -> Unit) { val textos = recordarTextosApp(idiomaEfectivo =
         idiomaEfectivo, traducir = traducir)
     AlertDialog(onDismissRequest = alCerrar,
         icon = { Surface(modifier = Modifier.size(56.dp),
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme
-                    .primaryContainer) {
-                Icon(imageVector = Icons.Filled.Language,
+                    .primaryContainer) { Icon(imageVector = Icons.Filled.Language,
                     contentDescription = null,
                     modifier = Modifier.padding(14.dp),
                     tint = MaterialTheme.colorScheme.primary) } },
@@ -80,8 +77,7 @@ fun SelectorIdioma(
                     seleccionado = idiomaSeleccionado == IdiomaRepository.INGLES,
                     onClick = { alSeleccionarIdioma(IdiomaRepository.INGLES)
                         alCerrar() })
-                OpcionIdioma(
-                    codigo = "IT",
+                OpcionIdioma(codigo = "IT",
                     titulo = textos.texto(R.string.language_italian),
                     descripcion = textos.texto(R.string
                         .language_italian_description),
@@ -89,8 +85,7 @@ fun SelectorIdioma(
                     seleccionado = idiomaSeleccionado == IdiomaRepository.ITALIANO,
                     onClick = { alSeleccionarIdioma(IdiomaRepository.ITALIANO)
                         alCerrar() })
-                OpcionIdioma(
-                    codigo = "FR",
+                OpcionIdioma(codigo = "FR",
                     titulo = textos.texto(R.string.language_french),
                     descripcion = textos.texto(R.string
                         .language_french_description),
@@ -101,57 +96,40 @@ fun SelectorIdioma(
         confirmButton = { TextButton(onClick = alCerrar) { Text(text =
             textos.texto(R.string.language_cancel)) } },
         shape = RoundedCornerShape(28.dp),
-        containerColor = MaterialTheme.colorScheme.surface)
-}
+        containerColor = MaterialTheme.colorScheme.surface) }
+/** Opción de idioma con su descripción y marca de seleccionado. */
 @Composable
-private fun OpcionIdioma(
-    codigo: String, titulo: String, descripcion: String,
-    textoActual: String, seleccionado: Boolean, onClick: () -> Unit
-) {
-    Surface(modifier = Modifier
+private fun OpcionIdioma(codigo: String, titulo: String, descripcion: String,
+    textoActual: String, seleccionado: Boolean, onClick: () -> Unit) { Surface(modifier = Modifier
             .fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = if (seleccionado) {
-                MaterialTheme.colorScheme.primaryContainer } else {
+        color = if (seleccionado) { MaterialTheme.colorScheme.primaryContainer } else {
                 MaterialTheme.colorScheme.surfaceContainer },
         border =
-            BorderStroke(
-                width = if (seleccionado) { 2.dp } else { 1.dp },
-                color = if (seleccionado) { MaterialTheme.colorScheme.primary
-                    } else {
+            BorderStroke(width = if (seleccionado) { 2.dp } else { 1.dp },
+                color = if (seleccionado) { MaterialTheme.colorScheme.primary } else {
                         MaterialTheme.colorScheme.outlineVariant }),
         tonalElevation =
-            if (seleccionado) { 3.dp
-            } else { 0.dp }
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()
+            if (seleccionado) { 3.dp } else { 0.dp }) { Row(modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) { Surface(modifier = Modifier.size(46.dp),
+            verticalAlignment = Alignment.CenterVertically) { Surface(modifier = Modifier.size(46.dp),
                 shape = CircleShape,
-                color = if (seleccionado) {
-                    MaterialTheme.colorScheme.primary } else {
-                        MaterialTheme.colorScheme.secondaryContainer }
-            ) {
+                color = if (seleccionado) { MaterialTheme.colorScheme.primary } else {
+                        MaterialTheme.colorScheme.secondaryContainer }) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) { Text(text = codigo,
+                    verticalArrangement = Arrangement.Center) { Text(text = codigo,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = if (seleccionado) { MaterialTheme.colorScheme
-                            .onPrimary } else {
-                                MaterialTheme.colorScheme.onSecondaryContainer }) } }
+                            .onPrimary } else { MaterialTheme.colorScheme.onSecondaryContainer }) } }
             Spacer(modifier = Modifier.width(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) { Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = titulo,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold)
-                    if (seleccionado) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                    if (seleccionado) { Spacer(modifier = Modifier.width(8.dp))
                         Surface(shape = RoundedCornerShape(50),
-                            color = MaterialTheme.colorScheme.primary
-                        ) { Text(text = textoActual,
+                            color = MaterialTheme.colorScheme.primary) { Text(text = textoActual,
                                 modifier = Modifier.padding(horizontal =
                                     8.dp, vertical = 3.dp),
                                 style = MaterialTheme.typography.labelSmall,
@@ -161,62 +139,40 @@ private fun OpcionIdioma(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant) }
             Spacer(modifier = Modifier.width(8.dp))
-            RadioButton(selected = seleccionado, onClick = onClick)
-        }
-    }
-}
+            RadioButton(selected = seleccionado, onClick = onClick) } } }
 
 
-@Preview(
-    showBackground = true
-)
+@Preview(showBackground = true)
 @Composable
-private fun SelectorIdiomaPreview() {
-    MaterialTheme {
-        Column(
-            modifier =
+private fun SelectorIdiomaPreview() { MaterialTheme { Column(modifier =
                 Modifier.padding(20.dp),
 
             verticalArrangement =
-                Arrangement.spacedBy(12.dp)
-        ) {
-
-            OpcionIdioma(
-                codigo = "AUTO",
+                Arrangement.spacedBy(12.dp)) { OpcionIdioma(codigo = "AUTO",
                 titulo = "Sistema",
                 descripcion =
                     "Seguir automáticamente el idioma del dispositivo",
                 textoActual = "Actual",
                 seleccionado = false,
-                onClick = {}
-            )
-            OpcionIdioma(
-                codigo = "ES",
+                onClick = {})
+            OpcionIdioma(codigo = "ES",
                 titulo = "Español",
                 descripcion =
                     "Mostrar la aplicación en español",
                 textoActual = "Actual",
                 seleccionado = true,
-                onClick = {}
-            )
-            OpcionIdioma(
-                codigo = "EN",
+                onClick = {})
+            OpcionIdioma(codigo = "EN",
                 titulo = "Inglés",
                 descripcion =
                     "Mostrar la aplicación en inglés",
                 textoActual = "Actual",
                 seleccionado = false,
-                onClick = {}
-            )
-            OpcionIdioma(
-                codigo = "IT",
+                onClick = {})
+            OpcionIdioma(codigo = "IT",
                 titulo = "Italiano",
                 descripcion =
                     "Traducir automáticamente la aplicación al italiano",
                 textoActual = "Actual",
                 seleccionado = false,
-                onClick = {}
-            )
-        }
-    }
-}
+                onClick = {}) } } }

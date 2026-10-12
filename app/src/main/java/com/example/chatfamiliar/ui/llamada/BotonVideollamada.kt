@@ -20,9 +20,9 @@ import com.example.chatfamiliar.R
 import com.example.chatfamiliar.ui.language.TextosApp
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Botón de videollamada de la cabecera del chat; pide permisos antes de llamar. */
 @Composable
-fun BotonVideollamada(
-    textos: TextosApp,
+fun BotonVideollamada(textos: TextosApp,
     habilitado: Boolean,
     iniciando: Boolean,
     alLlamar: () -> Unit,
@@ -30,38 +30,19 @@ fun BotonVideollamada(
     // Cuando no hay a quién llamar: el botón se ve atenuado y al tocarlo
     // se explica el motivo en lugar de llamar.
     atenuado: Boolean = false,
-    alPulsarAtenuado: () -> Unit = {}
-) {
-    var pidiendoPermisos by rememberSaveable { mutableStateOf(false) }
+    alPulsarAtenuado: () -> Unit = {}) { var pidiendoPermisos by rememberSaveable { mutableStateOf(false) }
 
-    FilledTonalIconButton(
-        onClick = {
-            if (atenuado) { alPulsarAtenuado() } else { pidiendoPermisos = true }
-        },
+    FilledTonalIconButton(onClick = { if (atenuado) { alPulsarAtenuado() } else { pidiendoPermisos = true } },
         enabled = habilitado && !iniciando,
         modifier = modifier.size(44.dp).alpha(if (atenuado) 0.45f else 1f),
         colors = IconButtonDefaults.filledTonalIconButtonColors(
             containerColor = MaterialTheme.funcional.filtroSeleccionado,
-            contentColor = MaterialTheme.funcional.sobreFiltroSeleccionado
-        )
-    ) {
-        if (iniciando) {
+            contentColor = MaterialTheme.funcional.sobreFiltroSeleccionado)) { if (iniciando) {
             CircularProgressIndicator(modifier = Modifier.size(20.dp),
-                strokeWidth = 2.dp)
-        } else {
-            Icon(imageVector = Icons.Filled.Videocam,
-                contentDescription = textos.texto(R.string.llamada_boton_videollamada))
-        }
-    }
+                strokeWidth = 2.dp) } else { Icon(imageVector = Icons.Filled.Videocam,
+                contentDescription = textos.texto(R.string.llamada_boton_videollamada)) } }
 
-    if (pidiendoPermisos) {
-        SolicitudPermisosLlamada(
-            textos = textos,
-            alPermisosConcedidos = {
-                pidiendoPermisos = false
-                alLlamar()
-            },
-            alCancelar = { pidiendoPermisos = false }
-        )
-    }
-}
+    if (pidiendoPermisos) { SolicitudPermisosLlamada(textos = textos,
+            alPermisosConcedidos = { pidiendoPermisos = false
+                alLlamar() },
+            alCancelar = { pidiendoPermisos = false }) } }

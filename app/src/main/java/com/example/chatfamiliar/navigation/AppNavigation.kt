@@ -28,80 +28,59 @@ import com.example.chatfamiliar.ui.language.IndicadorTraduccion
 import com.example.chatfamiliar.ui.llamada.CapaLlamadas
 import com.example.chatfamiliar.ui.llamada.LlamadaViewModel
 
+/**
+ * Grafo de navegación de la app. La pantalla inicial depende de la sesión:
+ * login, verificación de correo o inicio. Encima del NavHost se dibujan el
+ * indicador de traducción y la capa de videollamadas.
+ */
 @Composable
-fun AppNavigation(llamadaViewModel: LlamadaViewModel = viewModel()) {
-    val navController = rememberNavController()
+fun AppNavigation(llamadaViewModel: LlamadaViewModel = viewModel()) { val navController = rememberNavController()
     val authRepository = remember { AuthRepository() }
     val idiomaViewModel: IdiomaViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel()
-    val rutaInicial = remember(authRepository) {
-        val usuarioActual = authRepository.obtenerUsuarioActual()
+    val rutaInicial = remember(authRepository) { val usuarioActual = authRepository.obtenerUsuarioActual()
         when {usuarioActual == null -> Rutas.LOGIN
             usuarioActual.isEmailVerified -> Rutas.HOME
             else -> Rutas.VERIFICACION } }
-    Box(modifier = Modifier.fillMaxSize()) {
-        NavHost(navController = navController,
-            startDestination = rutaInicial) {
-            composable(route = Rutas.LOGIN) {
+    Box(modifier = Modifier.fillMaxSize()) { NavHost(navController = navController,
+            startDestination = rutaInicial) { composable(route = Rutas.LOGIN) {
                 PantallaLogin(idiomaViewModel = idiomaViewModel,
-                    alNavegarHome = {
-                        navController.navigate(Rutas.HOME) {
+                    alNavegarHome = { navController.navigate(Rutas.HOME) {
                             popUpTo(navController.graph.id) { inclusive = false }
                             launchSingleTop = true } },
-                    alNavegarRegistro = {
-                        navController.navigate(Rutas.REGISTRO) {
-                            launchSingleTop = true } },
-                    alNavegarVerificacion = {
-                        navController.navigate(Rutas.VERIFICACION) {
+                    alNavegarRegistro = { navController.navigate(Rutas.REGISTRO) { launchSingleTop = true } },
+                    alNavegarVerificacion = { navController.navigate(Rutas.VERIFICACION) {
                             popUpTo(navController.graph.id) { inclusive = false }
                             launchSingleTop = true } }) }
-            composable(route = Rutas.REGISTRO) {
-                PantallaRegistro(idiomaViewModel = idiomaViewModel,
-                    alNavegarVerificacion = {
-                        navController.navigate(Rutas.VERIFICACION) {
+            composable(route = Rutas.REGISTRO) { PantallaRegistro(idiomaViewModel = idiomaViewModel,
+                    alNavegarVerificacion = { navController.navigate(Rutas.VERIFICACION) {
                             popUpTo(navController.graph.id) { inclusive = false }
                             launchSingleTop = true } },
                     alNavegarLogin = { navController.popBackStack() }) }
-            composable(route = Rutas.VERIFICACION) {
-                PantallaVerificacion(
-                    idiomaViewModel = idiomaViewModel,
+            composable(route = Rutas.VERIFICACION) { PantallaVerificacion(idiomaViewModel = idiomaViewModel,
                     alNavegarHome = { navController.navigate(Rutas.HOME) {
                         popUpTo(navController.graph.id) { inclusive = false }
                         launchSingleTop = true } },
                     alNavegarLogin = { navController.navigate(Rutas.LOGIN) {
                         popUpTo(navController.graph.id) { inclusive = false }
                         launchSingleTop = true } }) }
-            composable(route = Rutas.HOME) {
-                PantallaPrincipal(idiomaViewModel = idiomaViewModel,
+            composable(route = Rutas.HOME) { PantallaPrincipal(idiomaViewModel = idiomaViewModel,
                     homeViewModel = homeViewModel,
                     alAbrirConversacion = { conversacion ->
-                        when (conversacion.tipo) {
-                            ConversacionResumen.TIPO_FAMILIA -> {
-                                val familiaId = conversacion.familiaId.ifBlank {
-                                    conversacion.id }
-                                navController.navigate(
-                                    Rutas.crearRutaChatFamilia(
-                                        familiaId = familiaId,
-                                        nombre = conversacion.titulo)) {
-                                    launchSingleTop = true } }
-                            ConversacionResumen.TIPO_PRIVADO -> {
-                                navController.navigate(
-                                    Rutas.crearRutaChatPrivado(
-                                        conversacion.id)) {
-                                    launchSingleTop = true } } } },
-                    alNuevoMensaje = {
-                        navController.navigate(Rutas.NUEVO_MENSAJE) {
-                            launchSingleTop = true } },
+                        when (conversacion.tipo) { ConversacionResumen.TIPO_FAMILIA -> {
+                                val familiaId = conversacion.familiaId.ifBlank { conversacion.id }
+                                navController.navigate(Rutas.crearRutaChatFamilia(familiaId = familiaId,
+                                        nombre = conversacion.titulo)) { launchSingleTop = true } }
+                            ConversacionResumen.TIPO_PRIVADO -> { navController.navigate(Rutas.crearRutaChatPrivado(
+                                        conversacion.id)) { launchSingleTop = true } } } },
+                    alNuevoMensaje = { navController.navigate(Rutas.NUEVO_MENSAJE) { launchSingleTop = true } },
                     alGestionarFamilia = { familiaId ->
-                        navController.navigate(
-                            Rutas.crearRutaGestionFamilia(familiaId)
-                        ) { launchSingleTop = true } },
+                        navController.navigate(Rutas.crearRutaGestionFamilia(familiaId)) { launchSingleTop = true } },
                     alCerrarSesion = { navController.navigate(Rutas.LOGIN) {
                         popUpTo(navController.graph.id) { inclusive = false }
                         launchSingleTop = true } }) }
             composable(route = Rutas.GESTION_FAMILIA_CON_ARGUMENTOS,
-                arguments = listOf(
-                    navArgument("familiaId") { type = NavType.StringType
+                arguments = listOf(navArgument("familiaId") { type = NavType.StringType
                         nullable = true
                         defaultValue = null })) { entrada ->
                 val familiaViewModel: FamiliaViewModel = viewModel()
@@ -111,20 +90,16 @@ fun AppNavigation(llamadaViewModel: LlamadaViewModel = viewModel()) {
                     idiomaViewModel = idiomaViewModel,
                     viewModel = familiaViewModel,
                     alVolver = { familiaIdFinal ->
-                        homeViewModel.sincronizarFamiliasDesdeGestion(
-                            familiaPreferidaId = familiaIdFinal)
+                        homeViewModel.sincronizarFamiliasDesdeGestion(familiaPreferidaId = familiaIdFinal)
                         navController.popBackStack() }) }
-            composable(route = Rutas.NUEVO_MENSAJE) {
-                PantallaNuevoMensaje(idiomaViewModel = idiomaViewModel,
+            composable(route = Rutas.NUEVO_MENSAJE) { PantallaNuevoMensaje(idiomaViewModel = idiomaViewModel,
                     alVolver = { navController.popBackStack() },
                     alAbrirChatPrivado = { conversacionId ->
-                        navController.navigate(
-                            Rutas.crearRutaChatPrivado(conversacionId)) {
+                        navController.navigate(Rutas.crearRutaChatPrivado(conversacionId)) {
                             popUpTo(Rutas.NUEVO_MENSAJE) { inclusive = true }
                             launchSingleTop = true } }) }
             composable(route = Rutas.CHAT_FAMILIA,
-                arguments = listOf(navArgument("familiaId") {
-                    type = NavType.StringType },
+                arguments = listOf(navArgument("familiaId") { type = NavType.StringType },
                     navArgument("nombre") { type = NavType.StringType
                         defaultValue = "" })) { entrada ->
                 val familiaId = entrada.arguments
@@ -136,8 +111,7 @@ fun AppNavigation(llamadaViewModel: LlamadaViewModel = viewModel()) {
                     llamadaViewModel = llamadaViewModel,
                     alVolver = { navController.popBackStack() }) }
             composable(route = Rutas.CHAT_PRIVADO, arguments = listOf(
-                navArgument("conversacionId") { type = NavType.StringType })
-            ) { entrada ->
+                navArgument("conversacionId") { type = NavType.StringType })) { entrada ->
                 val conversacionId = entrada.arguments
                     ?.getString("conversacionId").orEmpty()
                 PantallaChatPrivado(conversacionId = conversacionId,
@@ -146,6 +120,4 @@ fun AppNavigation(llamadaViewModel: LlamadaViewModel = viewModel()) {
                     alVolver = { navController.popBackStack() }) } }
         IndicadorTraduccion(visible = idiomaViewModel.traduciendo)
         CapaLlamadas(llamadaViewModel = llamadaViewModel,
-            idiomaViewModel = idiomaViewModel)
-    }
-}
+            idiomaViewModel = idiomaViewModel) } }

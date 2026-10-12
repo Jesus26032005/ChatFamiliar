@@ -7,106 +7,77 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 
+/** Cuenta los mensajes no leídos con una consulta de agregación (count) en el servidor. */
 class MensajesNoLeidosRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    fun contarFamilia(
-        familiaId: String,
+    /** Mensajes de otros integrantes posteriores al marcador de lectura en un chat familiar. */
+    fun contarFamilia(familiaId: String,
         lectura: LecturaConversacion,
-        alCompletar: (Result<Int>) -> Unit
-    ) {
-        contar(coleccion = COLECCION_FAMILIAS,
+        alCompletar: (Result<Int>) -> Unit) { contar(coleccion = COLECCION_FAMILIAS,
             conversacionId = familiaId,
             lectura = lectura,
-            alCompletar = alCompletar)
-    }
+            alCompletar = alCompletar) }
+    /** Mensajes de la otra persona posteriores al marcador de lectura en un chat privado. */
     fun contarPrivado(conversacionId: String,
         lectura: LecturaConversacion,
-        alCompletar: (Result<Int>) -> Unit) {
-        contar(coleccion = COLECCION_CONVERSACIONES_PRIVADAS,
+        alCompletar: (Result<Int>) -> Unit) { contar(coleccion = COLECCION_CONVERSACIONES_PRIVADAS,
             conversacionId = conversacionId,
             lectura = lectura,
-            alCompletar = alCompletar)
-    }
+            alCompletar = alCompletar) }
 
+    /**
+     * Cuenta los mensajes de otros remitentes que van después del último
+     * mensaje leído (por fecha y, si empatan, por id).
+     */
     private fun contar(coleccion: String, conversacionId: String,
         lectura: LecturaConversacion,
-        alCompletar: (Result<Int>) -> Unit) {
-        val uid = auth.currentUser?.uid
-        if (uid.isNullOrBlank()) {
-            alCompletar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)
-                ))
-            return
-        }
-        if (!esIdValido(conversacionId)) {
-            alCompletar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)
-                ))
-            return
-        }
-        if (lectura.uid != uid) {
-            alCompletar(Result.failure(
-                    ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
+        alCompletar: (Result<Int>) -> Unit) { val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
+            return }
+        if (!esIdValido(conversacionId)) { alCompletar(Result.failure(
+                    ExcepcionChat(CodigoErrorChat.IDENTIFICADOR_INVALIDO)))
+            return }
+        if (lectura.uid != uid) { alCompletar(Result.failure(ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
             return }
         val fechaLeida = lectura.fechaUltimoMensajeLeido
         val mensajeLeidoId = lectura.ultimoMensajeLeidoId
         val sinLectura = fechaLeida == null && mensajeLeidoId.isEmpty()
         if (!sinLectura &&
-            (fechaLeida == null || !esIdValido(mensajeLeidoId))) {
-            alCompletar(Result.failure(
+            (fechaLeida == null || !esIdValido(mensajeLeidoId))) { alCompletar(Result.failure(
                     ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
-            return
-        }
+            return }
         val mensajes = firestore
             .collection(coleccion)
             .document(conversacionId)
             .collection(SUBCOLECCION_MENSAJES)
-        val filtroOtrosRemitentes = Filter.notEqualTo(
-            CAMPO_REMITENTE_ID,
+        val filtroOtrosRemitentes = Filter.notEqualTo(CAMPO_REMITENTE_ID,
             uid)
-        val consulta = if (sinLectura) {
-            mensajes.where(filtroOtrosRemitentes)
-        } else {
-            val filtroPosteriores = Filter.or(
-                Filter.greaterThan(
-                    CAMPO_FECHA_ENVIO,
+        val consulta = if (sinLectura) { mensajes.where(filtroOtrosRemitentes) } else {
+            val filtroPosteriores = Filter.or(Filter.greaterThan(CAMPO_FECHA_ENVIO,
                     fechaLeida),
-                Filter.and(
-                    Filter.equalTo(
-                        CAMPO_FECHA_ENVIO,
+                Filter.and(Filter.equalTo(CAMPO_FECHA_ENVIO,
                         fechaLeida),
-                    Filter.greaterThan(
-                        FieldPath.documentId(),
-                        mensajeLeidoId
-                    )))
-            mensajes.where(Filter.and(
-                    filtroOtrosRemitentes,
-                    filtroPosteriores))
-        }
+                    Filter.greaterThan(FieldPath.documentId(),
+                        mensajeLeidoId)))
+            mensajes.where(Filter.and(filtroOtrosRemitentes,
+                    filtroPosteriores)) }
         consulta
             .count()
             .get(AggregateSource.SERVER)
             .addOnSuccessListener { resultado ->
-                if (auth.currentUser?.uid != uid) {
-                    alCompletar(Result.failure(
+                if (auth.currentUser?.uid != uid) { alCompletar(Result.failure(
                             ExcepcionChat(CodigoErrorChat.SESION_REQUERIDA)))
-                    return@addOnSuccessListener
-                }
+                    return@addOnSuccessListener }
                 val cantidad = resultado.count
-                if (cantidad < 0L || cantidad > Int.MAX_VALUE.toLong()) {
-                    alCompletar(Result.failure(
+                if (cantidad < 0L || cantidad > Int.MAX_VALUE.toLong()) { alCompletar(Result.failure(
                             ExcepcionChat(CodigoErrorChat.DATOS_INVALIDOS)))
                     return@addOnSuccessListener }
-                alCompletar(Result.success(cantidad.toInt()))
-            }.addOnFailureListener { error ->
-                alCompletar(
-                    Result.failure(ExcepcionChat.desde(error)))
-            }
-    }
+                alCompletar(Result.success(cantidad.toInt())) }.addOnFailureListener { error ->
+                alCompletar(Result.failure(ExcepcionChat.desde(error))) } }
 
-    private fun esIdValido(id: String): Boolean {
-        return id.isNotBlank() && !id.contains("/") &&
+    /** Un id válido de Firestore no está vacío ni contiene '/'. */
+    private fun esIdValido(id: String): Boolean { return id.isNotBlank() && !id.contains("/") &&
                 id != "." && id != ".." }
     companion object {
         private const val COLECCION_FAMILIAS = "familias"
@@ -115,5 +86,4 @@ class MensajesNoLeidosRepository {
         private const val SUBCOLECCION_MENSAJES = "mensajes"
         private const val CAMPO_REMITENTE_ID = "remitenteId"
         private const val CAMPO_FECHA_ENVIO = "fechaEnvio"
-    }
-}
+    } }

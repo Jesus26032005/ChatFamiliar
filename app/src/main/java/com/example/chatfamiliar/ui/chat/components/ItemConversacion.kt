@@ -44,21 +44,17 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Fila de la lista de chats: avatar, nombre, último mensaje, hora y no leídos. */
 @Composable
-fun ItemConversacion(
-    estado: EstadoConversacionInicio,
+fun ItemConversacion(estado: EstadoConversacionInicio,
     uidActual: String,
     textoFecha: String,
     idiomaEfectivo: String,
     traducir: TraducirTexto,
     alAbrir: () -> Unit,
     alReintentar: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val textos = recordarTextosApp(
-        idiomaEfectivo = idiomaEfectivo,
-        traducir = traducir
-    )
+    modifier: Modifier = Modifier) { val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
+        traducir = traducir)
     val colores = MaterialTheme.colorScheme
     val resumen = estado.resumen
     val esFamilia = resumen.tipo == ConversacionResumen.TIPO_FAMILIA
@@ -69,8 +65,7 @@ fun ItemConversacion(
 
     val formaTarjeta = RoundedCornerShape(22.dp)
 
-    val titulo = when {
-        resumen.titulo.isNotBlank() -> resumen.titulo
+    val titulo = when { resumen.titulo.isNotBlank() -> resumen.titulo
         estado.cargandoNombre ->
             textos.texto(R.string.chat_item_loading_name)
 
@@ -78,35 +73,25 @@ fun ItemConversacion(
             textos.texto(R.string.chat_item_unnamed_family)
 
         else ->
-            textos.texto(R.string.chat_item_unknown_user)
-    }
+            textos.texto(R.string.chat_item_unknown_user) }
     val errorUltimoMensaje = estado.errorUltimoMensajeRecurso
-    val vistaPrevia = when {
-        estado.cargandoUltimoMensaje &&
-                resumen.ultimoMensaje.isBlank() -> {
-            textos.texto(R.string.chat_item_loading_message)
-        }
+    val vistaPrevia = when { estado.cargandoUltimoMensaje &&
+                resumen.ultimoMensaje.isBlank() -> { textos.texto(R.string.chat_item_loading_message) }
         resumen.ultimoMensaje.isBlank() &&
-                errorUltimoMensaje != null -> {
-            textos.texto(errorUltimoMensaje)
-        }
+                errorUltimoMensaje != null -> { textos.texto(errorUltimoMensaje) }
 
-        resumen.ultimoMensaje.isBlank() -> {
-            textos.texto(R.string.chat_item_empty)
-        }
+        resumen.ultimoMensaje.isBlank() -> { textos.texto(R.string.chat_item_empty) }
 
         uidActual.isNotBlank() &&
                 resumen.ultimoRemitenteId == uidActual -> {
             "${textos.texto(R.string.chat_item_you)}: " +
-                    resumen.ultimoMensaje
-        }
+                    resumen.ultimoMensaje }
 
         esFamilia && resumen.nombreUltimoRemitente.isNotBlank() -> {
             "${resumen.nombreUltimoRemitente}: ${resumen.ultimoMensaje}"
         }
 
-        else -> resumen.ultimoMensaje
-    }
+        else -> resumen.ultimoMensaje }
 
     val errorRecurso = estado.errorUltimoMensajeRecurso
         ?: estado.errorNombreRecurso
@@ -114,250 +99,127 @@ fun ItemConversacion(
 
     val etiquetaAbrir = textos.texto(R.string.chat_item_open)
 
-    Column(
-        modifier = modifier
+    Column(modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .clip(formaTarjeta)
-            .background(
-                if (tieneNoLeidos) {
-                    funcional.tarjeta
-                } else {
-                    funcional.tarjetaInterior
-                }
-            )
-            .border(
-                width = 1.dp,
-                color = if (tieneNoLeidos) {
-                    funcional.bordePendiente
-                } else {
-                    colores.outlineVariant
-                },
-                shape = formaTarjeta
-            )
-    ) {
-        Row(
-            modifier = Modifier
+            .background(if (tieneNoLeidos) { funcional.tarjeta } else { funcional.tarjetaInterior })
+            .border(width = 1.dp,
+                color = if (tieneNoLeidos) { funcional.bordePendiente } else { colores.outlineVariant },
+                shape = formaTarjeta)) { Row(modifier = Modifier
                 .fillMaxWidth()
-                .clickable(
-                    role = Role.Button,
+                .clickable(role = Role.Button,
                     onClickLabel = etiquetaAbrir,
-                    onClick = alAbrir
-                )
+                    onClick = alAbrir)
                 .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            AvatarIdentidad(
+            verticalAlignment = Alignment.Top) { AvatarIdentidad(
                 // Privados: el uid de la persona, para que conserve su tono
                 // también en "Nuevo mensaje" y en la cabecera del chat.
-                semilla = if (esFamilia) {
-                    resumen.id
-                } else {
-                    resumen.otroUsuarioId.ifBlank { resumen.id }
-                },
+                semilla = if (esFamilia) { resumen.id } else { resumen.otroUsuarioId.ifBlank { resumen.id } },
                 nombre = resumen.titulo,
                 icono = if (esFamilia) Icons.Filled.Groups else null,
                 esGrupo = esFamilia,
-                idioma = idiomaEfectivo
-            )
+                idioma = idiomaEfectivo)
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = titulo,
+            Column(modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)) { Text(text = titulo,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (tieneNoLeidos) {
-                        FontWeight.Bold
-                    } else {
-                        FontWeight.Medium
-                    },
+                    fontWeight = if (tieneNoLeidos) { FontWeight.Bold } else { FontWeight.Medium },
                     color = colores.onSurface,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    overflow = TextOverflow.Ellipsis)
 
                 // Etiqueta neutra: el tipo se distingue por icono y texto,
                 // el color de identidad queda para el avatar.
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
+                Surface(shape = RoundedCornerShape(8.dp),
                     color = funcional.etiquetaNeutra,
-                    contentColor = funcional.sobreEtiquetaNeutra
-                ) {
-                    Row(
-                        modifier = Modifier.padding(
-                            start = 6.dp,
+                    contentColor = funcional.sobreEtiquetaNeutra) { Row(modifier = Modifier.padding(start = 6.dp,
                             end = 8.dp,
                             top = 3.dp,
-                            bottom = 3.dp
-                        ),
+                            bottom = 3.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (esFamilia) {
-                                Icons.Filled.Groups
-                            } else {
-                                Icons.Filled.Person
-                            },
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)) { Icon(imageVector = if (esFamilia) {
+                                Icons.Filled.Groups } else { Icons.Filled.Person },
                             contentDescription = null,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = textos.texto(
-                                if (esFamilia) {
-                                    R.string.chat_item_family
-                                } else {
-                                    R.string.chat_item_private
-                                }
-                            ),
+                            modifier = Modifier.size(14.dp))
+                        Text(text = textos.texto(if (esFamilia) { R.string.chat_item_family } else {
+                                    R.string.chat_item_private }),
                             style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
+                            fontWeight = FontWeight.SemiBold) } }
 
-                Text(
-                    text = vistaPrevia
+                Text(text = vistaPrevia
                         .replace(Regex("\\s+"), " ")
                         .trim(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = colores.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    overflow = TextOverflow.Ellipsis)
 
-                if (
-                    estado.conteoConfirmado &&
-                    (
-                            estado.actualizandoConteo ||
-                                    estado.errorConteoRecurso != null
-                            )
-                ) {
-                    val recursoEstado = if (estado.actualizandoConteo) {
-                        R.string.chat_item_updating
-                    } else {
-                        R.string.chat_item_stale_count
-                    }
+                if (estado.conteoConfirmado &&
+                    (estado.actualizandoConteo ||
+                                    estado.errorConteoRecurso != null)) {
+                    val recursoEstado = if (estado.actualizandoConteo) { R.string.chat_item_updating } else {
+                        R.string.chat_item_stale_count }
 
-                    Text(
-                        text = textos.texto(recursoEstado),
+                    Text(text = textos.texto(recursoEstado),
                         style = MaterialTheme.typography.labelSmall,
-                        color = colores.onSurfaceVariant
-                    )
-                }
-            }
+                        color = colores.onSurfaceVariant) } }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Column(
-                modifier = Modifier.widthIn(max = 84.dp),
+            Column(modifier = Modifier.widthIn(max = 84.dp),
                 horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                if (textoFecha.isNotBlank()) {
-                    Text(
+                verticalArrangement = Arrangement.spacedBy(10.dp)) { if (textoFecha.isNotBlank()) { Text(
                         text = textoFecha,
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (tieneNoLeidos) {
-                            funcional.acento
-                        } else {
-                            colores.onSurfaceVariant
-                        },
+                        color = if (tieneNoLeidos) { funcional.acento } else { colores.onSurfaceVariant },
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                        overflow = TextOverflow.Ellipsis) }
 
-                if (cantidad != null && cantidad > 0) {
-                    val cantidadFormateada = NumberFormat
-                        .getIntegerInstance(
-                            Locale.forLanguageTag(idiomaEfectivo)
-                        )
+                if (cantidad != null && cantidad > 0) { val cantidadFormateada = NumberFormat
+                        .getIntegerInstance(Locale.forLanguageTag(idiomaEfectivo))
                         .format(cantidad)
 
-                    val textoContador = if (cantidad > 99) {
-                        textos.texto(R.string.chat_item_many_unread)
-                    } else {
-                        cantidadFormateada
-                    }
+                    val textoContador = if (cantidad > 99) { textos.texto(R.string.chat_item_many_unread) } else {
+                        cantidadFormateada }
 
                     val descripcion =
                         "${textos.texto(R.string.chat_item_unread)}: " +
                                 cantidadFormateada
 
-                    Surface(
-                        shape = RoundedCornerShape(50),
+                    Surface(shape = RoundedCornerShape(50),
                         color = funcional.insignia,
                         contentColor = funcional.sobreInsignia,
-                        modifier = Modifier.clearAndSetSemantics {
-                            contentDescription = descripcion
-                        }
-                    ) {
-                        Text(
+                        modifier = Modifier.clearAndSetSemantics { contentDescription = descripcion }) { Text(
                             text = textoContador,
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(
-                                horizontal = 8.dp,
-                                vertical = 4.dp
-                            )
-                        )
-                    }
-                } else if (
-                    !estado.conteoConfirmado &&
-                    estado.errorConteoRecurso == null
-                ) {
-                    val descripcion = textos.texto(
-                        R.string.chat_item_loading_unread
-                    )
+                            modifier = Modifier.padding(horizontal = 8.dp,
+                                vertical = 4.dp)) } } else if (!estado.conteoConfirmado &&
+                    estado.errorConteoRecurso == null) { val descripcion = textos.texto(
+                        R.string.chat_item_loading_unread)
 
-                    CircularProgressIndicator(
-                        modifier = Modifier
+                    CircularProgressIndicator(modifier = Modifier
                             .size(18.dp)
-                            .semantics {
-                                contentDescription = descripcion
-                            },
+                            .semantics { contentDescription = descripcion },
                         strokeWidth = 2.dp,
-                        color = funcional.acento
-                    )
-                }
-            }
-        }
+                        color = funcional.acento) } } }
 
-        if (errorRecurso != null) {
-            Column(
-                modifier = Modifier
+        if (errorRecurso != null) { Column(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                val errorYaVisible =
+                    .padding(horizontal = 16.dp)) { val errorYaVisible =
                     errorRecurso == estado.errorUltimoMensajeRecurso &&
                             resumen.ultimoMensaje.isBlank() &&
                             !estado.cargandoUltimoMensaje
 
-                if (!errorYaVisible) {
-                    Text(
-                        text = textos.texto(errorRecurso),
+                if (!errorYaVisible) { Text(text = textos.texto(errorRecurso),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colores.error
-                    )
-                }
+                        color = colores.error) }
 
-                TextButton(
-                    onClick = alReintentar,
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text(
-                        text = textos.texto(R.string.chat_item_retry)
-                    )
-                }
-            }
+                TextButton(onClick = alReintentar,
+                    modifier = Modifier.align(Alignment.End)) { Text(text = textos.texto(R.string.chat_item_retry)) } }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
-    }
-}
+        Spacer(modifier = Modifier.height(4.dp)) } }

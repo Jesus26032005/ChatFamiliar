@@ -13,24 +13,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 
+/**
+ * Administra el cliente de Stream Video del usuario actual y lo expone
+ * como StateFlow para que la interfaz sepa cuándo existe.
+ */
 class SesionVideoRepository(context: Context) {
     private val contextoAplicacion = context.applicationContext
     private val auth = FirebaseAuth.getInstance()
 
     // Guarda uid y nombre en el teléfono para poder crear el cliente de
     // Stream al instante cuando llega una llamada con la app cerrada.
-    private val preferencias = contextoAplicacion.getSharedPreferences(
-        ARCHIVO_PREFERENCIAS, Context.MODE_PRIVATE)
+    private val preferencias = contextoAplicacion.getSharedPreferences(ARCHIVO_PREFERENCIAS, Context.MODE_PRIVATE)
 
     // Cliente de Stream observable: la interfaz de llamadas se entera
     // cuando se crea (al iniciar sesión) o se retira (al cerrarla).
     private val _cliente = MutableStateFlow<StreamVideo?>(null)
     val cliente: StateFlow<StreamVideo?> = _cliente.asStateFlow()
 
+    /**
+     * Crea (o reutiliza) el cliente de Stream con el uid de Firebase y el nombre
+     * del perfil, y registra el dispositivo para recibir avisos push de llamada.
+     */
     @Synchronized
-    fun inicializar(uid: String, nombre: String): Result<StreamVideo> {
-        return runCatching {
-            check(uid.isNotBlank() &&
+    fun inicializar(uid: String, nombre: String): Result<StreamVideo> { return runCatching { check(uid.isNotBlank() &&
                     auth.currentUser?.uid == uid) { "SESION_FIREBASE_NO_COINCIDE" }
 
             val nombreVisible = nombre.trim()
@@ -40,8 +45,7 @@ class SesionVideoRepository(context: Context) {
             check(apiKey.isNotEmpty() && apiKey != "PEGA_AQUI_TU_API_KEY") {
                 "API_KEY_STREAM_NO_CONFIGURADA" }
             val clienteActual = StreamVideo.instanceOrNull()
-            if (clienteActual?.userId == uid) {
-                _cliente.value = clienteActual
+            if (clienteActual?.userId == uid) { _cliente.value = clienteActual
                 guardarSesionLocal(uid = uid, nombre = nombreVisible)
                 return@runCatching clienteActual }
 
@@ -49,31 +53,21 @@ class SesionVideoRepository(context: Context) {
 
             val usuarioStream = User(id = uid, name = nombreVisible)
 
-            StreamVideoBuilder(
-                context = contextoAplicacion,
+            StreamVideoBuilder(context = contextoAplicacion,
                 apiKey = apiKey,
                 user = usuarioStream,
                 token = StreamVideo.devToken(uid),
                 // Push: registra este teléfono en Stream con el proveedor
                 // "firebase" (el mismo nombre que en el dashboard) para
                 // que las llamadas lleguen aunque la app esté cerrada.
-                notificationConfig = NotificationConfig(
-                    pushDeviceGenerators = listOf(
-                        FirebasePushDeviceGenerator(
+                notificationConfig = NotificationConfig(pushDeviceGenerators = listOf(FirebasePushDeviceGenerator(
                             context = contextoAplicacion,
-                            providerName = PROVEEDOR_PUSH
-                        )
-                    ),
+                            providerName = PROVEEDOR_PUSH)),
                     // Con la app abierta ya mostramos nuestra propia
                     // pantalla de llamada entrante (CapaLlamadas).
-                    hideRingingNotificationInForeground = true
-                )
-            ).build().also { nuevo ->
+                    hideRingingNotificationInForeground = true)).build().also { nuevo ->
                 _cliente.value = nuevo
-                guardarSesionLocal(uid = uid, nombre = nombreVisible)
-            }
-        }
-    }
+                guardarSesionLocal(uid = uid, nombre = nombreVisible) } } }
 
     /**
      * Crea el cliente con los datos guardados en el teléfono, sin esperar
@@ -82,23 +76,19 @@ class SesionVideoRepository(context: Context) {
      * Devuelve null si no hay sesión o no hay datos guardados de este usuario.
      */
     @Synchronized
-    fun inicializarDesdeDatosGuardados(): Result<StreamVideo>? {
-        val uid = auth.currentUser?.uid ?: return null
+    fun inicializarDesdeDatosGuardados(): Result<StreamVideo>? { val uid = auth.currentUser?.uid ?: return null
         if (preferencias.getString(CLAVE_UID, null) != uid) return null
         val nombre = preferencias.getString(CLAVE_NOMBRE, null)
             ?.takeIf { it.isNotBlank() } ?: return null
-        return inicializar(uid = uid, nombre = nombre)
-    }
+        return inicializar(uid = uid, nombre = nombre) }
 
+    /** Cliente de Stream solo si pertenece al usuario con sesión abierta. */
     @Synchronized
-    fun obtenerClienteActual(): StreamVideo? {
-        val uid = auth.currentUser?.uid ?: return null
+    fun obtenerClienteActual(): StreamVideo? { val uid = auth.currentUser?.uid ?: return null
 
         return StreamVideo.instanceOrNull()
             ?.takeIf { cliente ->
-                cliente.userId == uid
-            }
-    }
+                cliente.userId == uid } }
 
     /** Nombre con el que el cliente actual se presentó a Stream. */
     @Synchronized
@@ -111,10 +101,8 @@ class SesionVideoRepository(context: Context) {
      * Solo debe llamarse cuando no hay ninguna llamada sonando ni en curso.
      */
     @Synchronized
-    fun reconectarConNombre(uid: String, nombre: String): Result<StreamVideo> {
-        cerrarSesion()
-        return inicializar(uid = uid, nombre = nombre)
-    }
+    fun reconectarConNombre(uid: String, nombre: String): Result<StreamVideo> { cerrarSesion()
+        return inicializar(uid = uid, nombre = nombre) }
 
     /**
      * Al cerrar sesión en la app: quita este teléfono de Stream para que
@@ -122,52 +110,36 @@ class SesionVideoRepository(context: Context) {
      * y cierra el cliente. Si no hay red, a los pocos segundos se cierra
      * de todos modos.
      */
-    suspend fun cerrarSesionDeUsuario() {
-        olvidarSesionLocal()
+    suspend fun cerrarSesionDeUsuario() { olvidarSesionLocal()
         val clienteAnterior = StreamVideo.instanceOrNull()
         _cliente.value = null
         if (clienteAnterior == null) return
 
-        withTimeoutOrNull(TIEMPO_BAJA_DISPOSITIVO_MS) {
-            clienteAnterior.getDevice().first()?.let { dispositivo ->
-                clienteAnterior.deleteDevice(dispositivo)
-            }
-        }
+        withTimeoutOrNull(TIEMPO_BAJA_DISPOSITIVO_MS) { clienteAnterior.getDevice().first()?.let { dispositivo ->
+                clienteAnterior.deleteDevice(dispositivo) } }
         clienteAnterior.logOut()
 
         // Solo se retira si sigue siendo el mismo cliente (por si en
         // estos segundos ya inició sesión otra cuenta).
-        synchronized(this) {
-            if (StreamVideo.instanceOrNull() === clienteAnterior) {
-                StreamVideo.removeClient()
-            }
-        }
-    }
+        synchronized(this) { if (StreamVideo.instanceOrNull() === clienteAnterior) { StreamVideo.removeClient() } } }
 
+    /** Retira el cliente de Stream sin dar de baja el dispositivo. */
     @Synchronized
-    fun cerrarSesion() {
-        _cliente.value = null
-        if (StreamVideo.instanceOrNull() != null) {
-            StreamVideo.removeClient()
-        }
-    }
+    fun cerrarSesion() { _cliente.value = null
+        if (StreamVideo.instanceOrNull() != null) { StreamVideo.removeClient() } }
 
-    private fun guardarSesionLocal(uid: String, nombre: String) {
-        preferencias.edit()
+    /** Guarda uid y nombre para poder crear el cliente al abrir la app. */
+    private fun guardarSesionLocal(uid: String, nombre: String) { preferencias.edit()
             .putString(CLAVE_UID, uid)
             .putString(CLAVE_NOMBRE, nombre)
-            .apply()
-    }
+            .apply() }
 
-    private fun olvidarSesionLocal() {
-        preferencias.edit().clear().apply()
-    }
+    /** Borra los datos guardados de la sesión de video. */
+    private fun olvidarSesionLocal() { preferencias.edit().clear().apply() }
 
     private companion object {
         const val PROVEEDOR_PUSH = "firebase"
         const val ARCHIVO_PREFERENCIAS = "sesion_video"
         const val CLAVE_UID = "uid"
         const val CLAVE_NOMBRE = "nombre"
-        const val TIEMPO_BAJA_DISPOSITIVO_MS = 5_000L
-    }
-}
+        const val TIEMPO_BAJA_DISPOSITIVO_MS = 5_000L } }

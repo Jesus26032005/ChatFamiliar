@@ -46,16 +46,14 @@ import com.example.chatfamiliar.ui.language.recordarIdiomaEfectivo
 import com.example.chatfamiliar.ui.language.recordarTextosApp
 
 
+/** Pantalla que pide confirmar el correo antes de entrar a la aplicación. */
 @Composable
-fun PantallaVerificacion(
-    viewModel: VerificacionViewModel = viewModel(),
+fun PantallaVerificacion(viewModel: VerificacionViewModel = viewModel(),
     idiomaViewModel: IdiomaViewModel = viewModel(),
     alNavegarHome: () -> Unit, alNavegarLogin: () -> Unit)
 { LaunchedEffect(Unit) { viewModel.prepararPantalla() }
-    val idiomaEfectivo = recordarIdiomaEfectivo(
-        idiomaViewModel.idiomaSeleccionado)
-    ContenidoVerificacion(
-        correoUsuario = viewModel.correoUsuario,
+    val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
+    ContenidoVerificacion(correoUsuario = viewModel.correoUsuario,
         errorRecurso = viewModel.errorRecurso,
         mensajeRecurso = viewModel.mensajeRecurso,
         cargando = viewModel.cargando,
@@ -65,46 +63,32 @@ fun PantallaVerificacion(
             .comprobarVerificacion(alEstarVerificado
             = alNavegarHome) },
         alReenviarCorreo = { viewModel.reenviarCorreo() },
-        alCambiarCuenta = { viewModel.cerrarSesion(
-            alCerrarSesion = alNavegarLogin) }) }
+        alCambiarCuenta = { viewModel.cerrarSesion(alCerrarSesion = alNavegarLogin) }) }
+/** Contenido visual de la verificación: correo, instrucciones y acciones. */
 @Composable
-fun ContenidoVerificacion(
-    correoUsuario: String,
+fun ContenidoVerificacion(correoUsuario: String,
     @StringRes errorRecurso: Int?,
     @StringRes mensajeRecurso: Int?,
     cargando: Boolean, idiomaEfectivo: String,
     traducir: TraducirTexto,
     alComprobarVerificacion: () -> Unit,
     alReenviarCorreo: () -> Unit,
-    alCambiarCuenta: () -> Unit
-) { val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
+    alCambiarCuenta: () -> Unit) { val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
             traducir = traducir)
     Box(modifier = Modifier.fillMaxSize()
-            .safeDrawingPadding().imePadding()
-    ) {
-        Column(modifier = Modifier
+            .safeDrawingPadding().imePadding()) { Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Icono principal
-            Surface(
-                modifier = Modifier.size(76.dp),
+            verticalArrangement = Arrangement.Center) { Surface(modifier = Modifier.size(76.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Box(contentAlignment = Alignment.Center
-                ) {
+                color = MaterialTheme.colorScheme.primaryContainer) { Box(contentAlignment = Alignment.Center) {
                     Icon(imageVector = Icons.Filled.Email,
                         contentDescription = null,
                         modifier = Modifier.size(38.dp),
-                        tint = MaterialTheme.colorScheme.primary)
-                }
-            }
+                        tint = MaterialTheme.colorScheme.primary) } }
             Spacer(modifier = Modifier.height(18.dp))
-            // Título
             Text(text = textos.texto(R.string.verification_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
@@ -119,19 +103,14 @@ fun ContenidoVerificacion(
             // Tarjeta con el correo y las instrucciones
             Card(modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme
-                            .surfaceContainer)
-            ) {
-                Column(modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme
+                            .surfaceContainer)) { Column(modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = textos.texto(R.string.verification_sent_to),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(8.dp))
-                    // Correo actual
                     Text(text = correoUsuario.ifBlank { textos
                             .texto(R.string.verification_email_placeholder) },
                         style =
@@ -140,70 +119,38 @@ fun ContenidoVerificacion(
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(18.dp))
-                    // Instrucciones
-                    Text(text = textos.texto(
-                            R.string.verification_instructions),
+                    Text(text = textos.texto(R.string.verification_instructions),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center)
-                }
-            }
-            // Mensaje informativo
-            AnimatedVisibility(
-                visible = mensajeRecurso != null
-            ) { mensajeRecurso?.let { recurso ->
-                    Column {
-                        Spacer(modifier = Modifier.height(16.dp))
+                        textAlign = TextAlign.Center) } }
+            AnimatedVisibility(visible = mensajeRecurso != null) { mensajeRecurso?.let { recurso ->
+                    Column { Spacer(modifier = Modifier.height(16.dp))
                         Surface(modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Text(text = textos.texto(recurso),
+                            color = MaterialTheme.colorScheme.primaryContainer) { Text(text = textos.texto(recurso),
                                 modifier = Modifier.padding(14.dp),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                textAlign = TextAlign.Center)
-                        }
-                    }
-                }
-            }
-            // Error técnico
+                                textAlign = TextAlign.Center) } } } }
             MensajeError(mensaje = errorRecurso?.let { recurso ->
                         textos.texto(recurso) })
             Spacer(modifier = Modifier.height(6.dp))
-            // Acción principal
-            BotonAuth(texto = textos.texto(
-                R.string.verification_check_button),
+            BotonAuth(texto = textos.texto(R.string.verification_check_button),
                 cargando = cargando,
                 onClick = alComprobarVerificacion)
             Spacer(modifier = Modifier.height(12.dp))
-            // Reenviar correo.
             OutlinedButton(onClick = alReenviarCorreo, enabled = !cargando,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(text = textos.texto(R.string.verification_resend_button))
-            }
+                shape = RoundedCornerShape(16.dp)) { Text(text = textos.texto(R.string.verification_resend_button)) }
             Spacer(modifier = Modifier.height(6.dp))
-            // Cambiar de usuario
-            TextButton(onClick = alCambiarCuenta, enabled = !cargando
-            ) { Text(text = textos
+            TextButton(onClick = alCambiarCuenta, enabled = !cargando) { Text(text = textos
                 .texto(R.string.verification_change_account),
-                fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-}
+                fontWeight = FontWeight.SemiBold) } } } }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true,
+    showSystemUi = true)
 @Composable
-private fun PantallaVerificacionPreview() {
-    MaterialTheme {
-        ContenidoVerificacion(
-            correoUsuario = "familia@correo.com",
+private fun PantallaVerificacionPreview() { MaterialTheme { ContenidoVerificacion(correoUsuario = "familia@correo.com",
             errorRecurso = null,
             mensajeRecurso =
                 R.string.verification_message_email_sent,
@@ -213,7 +160,4 @@ private fun PantallaVerificacionPreview() {
                 alCompletar(Result.success(texto)) },
             alComprobarVerificacion = {},
             alReenviarCorreo = {},
-            alCambiarCuenta = {}
-        )
-    }
-}
+            alCambiarCuenta = {}) } }

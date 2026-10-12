@@ -12,10 +12,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/**
+ * Mantiene el cliente de Stream sincronizado con la sesión de Firebase:
+ * lo crea al iniciar sesión (cuando el perfil ya tiene nombre), lo retira al
+ * cerrar sesión y lo reconecta si el usuario cambia su nombre.
+ */
 class ObservadorSesionVideo(
     private val sesionVideoRepository: SesionVideoRepository,
-    private val usuarioRepository: UsuarioRepository
-) {
+    private val usuarioRepository: UsuarioRepository) {
 
     private val auth = FirebaseAuth.getInstance()
 
@@ -30,25 +34,18 @@ class ObservadorSesionVideo(
     private var sesionRevisada = false
     private var versionSesion = 0L
 
-    fun iniciar() {
-        if (observadorAuth != null) {
-            return
-        }
+    /** Empieza a escuchar los cambios de sesión de Firebase (solo una vez). */
+    fun iniciar() { if (observadorAuth != null) { return }
 
-        val observador = FirebaseAuth.AuthStateListener {
-            actualizarSesion()
-        }
+        val observador = FirebaseAuth.AuthStateListener { actualizarSesion() }
 
         observadorAuth = observador
-        auth.addAuthStateListener(observador)
-    }
+        auth.addAuthStateListener(observador) }
 
-    private fun actualizarSesion() {
-        val uidActual = auth.currentUser?.uid
+    /** Reacciona a un cambio de usuario: cierra lo anterior y escucha el perfil del nuevo. */
+    private fun actualizarSesion() { val uidActual = auth.currentUser?.uid
 
-        if (sesionRevisada && uidActual == uidObservado) {
-            return
-        }
+        if (sesionRevisada && uidActual == uidObservado) { return }
 
         sesionRevisada = true
         uidObservado = uidActual
@@ -62,86 +59,51 @@ class ObservadorSesionVideo(
         if (uidActual == null) {
             // Cerró sesión: quitamos este teléfono de Stream para que no
             // le sigan llegando llamadas de esa cuenta.
-            alcance.launch {
-                sesionVideoRepository.cerrarSesionDeUsuario()
-                Log.d(ETIQUETA, "SIN_SESION_FIREBASE_CLIENTE_RETIRADO")
-            }
-            return
-        }
+            alcance.launch { sesionVideoRepository.cerrarSesionDeUsuario()
+                Log.d(ETIQUETA, "SIN_SESION_FIREBASE_CLIENTE_RETIRADO") }
+            return }
 
         // Si el cliente ya se creó al abrir la app (desde los datos
         // guardados) y es de este mismo usuario, se conserva: puede estar
         // atendiendo una llamada que llegó con la app cerrada.
-        if (sesionVideoRepository.obtenerClienteActual() == null) {
-            sesionVideoRepository.cerrarSesion()
-        }
+        if (sesionVideoRepository.obtenerClienteActual() == null) { sesionVideoRepository.cerrarSesion() }
 
         val versionActual = versionSesion
 
-        observadorPerfil = usuarioRepository.escucharUsuario(
-            uidUsuario = uidActual
-        ) { resultado ->
+        observadorPerfil = usuarioRepository.escucharUsuario(uidUsuario = uidActual) { resultado ->
 
-            if (
-                versionActual != versionSesion ||
-                auth.currentUser?.uid != uidActual
-            ) {
-                return@escucharUsuario
-            }
+            if (versionActual != versionSesion ||
+                auth.currentUser?.uid != uidActual) { return@escucharUsuario }
 
             resultado.onSuccess { usuario ->
                 val nombre = usuario?.nombre.orEmpty().trim()
 
-                if (nombre.isEmpty()) {
-                    sesionVideoRepository.cerrarSesion()
+                if (nombre.isEmpty()) { sesionVideoRepository.cerrarSesion()
 
-                    Log.d(
-                        ETIQUETA,
+                    Log.d(ETIQUETA,
                         "ESPERANDO_NOMBRE_DEL_PERFIL"
                     )
 
-                    return@onSuccess
-                }
+                    return@onSuccess }
 
-                if (
-                    sesionVideoRepository.obtenerClienteActual() != null
-                ) {
+                if (sesionVideoRepository.obtenerClienteActual() != null) {
                     // Ya hay cliente: si el nombre del perfil cambió,
                     // lo pasamos también a Stream (videollamadas).
-                    if (sesionVideoRepository.nombreConectado() != nombre) {
-                        actualizarNombreEnStream(
-                            uid = uidActual,
+                    if (sesionVideoRepository.nombreConectado() != nombre) { actualizarNombreEnStream(uid = uidActual,
                             nombre = nombre,
-                            version = versionActual
-                        )
-                    }
-                    return@onSuccess
-                }
+                            version = versionActual) }
+                    return@onSuccess }
 
-                sesionVideoRepository.inicializar(
-                    uid = uidActual,
-                    nombre = nombre
-                ).onSuccess {
-                    Log.d(
-                        ETIQUETA,
+                sesionVideoRepository.inicializar(uid = uidActual,
+                    nombre = nombre).onSuccess { Log.d(ETIQUETA,
                         "CLIENTE_STREAM_CREADO"
-                    )
-                }.onFailure { error ->
-                    Log.e(
-                        ETIQUETA,
+                    ) }.onFailure { error ->
+                    Log.e(ETIQUETA,
                         "ERROR_CREACION_CLIENTE: " +
-                                error.javaClass.simpleName
-                    )
-                }
-            }.onFailure { error ->
-                Log.e(
-                    ETIQUETA,
+                                error.javaClass.simpleName) } }.onFailure { error ->
+                Log.e(ETIQUETA,
                     "ERROR_LECTURA_PERFIL: " +
-                            error.javaClass.simpleName
-                )
-            }
-        }
-    }
+                            error.javaClass.simpleName) } } }
 
     /**
      * Reconecta a Stream con el nombre nuevo. Si en ese momento hay una
@@ -149,36 +111,23 @@ class ObservadorSesionVideo(
      * Si el nombre vuelve a cambiar antes, se cancela la espera anterior
      * y se usa el más reciente.
      */
-    private fun actualizarNombreEnStream(uid: String, nombre: String, version: Long) {
-        cambioNombrePendiente?.cancel()
+    private fun actualizarNombreEnStream(uid: String, nombre: String, version: Long) { cambioNombrePendiente?.cancel()
         cambioNombrePendiente = alcance.launch {
             val cliente = sesionVideoRepository.obtenerClienteActual() ?: return@launch
 
-            combine(
-                cliente.state.activeCall,
-                cliente.state.ringingCall
-            ) { activa, sonando -> activa == null && sonando == null }
+            combine(cliente.state.activeCall,
+                cliente.state.ringingCall) { activa, sonando -> activa == null && sonando == null }
                 .first { libre -> libre }
 
-            if (version != versionSesion || auth.currentUser?.uid != uid) {
-                return@launch
-            }
+            if (version != versionSesion || auth.currentUser?.uid != uid) { return@launch }
 
             sesionVideoRepository.reconectarConNombre(uid = uid, nombre = nombre)
-                .onSuccess {
-                    Log.d(ETIQUETA, "NOMBRE_STREAM_ACTUALIZADO")
-                }
+                .onSuccess { Log.d(ETIQUETA, "NOMBRE_STREAM_ACTUALIZADO") }
                 .onFailure { error ->
-                    Log.e(
-                        ETIQUETA,
+                    Log.e(ETIQUETA,
                         "ERROR_ACTUALIZAR_NOMBRE_STREAM: " +
-                                error.javaClass.simpleName
-                    )
-                }
-        }
-    }
+                                error.javaClass.simpleName) } } }
 
     companion object {
         private const val ETIQUETA = "SesionVideo"
-    }
-}
+    } }

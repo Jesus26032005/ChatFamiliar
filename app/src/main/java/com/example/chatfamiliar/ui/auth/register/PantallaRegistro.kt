@@ -45,16 +45,13 @@ import com.example.chatfamiliar.ui.language.recordarIdiomaEfectivo
 import com.example.chatfamiliar.ui.language.recordarTextosApp
 
 
+/** Pantalla de creación de cuenta conectada a su ViewModel. */
 @Composable
-fun PantallaRegistro(
-    idiomaViewModel: IdiomaViewModel,
+fun PantallaRegistro(idiomaViewModel: IdiomaViewModel,
     viewModel: RegistroViewModel = viewModel(),
     alNavegarVerificacion: () -> Unit,
-    alNavegarLogin: () -> Unit) {
-    val idiomaEfectivo = recordarIdiomaEfectivo(
-        idiomaViewModel.idiomaSeleccionado)
-    ContenidoRegistro(
-        correo = viewModel.correo,
+    alNavegarLogin: () -> Unit) { val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
+    ContenidoRegistro(correo = viewModel.correo,
         password = viewModel.password,
         confirmarPassword = viewModel.confirmarPassword,
         errorRecurso = viewModel.errorRecurso,
@@ -69,11 +66,10 @@ fun PantallaRegistro(
         ::actualizarConfirmarPassword,
         alRegistrar = { viewModel.crearCuenta(alTenerExito
         = alNavegarVerificacion) },
-        alNavegarLogin = alNavegarLogin)
-}
+        alNavegarLogin = alNavegarLogin) }
+/** Contenido visual del registro: correo, contraseña y su confirmación. */
 @Composable
-fun ContenidoRegistro(
-    correo: String, password: String, confirmarPassword: String,
+fun ContenidoRegistro(correo: String, password: String, confirmarPassword: String,
     @StringRes errorRecurso: Int?, cargando: Boolean,
     idiomaSeleccionado: String?, idiomaEfectivo: String,
     traducir: TraducirTexto,
@@ -82,129 +78,81 @@ fun ContenidoRegistro(
     alCambiarPassword: (String) -> Unit,
     alCambiarConfirmarPassword: (String) -> Unit,
     alRegistrar: () -> Unit,
-    alNavegarLogin: () -> Unit
-) {
-    val textos = recordarTextosApp(idiomaEfectivo =
+    alNavegarLogin: () -> Unit) { val textos = recordarTextosApp(idiomaEfectivo =
         idiomaEfectivo, traducir = traducir)
     Box(modifier = Modifier.fillMaxSize()
-            .safeDrawingPadding().imePadding()
-    ) {
-        Column(modifier = Modifier.fillMaxSize()
+            .safeDrawingPadding().imePadding()) { Column(modifier = Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                ControlIdiomaCompacto(
+            verticalArrangement = Arrangement.Center) { Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End) { ControlIdiomaCompacto(
                     idiomaSeleccionado = idiomaSeleccionado,
                     idiomaEfectivo = idiomaEfectivo,
                     traducir = traducir,
-                    alSeleccionarIdioma = alSeleccionarIdioma
-                )
-            }
+                    alSeleccionarIdioma = alSeleccionarIdioma) }
             Spacer(modifier = Modifier.height(20.dp))
-            // Icono principal de Registro.
             Surface(modifier = Modifier.padding(4.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Icon(imageVector = Icons.Filled.PersonAdd,
+                color = MaterialTheme.colorScheme.primaryContainer) { Icon(imageVector = Icons.Filled.PersonAdd,
                     contentDescription = null,
                     modifier = Modifier.padding(18.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+                    tint = MaterialTheme.colorScheme.primary) }
             Spacer(modifier = Modifier.height(16.dp))
-            // Nombre de la aplicación.
             Text(text = textos.texto(R.string.brand_name),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(6.dp))
-            // Título.
             Text(text = textos.texto(R.string.register_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(6.dp))
-            // Descripción.
             Text(text = textos.texto(R.string.register_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(24.dp))
 
-            //Card del formulario.
             Card(modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme
-                        .surfaceContainer)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)
-                ) {
-                    // Correo.
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme
+                        .surfaceContainer)) { Column(modifier = Modifier.padding(20.dp)) {
                     CampoCorreo(valor = correo, alCambiarValor = alCambiarCorreo,
                         etiqueta = textos.texto(R.string.auth_email_label),
                         habilitado = !cargando)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Contraseña.
-                    CampoPassword(
-                        valor = password,
+                    CampoPassword(valor = password,
                         alCambiarValor = alCambiarPassword,
                         etiqueta = textos.texto(R.string.auth_password_label),
                         descripcionMostrar = textos.texto(R.string.auth_show_password),
                         descripcionOcultar = textos.texto(R.string.auth_hide_password),
-                        habilitado = !cargando
-                    )
+                        habilitado = !cargando)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Confirmación.
-                    CampoPassword(
-                        valor = confirmarPassword,
+                    CampoPassword(valor = confirmarPassword,
                         alCambiarValor = alCambiarConfirmarPassword,
                         etiqueta = textos.texto(R.string.register_confirm_password),
                         descripcionMostrar = textos.texto(R.string.auth_show_password),
                         descripcionOcultar = textos.texto(R.string.auth_hide_password),
-                        habilitado = !cargando
-                    )
-                    // Mensaje de error traducido.
+                        habilitado = !cargando)
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                             textos.texto(recurso) })
                     Spacer(modifier = Modifier.height(16.dp))
-                    // Registrar
-                    BotonAuth(
-                        texto = textos.texto(R.string.register_button),
+                    BotonAuth(texto = textos.texto(R.string.register_button),
                         cargando = cargando,
-                        onClick = alRegistrar)
-                }
-            }
+                        onClick = alRegistrar) } }
 
             Spacer(modifier = Modifier.height(16.dp))
-            // Volver al Login.
             TextButton(onClick = alNavegarLogin,
-                enabled = !cargando
-            ) {
-                Text(text = textos.texto(R.string.register_have_account),
-                    fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-}
+                enabled = !cargando) { Text(text = textos.texto(R.string.register_have_account),
+                    fontWeight = FontWeight.SemiBold) } } } }
 
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true,
+    showSystemUi = true)
 @Composable
-private fun PantallaRegistroPreview() {
-    MaterialTheme {
-        ContenidoRegistro(
-            correo = "familia@correo.com",
+private fun PantallaRegistroPreview() { MaterialTheme { ContenidoRegistro(correo = "familia@correo.com",
             password = "12345678",
             confirmarPassword = "12345678",
             errorRecurso = null,
@@ -218,7 +166,4 @@ private fun PantallaRegistroPreview() {
             alCambiarPassword = {},
             alCambiarConfirmarPassword = {},
             alRegistrar = {},
-            alNavegarLogin = {}
-        )
-    }
-}
+            alNavegarLogin = {}) } }

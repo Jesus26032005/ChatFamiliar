@@ -5,11 +5,10 @@ import com.example.chatfamiliar.R
 import com.example.chatfamiliar.data.chat.CodigoErrorChat
 import com.example.chatfamiliar.data.chat.ExcepcionChat
 
+/** Texto (recurso de string) que corresponde a cada código de error de chat. */
 @StringRes
-fun obtenerRecursoErrorChat(error: Throwable): Int {
-    val codigo = ExcepcionChat.desde(error).codigo
-    return when (codigo) {
-        CodigoErrorChat.SESION_REQUERIDA ->
+fun obtenerRecursoErrorChat(error: Throwable): Int { val codigo = ExcepcionChat.desde(error).codigo
+    return when (codigo) { CodigoErrorChat.SESION_REQUERIDA ->
             R.string.chat_error_session_required
 
         CodigoErrorChat.IDENTIFICADOR_INVALIDO ->
@@ -52,6 +51,4 @@ fun obtenerRecursoErrorChat(error: Throwable): Int {
             R.string.chat_error_timeout
 
         CodigoErrorChat.DESCONOCIDO ->
-            R.string.chat_error_unknown
-    }
-}
+            R.string.chat_error_unknown } }

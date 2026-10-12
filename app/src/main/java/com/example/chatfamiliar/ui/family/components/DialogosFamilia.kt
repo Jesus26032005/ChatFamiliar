@@ -20,41 +20,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.ui.comun.BotonConfirmarDestructivo
 
+/** Diálogo para escribir el nombre de la familia nueva. */
 @Composable
-fun DialogoCrearFamilia(
-    visible: Boolean, nombre: String,
+fun DialogoCrearFamilia(visible: Boolean, nombre: String,
     titulo: String, descripcion: String,
     etiqueta: String, textoConfirmar: String,
     textoCancelar: String, mensajeError: String?,
     cargando: Boolean, alCambiarNombre: (String) -> Unit,
-    alConfirmar: () -> Unit, alCancelar: () -> Unit){
-    if (!visible) { return }
-    DialogoEntradaFamilia(
-        titulo = titulo, descripcion = descripcion,
+    alConfirmar: () -> Unit, alCancelar: () -> Unit){ if (!visible) { return }
+    DialogoEntradaFamilia(titulo = titulo, descripcion = descripcion,
         valor = nombre, etiqueta = etiqueta,
         textoConfirmar = textoConfirmar, textoCancelar = textoCancelar,
         mensajeError = mensajeError, cargando = cargando,
         alCambiarValor = alCambiarNombre, alConfirmar = alConfirmar,
         alCancelar = alCancelar) }
+/** Diálogo para escribir el código de invitación. */
 @Composable
-fun DialogoUnirseFamilia(
-    visible: Boolean, codigo: String,
+fun DialogoUnirseFamilia(visible: Boolean, codigo: String,
     titulo: String, descripcion: String,
     etiqueta: String, textoConfirmar: String,
     textoCancelar: String, mensajeError: String?,
     cargando: Boolean, alCambiarCodigo: (String) -> Unit,
-    alConfirmar: () -> Unit, alCancelar: () -> Unit) {
-    if (!visible) { return }
-    DialogoEntradaFamilia(
-        titulo = titulo, descripcion = descripcion,
+    alConfirmar: () -> Unit, alCancelar: () -> Unit) { if (!visible) { return }
+    DialogoEntradaFamilia(titulo = titulo, descripcion = descripcion,
         valor = codigo, etiqueta = etiqueta,
         textoConfirmar = textoConfirmar, textoCancelar = textoCancelar,
         mensajeError = mensajeError, cargando = cargando,
         alCambiarValor = alCambiarCodigo, alConfirmar = alConfirmar,
         alCancelar = alCancelar) }
+/** Diálogo genérico con un campo de texto y botones de confirmar y cancelar. */
 @Composable
-private fun DialogoEntradaFamilia(
-    titulo: String,
+private fun DialogoEntradaFamilia(titulo: String,
     descripcion: String,
     valor: String,
     etiqueta: String,
@@ -64,9 +60,7 @@ private fun DialogoEntradaFamilia(
     cargando: Boolean,
     alCambiarValor: (String) -> Unit,
     alConfirmar: () -> Unit,
-    alCancelar: () -> Unit
-) {
-    AlertDialog(onDismissRequest = { if (!cargando) { alCancelar() } },
+    alCancelar: () -> Unit) { AlertDialog(onDismissRequest = { if (!cargando) { alCancelar() } },
         title = { Text(text = titulo, fontWeight = FontWeight.Bold) },
         text = { Column { Text(text = descripcion)
             Spacer(modifier = Modifier.height(16.dp))
@@ -74,8 +68,7 @@ private fun DialogoEntradaFamilia(
                 modifier = Modifier.fillMaxWidth(), label = { Text(etiqueta) },
                 enabled = !cargando, singleLine = true,
                 shape = RoundedCornerShape(16.dp))
-            if (mensajeError != null) {
-                Spacer(modifier = Modifier.height(8.dp))
+            if (mensajeError != null) { Spacer(modifier = Modifier.height(8.dp))
                 Text(text = mensajeError, color = MaterialTheme.colorScheme.error) } } },
         confirmButton = { Button(onClick = alConfirmar, enabled = !cargando) {
             if (cargando) { CircularProgressIndicator(modifier = Modifier.size(18.dp),
@@ -85,25 +78,23 @@ private fun DialogoEntradaFamilia(
         dismissButton = { OutlinedButton(onClick = alCancelar, enabled = !cargando) {
             Text(textoCancelar) } }, shape = RoundedCornerShape(28.dp)) }
 
+/** Diálogo para cambiar el nombre de la familia. */
 @Composable
-fun DialogoEditarFamilia(
-    visible: Boolean, nombre: String, titulo: String, descripcion: String,
+fun DialogoEditarFamilia(visible: Boolean, nombre: String, titulo: String, descripcion: String,
     etiqueta: String, textoConfirmar: String, textoCancelar: String,
     mensajeError: String?, cargando: Boolean, alCambiarNombre: (String) -> Unit,
-    alConfirmar: () -> Unit, alCancelar: () -> Unit) {
-    if (!visible) { return }
+    alConfirmar: () -> Unit, alCancelar: () -> Unit) { if (!visible) { return }
     DialogoEntradaFamilia(titulo = titulo,
         descripcion = descripcion, valor = nombre,
         etiqueta = etiqueta, textoConfirmar = textoConfirmar,
         textoCancelar = textoCancelar, mensajeError = mensajeError,
         cargando = cargando, alCambiarValor = alCambiarNombre,
         alConfirmar = alConfirmar, alCancelar = alCancelar) }
+/** Confirmación para salir de la familia. */
 @Composable
-fun DialogoAbandonarFamilia(
-    visible: Boolean, nombreFamilia: String, titulo: String, descripcion: String,
+fun DialogoAbandonarFamilia(visible: Boolean, nombreFamilia: String, titulo: String, descripcion: String,
     textoConfirmar: String, textoCancelar: String, mensajeError: String?,
-    cargando: Boolean, alConfirmar: () -> Unit, alCancelar: () -> Unit) {
-    if (!visible) { return }
+    cargando: Boolean, alConfirmar: () -> Unit, alCancelar: () -> Unit) { if (!visible) { return }
     AlertDialog(onDismissRequest = { if (!cargando) { alCancelar() } },
         title = { Text(text = titulo, fontWeight = FontWeight.Bold) },
         text = { Column { Text(text = descripcion)
@@ -118,16 +109,14 @@ fun DialogoAbandonarFamilia(
                 strokeWidth = 2.dp)
                 Spacer(modifier = Modifier.width(8.dp)) }
             Text(text = textoConfirmar) } },
-        dismissButton = { OutlinedButton(onClick = alCancelar, enabled = !cargando) {
-            Text(text = textoCancelar) } },
+        dismissButton = { OutlinedButton(onClick = alCancelar, enabled = !cargando) { Text(text = textoCancelar) } },
         shape = RoundedCornerShape(28.dp)) }
+/** Confirmación para eliminar la familia; la acción no se puede deshacer. */
 @Composable
-fun DialogoEliminarFamilia(
-    visible: Boolean, nombreFamilia: String, titulo: String,
+fun DialogoEliminarFamilia(visible: Boolean, nombreFamilia: String, titulo: String,
     descripcion: String, textoConfirmar: String, textoCancelar: String,
     mensajeError: String?, cargando: Boolean, alConfirmar: () -> Unit,
-    alCancelar: () -> Unit) {
-    if (!visible) { return }
+    alCancelar: () -> Unit) { if (!visible) { return }
     AlertDialog(onDismissRequest = { if (!cargando) { alCancelar() } },
         title = { Text(text = titulo, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.error) },
@@ -135,18 +124,13 @@ fun DialogoEliminarFamilia(
             color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = nombreFamilia, fontWeight = FontWeight.Bold)
-            if (mensajeError != null) {
-                Spacer(modifier = Modifier.height(12.dp))
+            if (mensajeError != null) { Spacer(modifier = Modifier.height(12.dp))
                 Text(text = mensajeError, color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall) } } },
         confirmButton = { BotonConfirmarDestructivo(onClick = alConfirmar,
-            enabled = !cargando) {
-            if (cargando) {
-                CircularProgressIndicator(modifier = Modifier.size(18.dp),
+            enabled = !cargando) { if (cargando) { CircularProgressIndicator(modifier = Modifier.size(18.dp),
                     strokeWidth = 2.dp)
                 Spacer(modifier = Modifier.width(8.dp)) }
             Text(text = textoConfirmar) } },
         dismissButton = { OutlinedButton(onClick = alCancelar, enabled = !cargando) {
-            Text(text = textoCancelar) } }, shape = RoundedCornerShape(28.dp)
-    )
-}
+            Text(text = textoCancelar) } }, shape = RoundedCornerShape(28.dp)) }

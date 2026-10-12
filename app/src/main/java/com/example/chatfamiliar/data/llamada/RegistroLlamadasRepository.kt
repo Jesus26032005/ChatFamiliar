@@ -5,10 +5,12 @@ import com.example.chatfamiliar.data.chat.ChatFamiliaRepository
 import com.example.chatfamiliar.data.chat.ChatPrivadoRepository
 import com.example.chatfamiliar.model.Mensaje
 
+/** Guarda en el chat un mensaje especial con el resultado de cada videollamada. */
 class RegistroLlamadasRepository {
     private val chatPrivadoRepository = ChatPrivadoRepository()
     private val chatFamiliaRepository = ChatFamiliaRepository()
 
+    /** Registra la llamada como contestada (con su duración) o como perdida. */
     fun registrar(destino: DestinoLlamada, contestada: Boolean, duracionSegundos: Long) {
         val tipo = if (contestada) Mensaje.TIPO_LLAMADA else Mensaje.TIPO_LLAMADA_PERDIDA
         val contenido = if (contestada) TEXTO_LLAMADA else TEXTO_LLAMADA_PERDIDA
@@ -17,10 +19,8 @@ class RegistroLlamadasRepository {
             resultado
                 .onSuccess { Log.d(ETIQUETA, "REGISTRO_GUARDADO: $tipo") }
                 .onFailure { error ->
-                    Log.w(ETIQUETA, "REGISTRO_FALLIDO: ${error.message}", error) }
-        }
-        when (destino) {
-            is DestinoLlamada.Privado -> chatPrivadoRepository.enviarMensaje(
+                    Log.w(ETIQUETA, "REGISTRO_FALLIDO: ${error.message}", error) } }
+        when (destino) { is DestinoLlamada.Privado -> chatPrivadoRepository.enviarMensaje(
                 conversacionId = destino.conversacionId,
                 familiaCompartidaId = destino.familiaCompartidaId,
                 mensajeId = chatPrivadoRepository.generarMensajeId(),
@@ -28,19 +28,15 @@ class RegistroLlamadasRepository {
                 tipo = tipo,
                 duracionSegundos = duracion,
                 alCompletar = alCompletar)
-            is DestinoLlamada.Familia -> chatFamiliaRepository.enviarMensaje(
-                familiaId = destino.familiaId,
+            is DestinoLlamada.Familia -> chatFamiliaRepository.enviarMensaje(familiaId = destino.familiaId,
                 mensajeId = chatFamiliaRepository.generarMensajeId(),
                 contenido = contenido,
                 tipo = tipo,
                 duracionSegundos = duracion,
-                alCompletar = alCompletar)
-        }
-    }
+                alCompletar = alCompletar) } }
 
     private companion object {
         const val ETIQUETA = "Llamada"
         const val TEXTO_LLAMADA = "Videollamada"
         const val TEXTO_LLAMADA_PERDIDA = "Videollamada perdida"
-    }
-}
+    } }

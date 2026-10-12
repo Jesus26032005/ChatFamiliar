@@ -30,38 +30,25 @@ import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.R
 
 
+/** Capa con indicador de progreso mientras se descargan modelos o se traducen textos. */
 @Composable
-fun IndicadorTraduccion(visible: Boolean) {
-    AnimatedVisibility(visible = visible, enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Box(modifier = Modifier.fillMaxSize()
-                .clickable(interactionSource = remember {
-                        MutableInteractionSource() },
+fun IndicadorTraduccion(visible: Boolean) { AnimatedVisibility(visible = visible, enter = fadeIn(),
+        exit = fadeOut()) { Box(modifier = Modifier.fillMaxSize()
+                .clickable(interactionSource = remember { MutableInteractionSource() },
                     indication = null, onClick = {}),
-            contentAlignment = Alignment.Center
-        ) { Box(modifier = Modifier.fillMaxSize()
-            ) { Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawRect(color = Color.Black.copy(alpha
+            contentAlignment = Alignment.Center) { Box(modifier = Modifier.fillMaxSize()
+            ) { Canvas(modifier = Modifier.fillMaxSize()) { drawRect(color = Color.Black.copy(alpha
                     = 0.32f)) } }
             Card(shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme
                             .colorScheme.surface),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 8.dp)) {
-                Column(modifier = Modifier.padding(
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)) { Column(modifier = Modifier.padding(
                     horizontal = 32.dp, vertical = 26.dp),
                     horizontalAlignment = Alignment
                         .CenterHorizontally,
                     verticalArrangement = Arrangement
-                        .Center) {
-                    CircularProgressIndicator()
+                        .Center) { CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = stringResource(
-                        R.string.language_preparing),
+                    Text(text = stringResource(R.string.language_preparing),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold) } }
-        }
-    }
-}
+                        fontWeight = FontWeight.SemiBold) } } } } }

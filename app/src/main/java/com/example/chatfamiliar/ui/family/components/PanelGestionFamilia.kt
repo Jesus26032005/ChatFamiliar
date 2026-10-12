@@ -26,55 +26,45 @@ import com.example.chatfamiliar.ui.comun.BotonDestructivo
 import com.example.chatfamiliar.ui.theme.funcional
 
 
+/** Acciones de la familia según el rol: editar, abandonar y eliminar (solo el principal). */
 @Composable
-fun PanelGestionFamilia(
-    esAdministrador: Boolean, esAdministradorPrincipal: Boolean,
+fun PanelGestionFamilia(esAdministrador: Boolean, esAdministradorPrincipal: Boolean,
     titulo: String, textoEditar: String,
     textoAbandonar: String, textoEliminar: String,
     alEditar: () -> Unit, alAbandonar: () -> Unit,
-    alEliminar: () -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth(),
+    alEliminar: () -> Unit, modifier: Modifier = Modifier) { Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.funcional.tarjeta)) {
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.funcional.tarjeta)) {
         Column(modifier = Modifier.fillMaxWidth().padding(18.dp) )
         { Text(text = titulo,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold)
-            if (esAdministrador) {
-                Spacer(modifier = Modifier.height(14.dp))
+            if (esAdministrador) { Spacer(modifier = Modifier.height(14.dp))
                 OutlinedButton(onClick = alEditar,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)) {
-                    Icon(imageVector = Icons.Filled.Edit,
+                    shape = RoundedCornerShape(16.dp)) { Icon(imageVector = Icons.Filled.Edit,
                         contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = textoEditar) } }
             Spacer(modifier = Modifier.height(10.dp))
             BotonDestructivo(onClick = alAbandonar,
-                modifier = Modifier.fillMaxWidth()) {
-                Icon(imageVector = Icons.Filled.ExitToApp,
+                modifier = Modifier.fillMaxWidth()) { Icon(imageVector = Icons.Filled.ExitToApp,
                     contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = textoAbandonar) }
             if (esAdministradorPrincipal) { Spacer(modifier = Modifier.height(10.dp))
                 BotonDestructivo(onClick = alEliminar,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Icon(imageVector = Icons.Filled.DeleteForever,
+                    modifier = Modifier.fillMaxWidth()) { Icon(imageVector = Icons.Filled.DeleteForever,
                     contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = textoEliminar,
-                        fontWeight = FontWeight.SemiBold) } } } }
-}
+                        fontWeight = FontWeight.SemiBold) } } } } }
 
 
 @Preview(showBackground = true,
     name = "Administrador principal")
 @Composable
-private fun PanelGestionFamiliaPrincipalPreview() {
-    MaterialTheme {
-        PanelGestionFamilia(
-            esAdministrador = true,
+private fun PanelGestionFamiliaPrincipalPreview() { MaterialTheme { PanelGestionFamilia(esAdministrador = true,
             esAdministradorPrincipal = true,
             titulo = "Configuración de familia",
             textoEditar = "Editar familia",
@@ -83,7 +73,4 @@ private fun PanelGestionFamiliaPrincipalPreview() {
             alEditar = {},
             alAbandonar = {},
             alEliminar = {},
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
+            modifier = Modifier.padding(16.dp)) } }

@@ -23,16 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/** Pantalla de carga con título y descripción. */
 @Composable
 fun EstadoCargaHome(titulo: String, descripcion: String, modifier:
-Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxSize().padding(32.dp),
+Modifier = Modifier) { Column(modifier = modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) { Surface(modifier = Modifier.size(82.dp),
+        verticalArrangement = Arrangement.Center) { Surface(modifier = Modifier.size(82.dp),
             shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer
-        ) { Box(contentAlignment = Alignment.Center
-            ) { Icon(imageVector = Icons.Filled.Forum, contentDescription = null,
+        ) { Box(contentAlignment = Alignment.Center) { Icon(imageVector = Icons.Filled.Forum, contentDescription = null,
                     modifier = Modifier.size(40.dp),
         tint = MaterialTheme.colorScheme.primary) } }
         Spacer(modifier = Modifier.height(24.dp))

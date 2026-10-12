@@ -45,24 +45,20 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.comun.AvatarIdentidad
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Pantalla para elegir un contacto de tus familias y abrir un chat privado. */
 @Composable
-fun PantallaNuevoMensaje(
-    idiomaViewModel: IdiomaViewModel,
+fun PantallaNuevoMensaje(idiomaViewModel: IdiomaViewModel,
     alVolver: () -> Unit,
     alAbrirChatPrivado: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: NuevoMensajeViewModel = viewModel()) {
-    val idiomaEfectivo = recordarIdiomaEfectivo(
+    viewModel: NuevoMensajeViewModel = viewModel()) { val idiomaEfectivo = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
-    val textos = recordarTextosApp(
-        idiomaEfectivo = idiomaEfectivo,
+    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
         traducir = idiomaViewModel::traducir)
-    DisposableEffect(viewModel) {
-        viewModel.cargarContactos()
+    DisposableEffect(viewModel) { viewModel.cargarContactos()
         onDispose { viewModel.limpiar() } }
     val conversacionPendiente = viewModel.conversacionParaAbrir
-    LaunchedEffect(conversacionPendiente) {
-        conversacionPendiente?.let { conversacionId ->
+    LaunchedEffect(conversacionPendiente) { conversacionPendiente?.let { conversacionId ->
             viewModel.consumirNavegacion(conversacionId)
             alAbrirChatPrivado(conversacionId) } }
     val bloqueado = viewModel.abriendoConversacion ||
@@ -71,12 +67,10 @@ fun PantallaNuevoMensaje(
     val errorCarga = viewModel.errorCargaRecurso
     val errorApertura = viewModel.errorAperturaRecurso
     Column(modifier = modifier.fillMaxSize()
-        .safeDrawingPadding().imePadding()) {
-        Row(modifier = Modifier.fillMaxWidth()
+        .safeDrawingPadding().imePadding()) { Row(modifier = Modifier.fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            IconButton(onClick = alVolver) {
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) { IconButton(onClick = alVolver) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = textos.texto(R.string.new_message_back)) }
             Text(text = textos.texto(R.string.chat_list_new_message),
@@ -88,8 +82,7 @@ fun PantallaNuevoMensaje(
                 idiomaEfectivo = idiomaEfectivo,
                 traducir = idiomaViewModel::traducir,
                 alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma) }
-        OutlinedTextField(
-            value = viewModel.busqueda,
+        OutlinedTextField(value = viewModel.busqueda,
             onValueChange = viewModel::actualizarBusqueda,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             enabled = !bloqueado,
@@ -97,119 +90,80 @@ fun PantallaNuevoMensaje(
             shape = RoundedCornerShape(16.dp),
             label = { Text(text = textos.texto(R.string.new_message_search)) },
             leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
-            trailingIcon = {
-                if (viewModel.busqueda.isNotEmpty()) {
+            trailingIcon = { if (viewModel.busqueda.isNotEmpty()) {
                     IconButton(onClick = viewModel::limpiarBusqueda, enabled = !bloqueado) {
                         Icon(imageVector = Icons.Filled.Close,
-                            contentDescription = textos.texto(R.string.chat_search_clear))}
-                } })
+                            contentDescription = textos.texto(R.string.chat_search_clear))} } })
         LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f),
-            contentPadding = PaddingValues(
-                start = 16.dp, top = 16.dp,
+            contentPadding = PaddingValues(start = 16.dp, top = 16.dp,
                 end = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            item(key = "descripcion") {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) { item(key = "descripcion") {
                 Text(text = textos.texto(R.string.new_message_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant) }
-            if (errorCarga != null) {
-                item(key = "error_carga") { EstadoErrorConversaciones(
+            if (errorCarga != null) { item(key = "error_carga") { EstadoErrorConversaciones(
                     titulo = textos.texto(R.string.new_message_load_error),
                     mensaje = textos.texto(errorCarga),
                     textoReintentar = textos.texto(R.string.chat_item_retry),
                     alReintentar = viewModel::cargarContactos) } }
-            if (viewModel.listaIncompleta && !viewModel.cargando) {
-                item(key = "lista_incompleta") {
-                    EstadoVacioConversaciones(
-                        titulo = textos.texto(R.string.new_message_partial_title),
-                        descripcion = textos.texto(
-                            R.string.new_message_partial_description),
-                        textoAccion = if (!bloqueado) {
-                            textos.texto(R.string.chat_item_retry)
-                        } else { null },
-                        alAccion = if (!bloqueado) {
-                            { viewModel.cargarContactos() }
-                        } else { null }) } }
-            if (errorApertura != null) {
-                item(key = "error_apertura") {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(text = textos.texto(errorApertura),
+            if (viewModel.listaIncompleta && !viewModel.cargando) { item(key = "lista_incompleta") {
+                    EstadoVacioConversaciones(titulo = textos.texto(R.string.new_message_partial_title),
+                        descripcion = textos.texto(R.string.new_message_partial_description),
+                        textoAccion = if (!bloqueado) { textos.texto(R.string.chat_item_retry) } else { null },
+                        alAccion = if (!bloqueado) { { viewModel.cargarContactos() } } else { null }) } }
+            if (errorApertura != null) { item(key = "error_apertura") {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { Text(text = textos.texto(errorApertura),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodyMedium)
-                        Text(text = textos.texto(
-                            R.string.new_message_open_retry),
+                        Text(text = textos.texto(R.string.new_message_open_retry),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant) } } }
             items(items = contactos, key = { contacto -> "contacto:${contacto.uid}" }
-            ) { contacto -> TarjetaContactoPrivado(
-                contacto = contacto,
-                nombreVisible = contacto.nombre.ifBlank {
-                    textos.texto(R.string.chat_item_unknown_user) },
+            ) { contacto -> TarjetaContactoPrivado(contacto = contacto,
+                nombreVisible = contacto.nombre.ifBlank { textos.texto(R.string.chat_item_unknown_user) },
                 textoAccion = textos.texto(R.string.new_message_write),
                 textoAbriendo = textos.texto(R.string.new_message_opening),
                 abriendo = viewModel.contactoAbriendoUid == contacto.uid,
                 habilitado = !bloqueado,
                 alSeleccionar = { viewModel.abrirConversacion(contacto) }) }
-            if (viewModel.cargando) {
-                item(key = "cargando") { EstadoCargaConversaciones(
+            if (viewModel.cargando) { item(key = "cargando") { EstadoCargaConversaciones(
                     titulo = textos.texto(R.string.new_message_loading),
-                    descripcion = textos.texto(
-                        R.string.new_message_loading_description)) } }
+                    descripcion = textos.texto(R.string.new_message_loading_description)) } }
             if (contactos.isEmpty() && viewModel.cargaConfirmada &&
                 !viewModel.cargando && errorCarga == null && !viewModel.listaIncompleta) {
-                item(key = "sin_resultados") {
-                    if (viewModel.busqueda.isNotBlank()) {
-                        EstadoVacioConversaciones(
-                            titulo = textos.texto(
-                                R.string.chat_list_no_results_title),
-                            descripcion = textos.texto(
-                                R.string.new_message_no_results),
-                            textoAccion = textos.texto(
-                                R.string.chat_search_clear),
-                            alAccion = viewModel::limpiarBusqueda)
-                    } else { EstadoVacioConversaciones(
-                        titulo = textos.texto(
-                            R.string.new_message_empty_title),
-                        descripcion = textos.texto(
-                            R.string.new_message_empty_description)) } } } }
-    }
-}
+                item(key = "sin_resultados") { if (viewModel.busqueda.isNotBlank()) { EstadoVacioConversaciones(
+                            titulo = textos.texto(R.string.chat_list_no_results_title),
+                            descripcion = textos.texto(R.string.new_message_no_results),
+                            textoAccion = textos.texto(R.string.chat_search_clear),
+                            alAccion = viewModel::limpiarBusqueda) } else { EstadoVacioConversaciones(
+                        titulo = textos.texto(R.string.new_message_empty_title),
+                        descripcion = textos.texto(R.string.new_message_empty_description)) } } } } } }
 
+/** Fila de un contacto con su avatar, nombre y las familias que comparten. */
 @Composable
 private fun TarjetaContactoPrivado(contacto: ContactoPrivado,
             nombreVisible: String, textoAccion: String,
             textoAbriendo: String, abriendo: Boolean,
-            habilitado: Boolean, alSeleccionar: () -> Unit) {
-
-    Card(onClick = alSeleccionar, enabled = habilitado,
+            habilitado: Boolean, alSeleccionar: () -> Unit) { Card(onClick = alSeleccionar, enabled = habilitado,
         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor =
-            MaterialTheme.funcional.tarjeta)) {
-        Row(modifier = Modifier.padding(16.dp),
+            MaterialTheme.funcional.tarjeta)) { Row(modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) { AvatarIdentidad(semilla = contacto.uid,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)) { AvatarIdentidad(semilla = contacto.uid,
             nombre = nombreVisible,
             tamano = 48.dp)
             Column(modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(text = nombreVisible,
+                verticalArrangement = Arrangement.spacedBy(6.dp)) { Text(text = nombreVisible,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold)
                 val nombresFamilias = contacto.familiasCompartidas
                     .map { it.nombre }.filter { it.isNotBlank() }
                     .distinct().joinToString(", ")
-                if (nombresFamilias.isNotEmpty()) {
-                    Text(text = nombresFamilias,
+                if (nombresFamilias.isNotEmpty()) { Text(text = nombresFamilias,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 Text(text = if (abriendo) textoAbriendo else textoAccion,
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary) }
-            if (abriendo) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp)
-            }
-        }
-    }
-}
+            if (abriendo) { CircularProgressIndicator(modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp) } } } }

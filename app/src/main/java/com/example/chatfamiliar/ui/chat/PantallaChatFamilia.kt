@@ -17,49 +17,42 @@ import com.example.chatfamiliar.ui.llamada.AvisoLlamadaEnCurso
 import com.example.chatfamiliar.ui.llamada.BotonVideollamada
 import com.example.chatfamiliar.ui.llamada.LlamadaViewModel
 
+/**
+ * Chat grupal de una familia: conecta los ViewModels de mensajes y de
+ * lectura, y ofrece llamar a toda la familia o unirse a una llamada en curso.
+ */
 @Composable
 fun PantallaChatFamilia(familiaId: String, nombreFamilia: String,
                         idiomaViewModel: IdiomaViewModel, llamadaViewModel: LlamadaViewModel,
                         alVolver: () -> Unit,
                         chatViewModel: ChatFamiliaViewModel = viewModel(),
-                        lecturaViewModel: LecturaChatViewModel = viewModel()) {
-    val idioma = recordarIdiomaEfectivo(
+                        lecturaViewModel: LecturaChatViewModel = viewModel()) { val idioma = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
-    val textos = recordarTextosApp(
-        idiomaEfectivo = idioma,
+    val textos = recordarTextosApp(idiomaEfectivo = idioma,
         traducir = idiomaViewModel::traducir)
-    DisposableEffect(familiaId, chatViewModel, lecturaViewModel) {
-        chatViewModel.iniciar(familiaId)
+    DisposableEffect(familiaId, chatViewModel, lecturaViewModel) { chatViewModel.iniciar(familiaId)
         lecturaViewModel.iniciar(tipo = ConversacionResumen.TIPO_FAMILIA,
             id = familiaId)
         onDispose { chatViewModel.detener()
-            lecturaViewModel.detener() }
-    }
+            lecturaViewModel.detener() } }
     // Mientras este chat está abierto, revisamos si hay una
     // videollamada familiar en curso para ofrecer "Unirse".
-    DisposableEffect(familiaId, llamadaViewModel) {
-        llamadaViewModel.vigilarLlamadaFamiliar(familiaId)
-        onDispose { llamadaViewModel.dejarDeVigilarLlamadaFamiliar() }
-    }
+    DisposableEffect(familiaId, llamadaViewModel) { llamadaViewModel.vigilarLlamadaFamiliar(familiaId)
+        onDispose { llamadaViewModel.dejarDeVigilarLlamadaFamiliar() } }
     LaunchedEffect(chatViewModel.mensajes, chatViewModel.historialCompleto) {
         lecturaViewModel.actualizarHistorial(mensajes = chatViewModel.mensajes,
-            completo = chatViewModel.historialCompleto)
-    }
+            completo = chatViewModel.historialCompleto) }
     // Cargamos hasta encontrar el marcador anterior o alcanzar
     // el comienzo del historial. Un error detiene los reintentos.
     LaunchedEffect(lecturaViewModel.necesitaHistorialAnterior,
         chatViewModel.mensajes.firstOrNull()?.id,
         chatViewModel.cargandoAnteriores,
         chatViewModel.historialCompleto,
-        chatViewModel.errorHistorialRecurso) {
-        if (lecturaViewModel.necesitaHistorialAnterior &&
+        chatViewModel.errorHistorialRecurso) { if (lecturaViewModel.necesitaHistorialAnterior &&
             chatViewModel.puedeCargarAnteriores &&
-            chatViewModel.errorHistorialRecurso == null) {
-            chatViewModel.cargarAnteriores() }
-    }
+            chatViewModel.errorHistorialRecurso == null) { chatViewModel.cargarAnteriores() } }
 
-    ContenidoChat(
-        claveConversacion = "familia:$familiaId",
+    ContenidoChat(claveConversacion = "familia:$familiaId",
         titulo = nombreFamilia.ifBlank { textos.texto(R.string.chat_item_unnamed_family) },
         uidActual = chatViewModel.uidActual,
         mensajes = chatViewModel.mensajes,
@@ -86,23 +79,13 @@ fun PantallaChatFamilia(familiaId: String, nombreFamilia: String,
             BotonVideollamada(textos = textos,
                 habilitado = chatViewModel.puedeEnviar,
                 iniciando = llamadaViewModel.iniciando,
-                alLlamar = {
-                    llamadaViewModel.llamar(DestinoLlamada.Familia(
-                        familiaId = familiaId,
-                        nombreFamilia = nombreFamilia))
-                },
+                alLlamar = { llamadaViewModel.llamar(DestinoLlamada.Familia(familiaId = familiaId,
+                        nombreFamilia = nombreFamilia)) },
                 modifier = Modifier.padding(end = 6.dp),
                 // Si solo estás tú en la familia, se ve atenuado y explica por qué.
                 atenuado = llamadaViewModel.familiaSinOtrosIntegrantes,
-                alPulsarAtenuado = llamadaViewModel::avisarFamiliaSinIntegrantes)
-        },
-        avisoSuperior = {
-            val llamadaEnCurso = llamadaViewModel.llamadaFamiliarEnCurso
-            if (llamadaEnCurso != null && chatViewModel.puedeEnviar) {
-                AvisoLlamadaEnCurso(textos = textos,
+                alPulsarAtenuado = llamadaViewModel::avisarFamiliaSinIntegrantes) },
+        avisoSuperior = { val llamadaEnCurso = llamadaViewModel.llamadaFamiliarEnCurso
+            if (llamadaEnCurso != null && chatViewModel.puedeEnviar) { AvisoLlamadaEnCurso(textos = textos,
                     conectando = llamadaViewModel.conectando,
-                    alUnirse = { llamadaViewModel.unirse(llamadaEnCurso) })
-            }
-        }
-    )
-}
+                    alUnirse = { llamadaViewModel.unirse(llamadaEnCurso) }) } }) }

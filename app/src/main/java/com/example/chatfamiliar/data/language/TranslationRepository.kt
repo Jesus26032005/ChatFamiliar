@@ -10,6 +10,10 @@ import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 
+/**
+ * Traducción en el dispositivo con ML Kit desde español al idioma elegido.
+ * Guarda en memoria los traductores, las descargas de modelos y las traducciones ya hechas.
+ */
 class TranslationRepository {
     private val traductores =
         mutableMapOf<String, Translator>()
@@ -21,46 +25,35 @@ class TranslationRepository {
         mutableMapOf<String, String>()
     private val gestorModelos = RemoteModelManager.getInstance()
 
+    /** Traduce un texto; si ya se tradujo antes responde desde la caché. */
     fun traducir(texto: String, codigoDestino: String,
-        alCompletar: (Result<String>) -> Unit
-    ) {
-        if (codigoDestino == IdiomaRepository.ESPANOL) {
+        alCompletar: (Result<String>) -> Unit) { if (codigoDestino == IdiomaRepository.ESPANOL) {
             alCompletar(Result.success(texto))
-            return
-        }
+            return }
         val claveCache = "$codigoDestino::$texto"
         cacheTraducciones[claveCache]?.let { traduccion ->
             alCompletar(Result.success(traduccion))
-            return
-        }
+            return }
         val idiomaDestino = TranslateLanguage
             .fromLanguageTag(codigoDestino)
-        if (idiomaDestino == null) {
-            alCompletar(
-                Result.failure(
-                    IllegalArgumentException(
+        if (idiomaDestino == null) { alCompletar(Result.failure(IllegalArgumentException(
                         "El idioma seleccionado no es " +
                                 "compatible con la traducción.")))
-            return
-        }
-        traducirConReintento(
-            texto = texto,
+            return }
+        traducirConReintento(texto = texto,
             codigoDestino = codigoDestino,
             idiomaDestino = idiomaDestino,
             claveCache = claveCache,
             puedeReintentar = true,
-            alCompletar = alCompletar
-        )
-    }
+            alCompletar = alCompletar) }
 
-    private fun traducirConReintento(
-        texto: String, codigoDestino: String,
+    /** Si el modelo falla, lo borra, lo vuelve a descargar y reintenta una vez. */
+    private fun traducirConReintento(texto: String, codigoDestino: String,
         idiomaDestino: String, claveCache: String,
         puedeReintentar: Boolean, alCompletar: (Result<String>) -> Unit) {
         val traductor = obtenerTraductor(codigoDestino, idiomaDestino)
         descargarModelo(codigoDestino, traductor)
-            .addOnSuccessListener {
-                traductor
+            .addOnSuccessListener { traductor
                     .translate(texto)
                     .addOnSuccessListener { textoTraducido ->
                         cacheTraducciones[claveCache] = textoTraducido
@@ -68,58 +61,45 @@ class TranslationRepository {
                     .addOnFailureListener { excepcion ->
                         if (puedeReintentar && excepcion is MlKitException) {
                             reiniciarModelo(codigoDestino, idiomaDestino)
-                                .addOnCompleteListener {
-                                    traducirConReintento(
+                                .addOnCompleteListener { traducirConReintento(
                                         texto = texto, codigoDestino = codigoDestino,
                                         idiomaDestino = idiomaDestino, claveCache = claveCache,
                                         puedeReintentar = false, alCompletar = alCompletar) }
                         } else { alCompletar(Result.failure(excepcion)) } } }
             .addOnFailureListener { excepcion ->
                 descargas.remove(codigoDestino)
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
-    private fun obtenerTraductor(codigoDestino: String, idiomaDestino: String
-    ): Translator =
-        traductores.getOrPut(codigoDestino) {
-            val opciones = TranslatorOptions.Builder()
+    /** Reutiliza el traductor de cada idioma destino. */
+    private fun obtenerTraductor(codigoDestino: String, idiomaDestino: String): Translator =
+        traductores.getOrPut(codigoDestino) { val opciones = TranslatorOptions.Builder()
                     .setSourceLanguage(TranslateLanguage
                         .SPANISH)
                     .setTargetLanguage(idiomaDestino)
                     .build()
-            Translation.getClient(opciones)
-        }
+            Translation.getClient(opciones) }
 
-    private fun descargarModelo(
-        codigoDestino: String,
-        traductor: Translator
-    ): Task<Void> =
-        descargas.getOrPut(codigoDestino) {
-            android.util.Log.d("TraduccionApp", "Descargando modelo: $codigoDestino")
+    /** Descarga el modelo del idioma solo si hace falta (una descarga por idioma). */
+    private fun descargarModelo(codigoDestino: String,
+        traductor: Translator): Task<Void> =
+        descargas.getOrPut(codigoDestino) { android.util.Log.d("TraduccionApp", "Descargando modelo: $codigoDestino")
             val condiciones = DownloadConditions.Builder().build()
             traductor.downloadModelIfNeeded(condiciones)
-                .addOnSuccessListener {
-                    android.util.Log.d("TraduccionApp", "Modelo listo: $codigoDestino")
-                }
+                .addOnSuccessListener { android.util.Log.d("TraduccionApp", "Modelo listo: $codigoDestino") }
                 .addOnFailureListener { error ->
                     android.util.Log.w("TraduccionApp",
-                        "Falló la descarga de $codigoDestino: ${error.message}", error)
-                }
-        }
+                        "Falló la descarga de $codigoDestino: ${error.message}", error) } }
 
+    /** Cierra el traductor y elimina el modelo descargado para forzar una descarga limpia. */
     private fun reiniciarModelo(codigoDestino: String, idiomaDestino: String): Task<Void> =
-        reinicios.getOrPut(codigoDestino) {
-            traductores.remove(codigoDestino)?.close()
+        reinicios.getOrPut(codigoDestino) { traductores.remove(codigoDestino)?.close()
             descargas.remove(codigoDestino)
             val modelo = TranslateRemoteModel.Builder(idiomaDestino).build()
-            gestorModelos.deleteDownloadedModel(modelo)
-        }
-    fun cerrar() {
-        traductores.values.forEach { traductor ->
+            gestorModelos.deleteDownloadedModel(modelo) }
+    /** Libera los traductores y limpia las cachés. */
+    fun cerrar() { traductores.values.forEach { traductor ->
             traductor.close() }
         traductores.clear()
         descargas.clear()
         reinicios.clear()
-        cacheTraducciones.clear()
-    }
-}
+        cacheTraducciones.clear() } }

@@ -82,11 +82,8 @@ import kotlinx.coroutines.delay
  * Si no hay llamada no dibuja nada y la app se usa normal.
  */
 @Composable
-fun CapaLlamadas(
-    llamadaViewModel: LlamadaViewModel,
-    idiomaViewModel: IdiomaViewModel
-) {
-    val idioma = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
+fun CapaLlamadas(llamadaViewModel: LlamadaViewModel,
+    idiomaViewModel: IdiomaViewModel) { val idioma = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(idiomaEfectivo = idioma,
         traducir = idiomaViewModel::traducir)
 
@@ -95,152 +92,111 @@ fun CapaLlamadas(
     // Avisos breves (errores al llamar o "no contestó"). Se dibujan al final
     // para quedar encima de todo. Se ocultan solos tras unos segundos.
     val textoAviso = llamadaViewModel.avisoRecurso?.let { textos.texto(it) }
-    LaunchedEffect(textoAviso) {
-        if (textoAviso != null) {
-            delay(DURACION_AVISO_MS)
-            llamadaViewModel.limpiarAviso()
-        }
-    }
-    AvisoFlotante(texto = textoAviso, alCerrar = llamadaViewModel::limpiarAviso)
-}
+    LaunchedEffect(textoAviso) { if (textoAviso != null) { delay(DURACION_AVISO_MS)
+            llamadaViewModel.limpiarAviso() } }
+    AvisoFlotante(texto = textoAviso, alCerrar = llamadaViewModel::limpiarAviso) }
 
 /** Elige qué pantalla de llamada mostrar según el estado de Stream. */
 @Composable
-private fun PantallasDeLlamada(
-    llamadaViewModel: LlamadaViewModel,
+private fun PantallasDeLlamada(llamadaViewModel: LlamadaViewModel,
     textos: TextosApp,
-    idioma: String
-) {
-    val cliente = llamadaViewModel.cliente.collectAsState().value ?: return
+    idioma: String) { val cliente = llamadaViewModel.cliente.collectAsState().value ?: return
     val activa = cliente.state.activeCall.collectAsState().value
     val sonando = cliente.state.ringingCall.collectAsState().value
 
-    if (activa != null) {
-        PantallaLlamadaActiva(llamada = activa, miUid = cliente.userId,
+    if (activa != null) { PantallaLlamadaActiva(llamada = activa, miUid = cliente.userId,
             textos = textos, idioma = idioma, llamadaViewModel = llamadaViewModel)
-        return
-    }
+        return }
     if (sonando == null) return
 
     val estado = sonando.state.ringingState.collectAsState().value
-    when (estado) {
-        is RingingState.Incoming -> PantallaLlamadaEntrante(
+    when (estado) { is RingingState.Incoming -> PantallaLlamadaEntrante(
             llamada = sonando, textos = textos, idioma = idioma,
             conectando = estado.acceptedByMe || llamadaViewModel.conectando,
             aceptarAlMostrar = llamadaViewModel.aceptarAlMostrar,
             alAceptar = { llamadaViewModel.aceptar(sonando) },
             alRechazar = { llamadaViewModel.rechazar(sonando) })
-        is RingingState.Outgoing -> PantallaLlamadaSaliente(
-            llamada = sonando, miUid = cliente.userId, textos = textos,
+        is RingingState.Outgoing -> PantallaLlamadaSaliente(llamada = sonando, miUid = cliente.userId, textos = textos,
             idioma = idioma, conectando = estado.acceptedByCallee,
             alCancelar = { llamadaViewModel.cancelar(sonando) })
-        else -> Unit
-    }
-}
+        else -> Unit } }
 
+/** Pantalla de llamada entrante con los botones Contestar y Rechazar. */
 @Composable
-private fun PantallaLlamadaEntrante(
-    llamada: Call,
+private fun PantallaLlamadaEntrante(llamada: Call,
     textos: TextosApp,
     idioma: String,
     conectando: Boolean,
     aceptarAlMostrar: Boolean,
     alAceptar: () -> Unit,
-    alRechazar: () -> Unit
-) {
-    val creador = llamada.state.createdBy.collectAsState().value
+    alRechazar: () -> Unit) { val creador = llamada.state.createdBy.collectAsState().value
     val nombreCreador = creador?.userNameOrId
         ?: textos.texto(R.string.chat_item_unknown_user)
     // En llamadas familiares se muestra la familia y, debajo, quién llama.
     val familia = infoFamilia(llamada)
-    val nombreFamilia = familia?.nombre?.ifBlank {
-        textos.texto(R.string.chat_item_unnamed_family) }
+    val nombreFamilia = familia?.nombre?.ifBlank { textos.texto(R.string.chat_item_unnamed_family) }
     var pidiendoPermisos by rememberSaveable(llamada.id) { mutableStateOf(false) }
 
     // Si se tocó "Contestar" en la notificación, contestamos al abrir.
-    LaunchedEffect(aceptarAlMostrar) {
-        if (aceptarAlMostrar) pidiendoPermisos = true
-    }
+    LaunchedEffect(aceptarAlMostrar) { if (aceptarAlMostrar) pidiendoPermisos = true }
 
     val semilla = familia?.familiaId ?: creador?.id.orEmpty()
-    FondoLlamada(semilla = semilla) {
-        EncabezadoLlamada(semilla = semilla,
+    FondoLlamada(semilla = semilla) { EncabezadoLlamada(semilla = semilla,
             nombre = nombreFamilia ?: nombreCreador,
-            estado = textos.texto(when {
-                conectando -> R.string.llamada_conectando
+            estado = textos.texto(when { conectando -> R.string.llamada_conectando
                 familia != null -> R.string.llamada_entrante_familia
                 else -> R.string.llamada_entrante }),
             detalle = if (familia != null) nombreCreador else null,
             esGrupo = familia != null,
             idioma = idioma, animar = !conectando)
         Row(modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly) {
-            BotonCircularLlamada(
-                icono = Icons.Filled.CallEnd,
+            horizontalArrangement = Arrangement.SpaceEvenly) { BotonCircularLlamada(icono = Icons.Filled.CallEnd,
                 etiqueta = textos.texto(R.string.llamada_rechazar),
                 contenedor = MaterialTheme.funcional.destructivo,
                 contenido = MaterialTheme.funcional.sobreDestructivo,
                 habilitado = !conectando,
                 alPulsar = alRechazar)
-            BotonCircularLlamada(
-                icono = Icons.Filled.Call,
+            BotonCircularLlamada(icono = Icons.Filled.Call,
                 etiqueta = textos.texto(R.string.llamada_aceptar),
                 contenedor = MaterialTheme.funcional.accionPrincipal,
                 contenido = MaterialTheme.funcional.sobreAccionPrincipal,
                 habilitado = !conectando,
                 cargando = conectando,
-                alPulsar = { pidiendoPermisos = true })
-        }
-    }
+                alPulsar = { pidiendoPermisos = true }) } }
 
-    if (pidiendoPermisos) {
-        SolicitudPermisosLlamada(textos = textos,
-            alPermisosConcedidos = {
-                pidiendoPermisos = false
-                alAceptar()
-            },
-            alCancelar = { pidiendoPermisos = false })
-    }
-}
+    if (pidiendoPermisos) { SolicitudPermisosLlamada(textos = textos,
+            alPermisosConcedidos = { pidiendoPermisos = false
+                alAceptar() },
+            alCancelar = { pidiendoPermisos = false }) } }
 
+/** Pantalla mientras suena la llamada que hiciste, con botón para cancelar. */
 @Composable
-private fun PantallaLlamadaSaliente(
-    llamada: Call,
+private fun PantallaLlamadaSaliente(llamada: Call,
     miUid: String,
     textos: TextosApp,
     idioma: String,
     conectando: Boolean,
-    alCancelar: () -> Unit
-) {
-    val miembros = llamada.state.members.collectAsState().value
+    alCancelar: () -> Unit) { val miembros = llamada.state.members.collectAsState().value
     val otro = miembros.firstOrNull { it.user.id != miUid }?.user
     val familia = infoFamilia(llamada)
-    val nombre = familia?.nombre?.ifBlank {
-        textos.texto(R.string.chat_item_unnamed_family) }
+    val nombre = familia?.nombre?.ifBlank { textos.texto(R.string.chat_item_unnamed_family) }
         ?: otro?.userNameOrId
         ?: textos.texto(R.string.chat_item_unknown_user)
     val semilla = familia?.familiaId ?: otro?.id.orEmpty()
 
-    FondoLlamada(semilla = semilla) {
-        EncabezadoLlamada(semilla = semilla, nombre = nombre,
-            estado = textos.texto(when {
-                conectando -> R.string.llamada_conectando
+    FondoLlamada(semilla = semilla) { EncabezadoLlamada(semilla = semilla, nombre = nombre,
+            estado = textos.texto(when { conectando -> R.string.llamada_conectando
                 familia != null -> R.string.llamada_saliente_familia
                 else -> R.string.llamada_saliente }),
             esGrupo = familia != null,
             idioma = idioma, animar = !conectando)
         Row(modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center) {
-            BotonCircularLlamada(
-                icono = Icons.Filled.CallEnd,
+            horizontalArrangement = Arrangement.Center) { BotonCircularLlamada(icono = Icons.Filled.CallEnd,
                 etiqueta = textos.texto(R.string.llamada_cancelar),
                 contenedor = MaterialTheme.funcional.destructivo,
                 contenido = MaterialTheme.funcional.sobreDestructivo,
                 habilitado = !conectando,
-                alPulsar = alCancelar)
-        }
-    }
-}
+                alPulsar = alCancelar) } } }
 
 /**
  * Fondo de pantalla completa con un degradado suave del tono de
@@ -248,22 +204,17 @@ private fun PantallaLlamadaSaliente(
  * navegar por debajo de la llamada.
  */
 @Composable
-private fun FondoLlamada(semilla: String, contenido: @Composable () -> Unit) {
-    BackHandler(enabled = true) { }
+private fun FondoLlamada(semilla: String, contenido: @Composable () -> Unit) { BackHandler(enabled = true) { }
     val tono = MaterialTheme.funcional.tonoPara(semilla)
     val superficie = MaterialTheme.colorScheme.surface
-    Surface(modifier = Modifier.fillMaxSize(), color = superficie) {
-        Column(modifier = Modifier.fillMaxSize()
+    Surface(modifier = Modifier.fillMaxSize(), color = superficie) { Column(modifier = Modifier.fillMaxSize()
             .background(Brush.verticalGradient(listOf(tono.suave, superficie)))
             .safeDrawingPadding()
             .padding(horizontal = 24.dp, vertical = 48.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            contenido()
-        }
-    }
-}
+            verticalArrangement = Arrangement.SpaceBetween) { contenido() } } }
 
+/** Avatar, nombre y estado de la llamada (llamando, conectando, etc.). */
 @Composable
 private fun EncabezadoLlamada(semilla: String, nombre: String, estado: String,
                               idioma: String, animar: Boolean,
@@ -274,16 +225,13 @@ private fun EncabezadoLlamada(semilla: String, nombre: String, estado: String,
     val escala by transicion.animateFloat(initialValue = 1f, targetValue = 1.18f,
         animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing),
             RepeatMode.Reverse), label = "escalaAro")
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(modifier = Modifier.height(32.dp))
-        Box(contentAlignment = Alignment.Center) {
-            Box(modifier = Modifier.size(140.dp)
+    Column(horizontalAlignment = Alignment.CenterHorizontally) { Spacer(modifier = Modifier.height(32.dp))
+        Box(contentAlignment = Alignment.Center) { Box(modifier = Modifier.size(140.dp)
                 .scale(if (animar) escala else 1f)
                 .background(tono.contenedor.copy(alpha = 0.45f), CircleShape))
             AvatarIdentidad(semilla = semilla, nombre = nombre,
                 icono = if (esGrupo) Icons.Filled.Groups else null,
-                esGrupo = esGrupo, tamano = 112.dp, idioma = idioma)
-        }
+                esGrupo = esGrupo, tamano = 112.dp, idioma = idioma) }
         Spacer(modifier = Modifier.height(28.dp))
         Text(text = nombre, style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center,
@@ -292,14 +240,10 @@ private fun EncabezadoLlamada(semilla: String, nombre: String, estado: String,
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = estado, style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (detalle != null) {
-            Spacer(modifier = Modifier.height(4.dp))
+        if (detalle != null) { Spacer(modifier = Modifier.height(4.dp))
             Text(text = detalle, style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-    }
-}
+                maxLines = 1, overflow = TextOverflow.Ellipsis) } } }
 
 /**
  * Aviso flotante con el estilo de la app (sigue el modo claro/oscuro).
@@ -320,8 +264,7 @@ private fun AvisoFlotante(texto: String?, alCerrar: () -> Unit) {
         .imePadding()
         // Deja libre la barra para escribir y la barra de navegación inferior.
         .padding(start = 16.dp, end = 16.dp, bottom = 96.dp),
-        contentAlignment = Alignment.BottomCenter) {
-        AnimatedVisibility(visible = texto != null,
+        contentAlignment = Alignment.BottomCenter) { AnimatedVisibility(visible = texto != null,
             enter = slideInVertically { it } + fadeIn(),
             exit = slideOutVertically { it } + fadeOut()) {
             // Sigue el tema: claro en modo claro y oscuro en modo oscuro.
@@ -331,19 +274,13 @@ private fun AvisoFlotante(texto: String?, alCerrar: () -> Unit) {
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                shadowElevation = 6.dp) {
-                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                shadowElevation = 6.dp) { Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Filled.Info, contentDescription = null,
                         tint = MaterialTheme.funcional.accionPrincipal,
                         modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(text = ultimoTexto, style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        }
-    }
-}
+                    Text(text = ultimoTexto, style = MaterialTheme.typography.bodyMedium) } } } } }
 
 private const val DURACION_AVISO_MS = 4_500L
 
@@ -355,18 +292,15 @@ internal data class InfoLlamadaFamilia(val familiaId: String, val nombre: String
  * Así quien recibe sabe que es una llamada familiar y de qué familia.
  */
 @Composable
-internal fun infoFamilia(llamada: Call): InfoLlamadaFamilia? {
-    val datos = llamada.state.custom.collectAsState().value
+internal fun infoFamilia(llamada: Call): InfoLlamadaFamilia? { val datos = llamada.state.custom.collectAsState().value
     if (datos[DatosLlamada.CLAVE_TIPO_CHAT] != DatosLlamada.TIPO_FAMILIA) return null
     val familiaId = datos[DatosLlamada.CLAVE_FAMILIA_ID] as? String ?: return null
     val nombre = datos[DatosLlamada.CLAVE_NOMBRE_FAMILIA] as? String
-    return InfoLlamadaFamilia(familiaId = familiaId, nombre = nombre.orEmpty())
-}
+    return InfoLlamadaFamilia(familiaId = familiaId, nombre = nombre.orEmpty()) }
 
 /** Botón redondo grande con su etiqueta debajo. */
 @Composable
-internal fun BotonCircularLlamada(
-    icono: ImageVector,
+internal fun BotonCircularLlamada(icono: ImageVector,
     etiqueta: String,
     contenedor: Color,
     contenido: Color,
@@ -375,25 +309,17 @@ internal fun BotonCircularLlamada(
     habilitado: Boolean = true,
     cargando: Boolean = false,
     tamano: Dp = 72.dp,
-    colorEtiqueta: Color = MaterialTheme.colorScheme.onSurface
-) {
+    colorEtiqueta: Color = MaterialTheme.colorScheme.onSurface) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         FilledIconButton(onClick = alPulsar, enabled = habilitado,
             modifier = Modifier.size(tamano), shape = CircleShape,
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = contenedor, contentColor = contenido,
+            colors = IconButtonDefaults.filledIconButtonColors(containerColor = contenedor, contentColor = contenido,
                 disabledContainerColor = contenedor.copy(alpha = 0.5f),
-                disabledContentColor = contenido.copy(alpha = 0.7f))) {
-            if (cargando) {
+                disabledContentColor = contenido.copy(alpha = 0.7f))) { if (cargando) {
                 CircularProgressIndicator(modifier = Modifier.size(tamano * 0.4f),
-                    color = contenido, strokeWidth = 2.dp)
-            } else {
+                    color = contenido, strokeWidth = 2.dp) } else {
                 Icon(imageVector = icono, contentDescription = etiqueta,
-                    modifier = Modifier.size(tamano * 0.42f))
-            }
-        }
+                    modifier = Modifier.size(tamano * 0.42f)) } }
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = etiqueta, style = MaterialTheme.typography.labelLarge,
-            color = colorEtiqueta)
-    }
-}
+            color = colorEtiqueta) } }

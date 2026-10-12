@@ -26,20 +26,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.chatfamiliar.ui.family.components.EstadoSinFamilia
 
+/** Tarjeta con el nombre y el correo del usuario. */
 @Composable
 fun TarjetaPerfilUsuario(nombre: String, correo: String,
-                         modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth(),
+                         modifier: Modifier = Modifier) { Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) { Row(modifier = Modifier.fillMaxWidth()
             .padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) { Surface(modifier = Modifier.size(50.dp),
+            verticalAlignment = Alignment.CenterVertically) { Surface(modifier = Modifier.size(50.dp),
                 shape = CircleShape, color = MaterialTheme.colorScheme
-                    .secondaryContainer
-            ) { Box(contentAlignment = Alignment.Center
+                    .secondaryContainer) { Box(contentAlignment = Alignment.Center
                 ) { Icon(imageVector = Icons.Filled.Person,
                         contentDescription = null,
                         modifier = Modifier.size(26.dp),
@@ -54,21 +51,14 @@ fun TarjetaPerfilUsuario(nombre: String, correo: String,
                     color = MaterialTheme.colorScheme
                             .onSurfaceVariant) } } } }
 
-@Preview(
-    showBackground = true,
+@Preview(showBackground = true,
     name = "Usuario sin familia"
 )
 @Composable
-private fun EstadoSinFamiliaPreview() {
-    MaterialTheme {
-        EstadoSinFamilia(
-            titulo = "Aún no perteneces a una familia",
+private fun EstadoSinFamiliaPreview() { MaterialTheme { EstadoSinFamilia(titulo = "Aún no perteneces a una familia",
             descripcion = "Crea una nueva familia o únete a una existente mediante su código de invitación.",
             textoCrear = "Crear familia",
             textoUnirse = "Unirme con código",
             alCrearFamilia = {},
             alUnirseFamilia = {},
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
+            modifier = Modifier.padding(16.dp)) } }

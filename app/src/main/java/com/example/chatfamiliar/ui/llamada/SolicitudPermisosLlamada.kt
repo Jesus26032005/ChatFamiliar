@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import com.example.chatfamiliar.R
 import com.example.chatfamiliar.ui.language.TextosApp
 
+/** Pasos del flujo de permisos de cámara y micrófono. */
 private enum class EstadoPermisosLlamada {
     COMPROBANDO,
     EXPLICACION,
@@ -31,217 +32,84 @@ private enum class EstadoPermisosLlamada {
     DENEGADOS,
     AJUSTES,
     CONCEDIDOS,
-    FINALIZADO
-}
+    FINALIZADO }
 
+/**
+ * Pide cámara y micrófono antes de una llamada: explica para qué se usan,
+ * permite reintentar y, si se negaron de forma permanente, abrir Ajustes.
+ */
 @Composable
-fun SolicitudPermisosLlamada(
-    textos: TextosApp,
+fun SolicitudPermisosLlamada(textos: TextosApp,
     alPermisosConcedidos: () -> Unit,
-    alCancelar: () -> Unit
-) {
-    val contexto = LocalContext.current
+    alCancelar: () -> Unit) { val contexto = LocalContext.current
 
-    val alConcedidosActual by rememberUpdatedState(
-        alPermisosConcedidos
-    )
+    val alConcedidosActual by rememberUpdatedState(alPermisosConcedidos)
 
-    val alCancelarActual by rememberUpdatedState(
-        alCancelar
-    )
+    val alCancelarActual by rememberUpdatedState(alCancelar)
 
-    var estado by rememberSaveable {
-        mutableStateOf(EstadoPermisosLlamada.COMPROBANDO)
-    }
+    var estado by rememberSaveable { mutableStateOf(EstadoPermisosLlamada.COMPROBANDO) }
 
     val lanzadorPermisos = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) {
-        estado = if (tienePermisosLlamada(contexto)) {
-            EstadoPermisosLlamada.CONCEDIDOS
-        } else {
-            EstadoPermisosLlamada.DENEGADOS
-        }
-    }
+        contract = ActivityResultContracts.RequestMultiplePermissions()) {
+        estado = if (tienePermisosLlamada(contexto)) { EstadoPermisosLlamada.CONCEDIDOS } else {
+            EstadoPermisosLlamada.DENEGADOS } }
 
-    val lanzadorAjustes = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        estado = if (tienePermisosLlamada(contexto)) {
-            EstadoPermisosLlamada.CONCEDIDOS
-        } else {
-            EstadoPermisosLlamada.DENEGADOS
-        }
-    }
+    val lanzadorAjustes = rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()
+    ) { estado = if (tienePermisosLlamada(contexto)) { EstadoPermisosLlamada.CONCEDIDOS } else {
+            EstadoPermisosLlamada.DENEGADOS } }
 
-    val cancelar: () -> Unit = {
-        estado = EstadoPermisosLlamada.FINALIZADO
-        alCancelarActual()
-    }
+    val cancelar: () -> Unit = { estado = EstadoPermisosLlamada.FINALIZADO
+        alCancelarActual() }
 
-    val solicitarPermisos: () -> Unit = {
-        val pendientes = permisosLlamadaPendientes(contexto)
+    val solicitarPermisos: () -> Unit = { val pendientes = permisosLlamadaPendientes(contexto)
 
-        if (pendientes.isEmpty()) {
-            estado = EstadoPermisosLlamada.CONCEDIDOS
-        } else {
+        if (pendientes.isEmpty()) { estado = EstadoPermisosLlamada.CONCEDIDOS } else {
             estado = EstadoPermisosLlamada.SOLICITANDO
-            lanzadorPermisos.launch(pendientes)
-        }
-    }
+            lanzadorPermisos.launch(pendientes) } }
 
-    LaunchedEffect(estado) {
-        when (estado) {
-            EstadoPermisosLlamada.COMPROBANDO -> {
-                estado = if (tienePermisosLlamada(contexto)) {
-                    EstadoPermisosLlamada.CONCEDIDOS
-                } else {
-                    EstadoPermisosLlamada.EXPLICACION
-                }
-            }
+    LaunchedEffect(estado) { when (estado) { EstadoPermisosLlamada.COMPROBANDO -> {
+                estado = if (tienePermisosLlamada(contexto)) { EstadoPermisosLlamada.CONCEDIDOS } else {
+                    EstadoPermisosLlamada.EXPLICACION } }
 
-            EstadoPermisosLlamada.CONCEDIDOS -> {
-                if (tienePermisosLlamada(contexto)) {
+            EstadoPermisosLlamada.CONCEDIDOS -> { if (tienePermisosLlamada(contexto)) {
                     estado = EstadoPermisosLlamada.FINALIZADO
-                    alConcedidosActual()
-                } else {
-                    estado = EstadoPermisosLlamada.DENEGADOS
-                }
-            }
+                    alConcedidosActual() } else { estado = EstadoPermisosLlamada.DENEGADOS } }
 
-            else -> Unit
-        }
-    }
+            else -> Unit } }
 
-    when (estado) {
-        EstadoPermisosLlamada.EXPLICACION -> {
-            AlertDialog(
-                onDismissRequest = cancelar,
-                title = {
-                    Text(
-                        text = textos.texto(
-                            R.string.llamada_permisos_titulo
-                        )
-                    )
-                },
-                text = {
-                    Text(
-                        text = textos.texto(
-                            R.string.llamada_permisos_explicacion
-                        )
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = solicitarPermisos
-                    ) {
-                        Text(
-                            text = textos.texto(
-                                R.string.llamada_permisos_continuar
-                            )
-                        )
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = cancelar
-                    ) {
-                        Text(
-                            text = textos.texto(
-                                R.string.llamada_permisos_cancelar
-                            )
-                        )
-                    }
-                }
-            )
-        }
+    when (estado) { EstadoPermisosLlamada.EXPLICACION -> { AlertDialog(onDismissRequest = cancelar,
+                title = { Text(text = textos.texto(R.string.llamada_permisos_titulo)) },
+                text = { Text(text = textos.texto(R.string.llamada_permisos_explicacion)) },
+                confirmButton = { TextButton(onClick = solicitarPermisos) { Text(text = textos.texto(
+                                R.string.llamada_permisos_continuar)) } },
+                dismissButton = { TextButton(onClick = cancelar) { Text(text = textos.texto(
+                                R.string.llamada_permisos_cancelar)) } }) }
 
-        EstadoPermisosLlamada.DENEGADOS -> {
-            AlertDialog(
-                onDismissRequest = cancelar,
-                title = {
-                    Text(
-                        text = textos.texto(
-                            R.string.llamada_permisos_denegados_titulo
-                        )
-                    )
-                },
-                text = {
-                    Text(
-                        text = textos.texto(
-                            R.string.llamada_permisos_denegados_mensaje
-                        )
-                    )
-                },
-                confirmButton = {
-                    Column {
-                        TextButton(
-                            onClick = solicitarPermisos
-                        ) {
-                            Text(
-                                text = textos.texto(
-                                    R.string.llamada_permisos_reintentar
-                                )
-                            )
-                        }
+        EstadoPermisosLlamada.DENEGADOS -> { AlertDialog(onDismissRequest = cancelar,
+                title = { Text(text = textos.texto(R.string.llamada_permisos_denegados_titulo)) },
+                text = { Text(text = textos.texto(R.string.llamada_permisos_denegados_mensaje)) },
+                confirmButton = { Column { TextButton(onClick = solicitarPermisos) { Text(text = textos.texto(
+                                    R.string.llamada_permisos_reintentar)) }
 
-                        TextButton(
-                            onClick = {
-                                val intent = Intent(
-                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        TextButton(onClick = { val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                     Uri.fromParts(
                                         "package",
                                         contexto.packageName,
-                                        null
-                                    )
-                                )
+                                        null))
 
                                 estado = EstadoPermisosLlamada.AJUSTES
-                                lanzadorAjustes.launch(intent)
-                            }
-                        ) {
-                            Text(
-                                text = textos.texto(
-                                    R.string.llamada_permisos_abrir_ajustes
-                                )
-                            )
-                        }
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = cancelar
-                    ) {
-                        Text(
-                            text = textos.texto(
-                                R.string.llamada_permisos_cerrar
-                            )
-                        )
-                    }
-                }
-            )
-        }
+                                lanzadorAjustes.launch(intent) }) { Text(text = textos.texto(
+                                    R.string.llamada_permisos_abrir_ajustes)) } } },
+                dismissButton = { TextButton(onClick = cancelar) { Text(text = textos.texto(
+                                R.string.llamada_permisos_cerrar)) } }) }
 
-        else -> Unit
-    }
-}
+        else -> Unit } }
 
-private fun tienePermisosLlamada(
-    contexto: Context
-): Boolean {
-    return permisosLlamadaPendientes(contexto).isEmpty()
-}
+/** true si ya se concedieron cámara y micrófono. */
+private fun tienePermisosLlamada(contexto: Context): Boolean { return permisosLlamadaPendientes(contexto).isEmpty() }
 
-private fun permisosLlamadaPendientes(
-    contexto: Context
-): Array<String> {
-    return arrayOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.RECORD_AUDIO
-    ).filter { permiso ->
-        ContextCompat.checkSelfPermission(
-            contexto,
-            permiso
-        ) != PackageManager.PERMISSION_GRANTED
-    }.toTypedArray()
-}
+/** Permisos de llamada que aún faltan por conceder. */
+private fun permisosLlamadaPendientes(contexto: Context): Array<String> { return arrayOf(Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO).filter { permiso ->
+        ContextCompat.checkSelfPermission(contexto,
+            permiso) != PackageManager.PERMISSION_GRANTED }.toTypedArray() }

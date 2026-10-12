@@ -15,6 +15,11 @@ import com.example.chatfamiliar.model.Mensaje
 import com.example.chatfamiliar.util.TimeoutSolicitud
 import com.google.firebase.firestore.ListenerRegistration
 
+/**
+ * Estado del chat de una familia: mensajes, historial, borrador y envío.
+ * Cada operación guarda un número de versión para ignorar respuestas que
+ * lleguen después de cambiar de chat o de sesión.
+ */
 class ChatFamiliaViewModel : ViewModel() {
     private val authRepository = AuthRepository()
     private val chatRepository = ChatFamiliaRepository()
@@ -62,28 +67,24 @@ class ChatFamiliaViewModel : ViewModel() {
         get() = !historialCompleto &&
                 !cargandoAnteriores &&
                 mensajes.any { it.fechaEnvio != null }
-    fun iniciar(familiaId: String) {
-        val uid = authRepository.obtenerUsuarioActual()?.uid
-        if (uid.isNullOrBlank()) {
-            detener()
+    /** Empieza a escuchar el chat de la familia (si ya lo escuchaba, no hace nada). */
+    fun iniciar(familiaId: String) { val uid = authRepository.obtenerUsuarioActual()?.uid
+        if (uid.isNullOrBlank()) { detener()
             errorMensajesRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA)
             return }
         if (familiaId.isBlank() || "/" in familiaId ||
-            familiaId == "." || familiaId == "..") {
-            detener()
-            errorMensajesRecurso = recursoError(
-                CodigoErrorChat.IDENTIFICADOR_INVALIDO)
+            familiaId == "." || familiaId == "..") { detener()
+            errorMensajesRecurso = recursoError(CodigoErrorChat.IDENTIFICADOR_INVALIDO)
             return }
         if (familiaIdActual == familiaId && uidActual == uid &&
             escuchaMensajes != null) { return }
         detener()
         familiaIdActual = familiaId
         uidActual = uid
-        reintentarMensajes()
-    }
+        reintentarMensajes() }
 
-    fun reintentarMensajes() {
-        if (familiaIdActual.isBlank() || !sesionVigente(versionSesion)) { return }
+    /** Vuelve a crear la escucha de mensajes recientes. */
+    fun reintentarMensajes() { if (familiaIdActual.isBlank() || !sesionVigente(versionSesion)) { return }
         escuchaMensajes?.remove()
         escuchaMensajes = null
         timeoutMensajes.cancelar()
@@ -92,20 +93,12 @@ class ChatFamiliaViewModel : ViewModel() {
         cargandoMensajes = true
         errorMensajesRecurso = null
 
-        timeoutMensajes.iniciar(
-            scope = viewModelScope
-        ) {
-            if (sesionVigente(sesion) && escucha == versionEscucha) {
+        timeoutMensajes.iniciar(scope = viewModelScope) { if (sesionVigente(sesion) && escucha == versionEscucha) {
                 cargandoMensajes = false
-                errorMensajesRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO)
-            }
-        }
+                errorMensajesRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
 
-        escuchaMensajes = chatRepository.escucharMensajesRecientes(
-            familiaIdActual
-        ) { resultado ->
-            if (!sesionVigente(sesion) || escucha != versionEscucha
-            ) { return@escucharMensajesRecientes }
+        escuchaMensajes = chatRepository.escucharMensajesRecientes(familiaIdActual) { resultado ->
+            if (!sesionVigente(sesion) || escucha != versionEscucha) { return@escucharMensajesRecientes }
             timeoutMensajes.cancelar()
             cargandoMensajes = false
 
@@ -117,76 +110,52 @@ class ChatFamiliaViewModel : ViewModel() {
                     val excepcion = ExcepcionChat.desde(error)
                     errorMensajesRecurso = obtenerRecursoErrorChat(excepcion)
                     if (excepcion.codigo == CodigoErrorChat.SIN_ACCESO ||
-                        excepcion.codigo == CodigoErrorChat.SESION_REQUERIDA) {
-                        accesoDenegado = true } }
-        }
-    }
+                        excepcion.codigo == CodigoErrorChat.SESION_REQUERIDA) { accesoDenegado = true } } } }
 
-    fun cargarAnteriores() {
-        if (!puedeCargarAnteriores || !sesionVigente(versionSesion)) {
-            return
-        }
-        val masAntiguo = mensajes.firstOrNull {
-            it.fechaEnvio != null
-        } ?: return
+    /** Carga la página de historial anterior al mensaje más antiguo. */
+    fun cargarAnteriores() { if (!puedeCargarAnteriores || !sesionVigente(versionSesion)) { return }
+        val masAntiguo = mensajes.firstOrNull { it.fechaEnvio != null } ?: return
         val sesion = versionSesion
         val consulta = ++versionHistorial
         cargandoAnteriores = true
         errorHistorialRecurso = null
 
         val solicitud = timeoutHistorial.iniciar(scope = viewModelScope) {
-            if (sesionVigente(sesion) && consulta == versionHistorial) {
-                versionHistorial++
+            if (sesionVigente(sesion) && consulta == versionHistorial) { versionHistorial++
                 cargandoAnteriores = false
-                errorHistorialRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO)
-            }
-        }
+                errorHistorialRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
 
-        historialRepository.cargarMensajesAnteriores(
-            familiaIdActual,
-            masAntiguo
-        ) { resultado ->
-            if (!sesionVigente(sesion) || consulta != versionHistorial) {
-                return@cargarMensajesAnteriores
-            }
-            if (!timeoutHistorial.completar(solicitud)) {
-                return@cargarMensajesAnteriores
-            }
+        historialRepository.cargarMensajesAnteriores(familiaIdActual,
+            masAntiguo) { resultado ->
+            if (!sesionVigente(sesion) || consulta != versionHistorial) { return@cargarMensajesAnteriores }
+            if (!timeoutHistorial.completar(solicitud)) { return@cargarMensajesAnteriores }
             cargandoAnteriores = false
             resultado
                 .onSuccess { anteriores ->
                     mensajes = combinar(anteriores = mensajes, nuevos = anteriores)
                     historialCompleto =
                         anteriores.size < HistorialFamiliaRepository.TAMANO_PAGINA
-                    errorHistorialRecurso = null
-                }
-                .onFailure { error -> errorHistorialRecurso = obtenerRecursoErrorChat(error) }
-        }
-    }
-    fun actualizarBorrador(texto: String) {
-        if (enviando) return
+                    errorHistorialRecurso = null }
+                .onFailure { error -> errorHistorialRecurso = obtenerRecursoErrorChat(error) } } }
+    /** Actualiza el texto que se está escribiendo. */
+    fun actualizarBorrador(texto: String) { if (enviando) return
         borrador = texto
-        errorEnvioRecurso = null
-    }
+        errorEnvioRecurso = null }
 
-    fun enviarMensaje() {
-        if (enviando) return
-        if (!sesionVigente(versionSesion)) {
-            errorEnvioRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA)
+    /** Valida y envía el borrador. Si se reintenta el mismo texto, reutiliza el mismo id. */
+    fun enviarMensaje() { if (enviando) return
+        if (!sesionVigente(versionSesion)) { errorEnvioRecurso = recursoError(CodigoErrorChat.SESION_REQUERIDA)
             return }
-        if (!puedeEnviar) {
-            errorEnvioRecurso = recursoError(CodigoErrorChat.SIN_ACCESO)
+        if (!puedeEnviar) { errorEnvioRecurso = recursoError(CodigoErrorChat.SIN_ACCESO)
             return }
         val contenido = borrador.trim()
-        if (contenido.isEmpty()) {
-            errorEnvioRecurso = recursoError(CodigoErrorChat.MENSAJE_VACIO)
+        if (contenido.isEmpty()) { errorEnvioRecurso = recursoError(CodigoErrorChat.MENSAJE_VACIO)
             return }
         if (contenido.length > ChatFamiliaRepository.MAXIMO_CARACTERES) {
             errorEnvioRecurso = recursoError(CodigoErrorChat.MENSAJE_DEMASIADO_LARGO)
             return }
         val mensajeId = if (contenidoIntento == contenido &&
-            mensajeIntentoId != null) {
-            mensajeIntentoId!! } else {
+            mensajeIntentoId != null) { mensajeIntentoId!! } else {
             chatRepository.generarMensajeId().also { nuevoId -> mensajeIntentoId = nuevoId
                 contenidoIntento = contenido } }
         val sesion = versionSesion
@@ -194,16 +163,12 @@ class ChatFamiliaViewModel : ViewModel() {
         enviando = true
         errorEnvioRecurso = null
         val solicitud = timeoutEnvio.iniciar(scope = viewModelScope) {
-            if (sesionVigente(sesion) && envio == versionEnvio) {
-                versionEnvio++
+            if (sesionVigente(sesion) && envio == versionEnvio) { versionEnvio++
                 enviando = false
-                errorEnvioRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO)
-            }
-        }
+                errorEnvioRecurso = recursoError(CodigoErrorChat.TIEMPO_AGOTADO) } }
         chatRepository.enviarMensaje(familiaIdActual, mensajeId, contenido) { resultado ->
             if (!sesionVigente(sesion) || envio != versionEnvio) { return@enviarMensaje }
-            if (!timeoutEnvio.completar(solicitud)) {
-                return@enviarMensaje }
+            if (!timeoutEnvio.completar(solicitud)) { return@enviarMensaje }
             enviando = false
             resultado.onSuccess { if (borrador.trim() == contenido) { borrador = "" }
                     mensajeIntentoId = null
@@ -213,52 +178,43 @@ class ChatFamiliaViewModel : ViewModel() {
                     val excepcion = ExcepcionChat.desde(error)
                     errorEnvioRecurso = obtenerRecursoErrorChat(excepcion)
                     if (excepcion.codigo == CodigoErrorChat.SIN_ACCESO ||
-                        excepcion.codigo == CodigoErrorChat.FAMILIA_NO_DISPONIBLE) {
-                        accesoDenegado = true } }
-        }
-    }
+                        excepcion.codigo == CodigoErrorChat.FAMILIA_NO_DISPONIBLE) { accesoDenegado = true } } } }
 
-    private fun incorporarRecientes(recientes: List<Mensaje>) {
-        if (recientes.isEmpty()) { return }
+    /**
+     * Mezcla los mensajes recientes con los ya cargados. Si no hay ninguno en
+     * común, reemplaza la lista para no dejar huecos en el historial.
+     */
+    private fun incorporarRecientes(recientes: List<Mensaje>) { if (recientes.isEmpty()) { return }
         val idsActuales = mensajes.mapTo(mutableSetOf()) { it.id }
         val hayCoincidencias = recientes.any { it.id in idsActuales }
 
-        if (mensajes.isNotEmpty() && !hayCoincidencias) {
-            versionHistorial++
+        if (mensajes.isNotEmpty() && !hayCoincidencias) { versionHistorial++
             timeoutHistorial.cancelar()
             cargandoAnteriores = false
             historialCompleto = false
             errorHistorialRecurso = null
-            mensajes = ordenar(recientes)
-        } else { mensajes = combinar(
-                anteriores = mensajes,
-                nuevos = recientes) }
-    }
-    private fun combinar(
-        anteriores: List<Mensaje>,
-        nuevos: List<Mensaje>
-    ): List<Mensaje> {
-        val porId = anteriores.associateBy { it.id }.toMutableMap()
+            mensajes = ordenar(recientes) } else { mensajes = combinar(anteriores = mensajes,
+                nuevos = recientes) } }
+    /** Une dos listas sin repetir mensajes (por id) y las ordena. */
+    private fun combinar(anteriores: List<Mensaje>,
+        nuevos: List<Mensaje>): List<Mensaje> { val porId = anteriores.associateBy { it.id }.toMutableMap()
         nuevos.forEach { mensaje -> porId[mensaje.id] = mensaje }
-        return ordenar(porId.values.toList())
-    }
-    private fun ordenar(lista: List<Mensaje>): List<Mensaje> {
-        return lista.sortedWith(
-            compareBy<Mensaje> { it.fechaEnvio == null
-            }.thenBy { it.fechaEnvio }.thenBy { it.id })
-    }
+        return ordenar(porId.values.toList()) }
+    /** Orden por fecha e id; los pendientes (sin fecha) van al final. */
+    private fun ordenar(lista: List<Mensaje>): List<Mensaje> { return lista.sortedWith(
+            compareBy<Mensaje> { it.fechaEnvio == null }.thenBy { it.fechaEnvio }.thenBy { it.id }) }
 
-    private fun sesionVigente(version: Int): Boolean {
-        return version == versionSesion &&
+    /** true si la operación pertenece a la sesión y al usuario actuales. */
+    private fun sesionVigente(version: Int): Boolean { return version == versionSesion &&
                 uidActual.isNotBlank() &&
                 authRepository.obtenerUsuarioActual()?.uid == uidActual }
 
+    /** Texto de error para un código de chat. */
     @StringRes
-    private fun recursoError(codigo: CodigoErrorChat): Int {
-        return obtenerRecursoErrorChat(ExcepcionChat(codigo)) }
+    private fun recursoError(codigo: CodigoErrorChat): Int { return obtenerRecursoErrorChat(ExcepcionChat(codigo)) }
 
-    fun detener() {
-        versionSesion++
+    /** Retira las escuchas, cancela las esperas y limpia el estado. */
+    fun detener() { versionSesion++
         versionEscucha++
         versionHistorial++
         versionEnvio++
@@ -280,11 +236,7 @@ class ChatFamiliaViewModel : ViewModel() {
         contenidoIntento = null
         errorMensajesRecurso = null
         errorHistorialRecurso = null
-        errorEnvioRecurso = null
-    }
+        errorEnvioRecurso = null }
 
-    override fun onCleared() {
-        detener()
-        super.onCleared()
-    }
-}
+    override fun onCleared() { detener()
+        super.onCleared() } }

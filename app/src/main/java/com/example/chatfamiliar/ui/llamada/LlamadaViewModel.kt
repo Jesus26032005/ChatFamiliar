@@ -72,94 +72,68 @@ class LlamadaViewModel(application: Application) : AndroidViewModel(application)
         // Cada vez que hay un cliente de Stream (al iniciar sesión):
         // 1. Revisamos si alguien nos estaba marcando antes de conectarnos.
         // 2. Vigilamos la llamada activa para colgar si nos quedamos solos.
-        viewModelScope.launch {
-            cliente.collectLatest { clienteActual ->
+        viewModelScope.launch { cliente.collectLatest { clienteActual ->
                 if (clienteActual == null) return@collectLatest
                 revisarLlamadaEntrantePendiente()
                 clienteActual.state.activeCall.collectLatest { activa ->
-                    if (activa != null) vigilarLlamadaActiva(activa)
-                }
-            }
-        }
-    }
+                    if (activa != null) vigilarLlamadaActiva(activa) } } } }
 
-    fun llamar(destino: DestinoLlamada) {
-        if (iniciando) return
+    /** Inicia una videollamada al destino y le da seguimiento hasta que termina. */
+    fun llamar(destino: DestinoLlamada) { if (iniciando) return
         iniciando = true
-        viewModelScope.launch {
-            llamadaRepository.llamar(destino)
+        viewModelScope.launch { llamadaRepository.llamar(destino)
                 .onSuccess { llamada -> seguirLlamada(llamada, destino) }
                 .onFailure { error -> avisoRecurso = recursoDe(error) }
-            iniciando = false
-        }
-    }
+            iniciando = false } }
 
-    fun aceptar(llamada: Call) {
-        if (conectando) return
+    /** Contesta la llamada entrante. */
+    fun aceptar(llamada: Call) { if (conectando) return
         conectando = true
         aceptarAlMostrar = false
-        viewModelScope.launch {
-            llamadaRepository.aceptar(llamada)
+        viewModelScope.launch { llamadaRepository.aceptar(llamada)
                 .onFailure { error -> avisoRecurso = recursoDe(error) }
-            conectando = false
-        }
-    }
+            conectando = false } }
 
     /** Entrar a la llamada familiar que ya está en curso. */
-    fun unirse(llamada: Call) {
-        if (conectando) return
+    fun unirse(llamada: Call) { if (conectando) return
         conectando = true
-        viewModelScope.launch {
-            llamadaRepository.unirse(llamada)
+        viewModelScope.launch { llamadaRepository.unirse(llamada)
                 .onFailure { error -> avisoRecurso = recursoDe(error) }
-            conectando = false
-        }
-    }
+            conectando = false } }
 
     /**
      * Mientras el chat familiar está abierto, revisa cada cierto tiempo
      * si hay una videollamada en curso para mostrar el aviso "Unirse".
      */
-    fun vigilarLlamadaFamiliar(familiaId: String) {
-        vigilanciaFamiliar?.cancel()
+    fun vigilarLlamadaFamiliar(familiaId: String) { vigilanciaFamiliar?.cancel()
         familiaSinOtrosIntegrantes = false
         vigilanciaFamiliar = viewModelScope.launch {
             // Una sola vez al abrir el chat: ¿hay alguien más en la familia?
             llamadaRepository.contarOtrosIntegrantes(familiaId)
                 .onSuccess { otros -> familiaSinOtrosIntegrantes = otros == 0 }
-            while (isActive) {
-                llamadaFamiliarEnCurso = llamadaRepository
+            while (isActive) { llamadaFamiliarEnCurso = llamadaRepository
                     .buscarLlamadaFamiliar(familiaId).getOrNull()
-                delay(INTERVALO_REVISION_MS)
-            }
-        }
-    }
+                delay(INTERVALO_REVISION_MS) } } }
 
-    fun dejarDeVigilarLlamadaFamiliar() {
-        vigilanciaFamiliar?.cancel()
+    /** Detiene la revisión de llamada en curso al salir del chat familiar. */
+    fun dejarDeVigilarLlamadaFamiliar() { vigilanciaFamiliar?.cancel()
         vigilanciaFamiliar = null
         llamadaFamiliarEnCurso = null
-        familiaSinOtrosIntegrantes = false
-    }
+        familiaSinOtrosIntegrantes = false }
 
     /** Al tocar la cámara en una familia donde solo estás tú. */
-    fun avisarFamiliaSinIntegrantes() {
-        avisoRecurso = R.string.llamada_error_familia_sola
-    }
+    fun avisarFamiliaSinIntegrantes() { avisoRecurso = R.string.llamada_error_familia_sola }
 
-    fun rechazar(llamada: Call) {
-        aceptarAlMostrar = false
-        viewModelScope.launch { llamadaRepository.rechazar(llamada) }
-    }
+    /** Rechaza la llamada entrante. */
+    fun rechazar(llamada: Call) { aceptarAlMostrar = false
+        viewModelScope.launch { llamadaRepository.rechazar(llamada) } }
 
-    fun cancelar(llamada: Call) {
-        canceladasPorMi.add(llamada.id)
-        viewModelScope.launch { llamadaRepository.cancelar(llamada) }
-    }
+    /** Cancela la llamada saliente antes de que contesten. */
+    fun cancelar(llamada: Call) { canceladasPorMi.add(llamada.id)
+        viewModelScope.launch { llamadaRepository.cancelar(llamada) } }
 
-    fun colgar(llamada: Call) {
-        viewModelScope.launch { llamadaRepository.colgar(llamada) }
-    }
+    /** Sale de la llamada en curso. */
+    fun colgar(llamada: Call) { viewModelScope.launch { llamadaRepository.colgar(llamada) } }
 
     /**
      * Muestra una llamada que nos está sonando aunque el aviso no haya
@@ -167,8 +141,7 @@ class LlamadaViewModel(application: Application) : AndroidViewModel(application)
      * conectar con Stream y cada vez que la app vuelve al frente.
      */
     fun revisarLlamadaEntrantePendiente() {
-        viewModelScope.launch { llamadaRepository.mostrarLlamadaEntrantePendiente() }
-    }
+        viewModelScope.launch { llamadaRepository.mostrarLlamadaEntrantePendiente() } }
 
     /**
      * Cuelga automáticamente cuando me quedo solo en la llamada:
@@ -178,38 +151,28 @@ class LlamadaViewModel(application: Application) : AndroidViewModel(application)
      *   se había vaciado): espera más tiempo y cuelga.
      * collectLatest cancela la espera si alguien vuelve a entrar.
      */
-    private suspend fun vigilarLlamadaActiva(llamada: Call) {
-        var huboOtros = false
+    private suspend fun vigilarLlamadaActiva(llamada: Call) { var huboOtros = false
         llamada.state.remoteParticipants
             .map { participantes -> participantes.isNotEmpty() }
             .distinctUntilChanged()
             .collectLatest { hayOtros ->
-                if (hayOtros) {
-                    huboOtros = true
-                } else {
+                if (hayOtros) { huboOtros = true } else {
                     delay(if (huboOtros) ESPERA_TRAS_SALIDA_MS else ESPERA_SIN_NADIE_MS)
-                    llamadaRepository.colgar(llamada)
-                }
-            }
-    }
+                    llamadaRepository.colgar(llamada) } } }
 
-    fun alternarMicrofono(llamada: Call) {
-        val microfono = llamada.microphone
-        microfono.setEnabled(!microfono.isEnabled.value)
-    }
+    /** Enciende o apaga el micrófono. */
+    fun alternarMicrofono(llamada: Call) { val microfono = llamada.microphone
+        microfono.setEnabled(!microfono.isEnabled.value) }
 
-    fun alternarCamara(llamada: Call) {
-        val camara = llamada.camera
-        camara.setEnabled(!camara.isEnabled.value)
-    }
+    /** Enciende o apaga la cámara. */
+    fun alternarCamara(llamada: Call) { val camara = llamada.camera
+        camara.setEnabled(!camara.isEnabled.value) }
 
-    fun marcarAceptarDesdeNotificacion() {
-        aceptarAlMostrar = true
-    }
+    /** Indica que se tocó "Contestar" en la notificación del sistema. */
+    fun marcarAceptarDesdeNotificacion() { aceptarAlMostrar = true }
 
-    fun limpiarAviso() {
-        avisoRecurso = null
-    }
+    /** Oculta el aviso flotante. */
+    fun limpiarAviso() { avisoRecurso = null }
 
     /**
      * Sigue una llamada que YO inicié de principio a fin:
@@ -221,15 +184,11 @@ class LlamadaViewModel(application: Application) : AndroidViewModel(application)
      * Se hace aquí y no en la pantalla porque, al terminar, el SDK
      * retira la llamada y la pantalla desaparece.
      */
-    private fun seguirLlamada(llamada: Call, destino: DestinoLlamada) {
-        viewModelScope.launch {
-            val final = withTimeoutOrNull(TIEMPO_MAXIMO_TIMBRE_MS) {
-                llamada.state.ringingState.first { estado ->
+    private fun seguirLlamada(llamada: Call, destino: DestinoLlamada) { viewModelScope.launch {
+            val final = withTimeoutOrNull(TIEMPO_MAXIMO_TIMBRE_MS) { llamada.state.ringingState.first { estado ->
                     estado is RingingState.Active ||
                             estado is RingingState.RejectedByAll ||
-                            estado is RingingState.TimeoutNoAnswer
-                }
-            }
+                            estado is RingingState.TimeoutNoAnswer } }
             val canceladaPorMi = canceladasPorMi.remove(llamada.id)
 
             if (final !is RingingState.Active) {
@@ -238,31 +197,24 @@ class LlamadaViewModel(application: Application) : AndroidViewModel(application)
                 registroLlamadasRepository.registrar(destino,
                     contestada = false, duracionSegundos = 0L)
                 if (!canceladaPorMi) { avisoRecurso = R.string.llamada_no_contestada }
-                return@launch
-            }
+                return@launch }
 
             val inicio = System.currentTimeMillis()
             val estadoCliente = sesionVideoRepository.obtenerClienteActual()?.state
             if (estadoCliente != null) {
                 // Primero confirma que la llamada está activa y luego
                 // espera a que deje de estarlo (colgué o se terminó).
-                withTimeoutOrNull(TIEMPO_ESPERA_ACTIVA_MS) {
-                    estadoCliente.activeCall.first { it?.id == llamada.id }
-                }
-                estadoCliente.activeCall.first { it?.id != llamada.id }
-            }
+                withTimeoutOrNull(TIEMPO_ESPERA_ACTIVA_MS) { estadoCliente.activeCall.first { it?.id == llamada.id } }
+                estadoCliente.activeCall.first { it?.id != llamada.id } }
             val segundos = (System.currentTimeMillis() - inicio) / 1_000L
             registroLlamadasRepository.registrar(destino,
-                contestada = true, duracionSegundos = segundos)
-        }
-    }
+                contestada = true, duracionSegundos = segundos) } }
 
+    /** Texto de aviso para cada código de error de llamada. */
     @StringRes
-    private fun recursoDe(error: Throwable): Int {
-        val codigo = (error as? ExcepcionLlamada)?.codigo
+    private fun recursoDe(error: Throwable): Int { val codigo = (error as? ExcepcionLlamada)?.codigo
         // Un mensaje claro para cada caso; el detalle técnico queda en Logcat.
-        return when (codigo) {
-            CodigoErrorLlamada.SIN_CLIENTE -> R.string.llamada_error_no_lista
+        return when (codigo) { CodigoErrorLlamada.SIN_CLIENTE -> R.string.llamada_error_no_lista
             CodigoErrorLlamada.LLAMADA_EN_CURSO -> R.string.llamada_error_en_curso
             CodigoErrorLlamada.FAMILIA_SIN_INTEGRANTES -> R.string.llamada_error_familia_sola
             CodigoErrorLlamada.ERROR_INTEGRANTES -> R.string.llamada_error_integrantes
@@ -274,15 +226,11 @@ class LlamadaViewModel(application: Application) : AndroidViewModel(application)
             CodigoErrorLlamada.NO_SE_PUDO_CONECTAR -> R.string.llamada_error_conectar
             CodigoErrorLlamada.DESTINO_INVALIDO,
             CodigoErrorLlamada.NO_SE_PUDO_INICIAR,
-            null -> R.string.llamada_error_iniciar
-        }
-    }
+            null -> R.string.llamada_error_iniciar } }
 
     private companion object {
         const val TIEMPO_MAXIMO_TIMBRE_MS = 90_000L
         const val TIEMPO_ESPERA_ACTIVA_MS = 10_000L
         const val INTERVALO_REVISION_MS = 10_000L
         const val ESPERA_TRAS_SALIDA_MS = 3_000L
-        const val ESPERA_SIN_NADIE_MS = 45_000L
-    }
-}
+        const val ESPERA_SIN_NADIE_MS = 45_000L } }

@@ -19,36 +19,25 @@ import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.ui.theme.ChatFamiliarTheme
 
 
+/** Muestra los colores del tema para revisarlos en la vista previa de Android Studio. */
 @Composable
-private fun MuestraPaleta() {
-    Column(
-        modifier = Modifier
+private fun MuestraPaleta() { Column(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        verticalArrangement = Arrangement.spacedBy(16.dp)) { Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             AvatarIdentidad(semilla = "familia-1", icono = Icons.Filled.Groups, esGrupo = true)
             AvatarIdentidad(semilla = "uid-laura", nombre = "Laura Gómez")
             AvatarIdentidad(semilla = "uid-carlos", nombre = "Carlos Ruiz")
             AvatarIdentidad(semilla = "uid-rosa", nombre = "Rosa Martínez")
-            AvatarIdentidad(semilla = "familia-2", icono = Icons.Filled.Groups, esGrupo = true)
-        }
+            AvatarIdentidad(semilla = "familia-2", icono = Icons.Filled.Groups, esGrupo = true) }
         BotonDestructivo(onClick = {}, modifier = Modifier.fillMaxWidth()) {
             Icon(imageVector = Icons.Filled.DeleteOutline, contentDescription = null)
-            Text(text = "Expulsar", modifier = Modifier.padding(start = 8.dp))
-        }
-    }
-}
+            Text(text = "Expulsar", modifier = Modifier.padding(start = 8.dp)) } } }
 
 @Preview(name = "Paleta - claro", showBackground = true)
 @Composable
-private fun MuestraPaletaClaroPreview() {
-    ChatFamiliarTheme(darkTheme = false) { MuestraPaleta() }
-}
+private fun MuestraPaletaClaroPreview() { ChatFamiliarTheme(darkTheme = false) { MuestraPaleta() } }
 
 @Preview(name = "Paleta - oscuro", showBackground = true)
 @Composable
-private fun MuestraPaletaOscuroPreview() {
-    ChatFamiliarTheme(darkTheme = true) { MuestraPaleta() }
-}
+private fun MuestraPaletaOscuroPreview() { ChatFamiliarTheme(darkTheme = true) { MuestraPaleta() } }

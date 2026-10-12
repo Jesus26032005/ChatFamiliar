@@ -34,9 +34,9 @@ import com.example.chatfamiliar.ui.language.TraducirTexto
 import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Campo de búsqueda y fichas de filtro de la lista de chats. */
 @Composable
-fun BuscadorFiltrosConversaciones(
-    busqueda: String, filtroSeleccionado: FiltroConversaciones,
+fun BuscadorFiltrosConversaciones(busqueda: String, filtroSeleccionado: FiltroConversaciones,
     hayConteosPendientes: Boolean, idiomaEfectivo: String,
     traducir: TraducirTexto, alCambiarBusqueda: (String) -> Unit,
     alLimpiarBusqueda: () -> Unit,
@@ -48,55 +48,38 @@ fun BuscadorFiltrosConversaciones(
     val descripcionFiltros = textos.texto(R.string.chat_filters_description)
     val funcional = MaterialTheme.funcional
     Column(modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(value = busqueda,
+        verticalArrangement = Arrangement.spacedBy(8.dp)) { OutlinedTextField(value = busqueda,
             onValueChange = alCambiarBusqueda,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             label = { Text(text = etiquetaBusqueda) },
             leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
-            trailingIcon = {
-                if (busqueda.isNotEmpty()) {
-                    IconButton(onClick = alLimpiarBusqueda
-                    ) {
+            trailingIcon = { if (busqueda.isNotEmpty()) { IconButton(onClick = alLimpiarBusqueda) {
                         Icon(imageVector = Icons.Filled.Close,
-                            contentDescription = textos.texto(
-                                R.string.chat_search_clear)) } } },
+                            contentDescription = textos.texto(R.string.chat_search_clear)) } } },
             singleLine = true,
             shape = RoundedCornerShape(18.dp),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = { focusManager.clearFocus() }))
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }))
         Row(modifier = Modifier
             .fillMaxWidth().horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp).semantics {
-                contentDescription = descripcionFiltros },
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FiltroConversaciones.entries.forEach { filtro ->
+            .padding(horizontal = 16.dp).semantics { contentDescription = descripcionFiltros },
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) { FiltroConversaciones.entries.forEach { filtro ->
                 val seleccionado = filtro == filtroSeleccionado
-                FilterChip(
-                    selected = seleccionado,
+                FilterChip(selected = seleccionado,
                     onClick = { alSeleccionarFiltro(filtro)
                         focusManager.clearFocus() },
-                    label = { Text(text = textos.texto(filtro.textoRecurso))
-                    },
+                    label = { Text(text = textos.texto(filtro.textoRecurso)) },
                     leadingIcon = { if (seleccionado) {
                         Icon(imageVector = Icons.Filled.Check, contentDescription = null) } },
                     shape = RoundedCornerShape(12.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = funcional.filtroSeleccionado,
+                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = funcional.filtroSeleccionado,
                         selectedLabelColor = funcional.sobreFiltroSeleccionado,
                         selectedLeadingIconColor = funcional.sobreFiltroSeleccionado),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true, selected = seleccionado,
+                    border = FilterChipDefaults.filterChipBorder(enabled = true, selected = seleccionado,
                         selectedBorderColor = funcional.bordeFiltroSeleccionado,
                         selectedBorderWidth = 1.dp)) } }
         if (filtroSeleccionado == FiltroConversaciones.NO_LEIDOS &&
-            hayConteosPendientes) {
-            Text(text = textos.texto(R.string.chat_unread_pending),
+            hayConteosPendientes) { Text(text = textos.texto(R.string.chat_unread_pending),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = funcional.acento) }
-    }
-}
+                color = funcional.acento) } } }

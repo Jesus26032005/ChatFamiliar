@@ -55,16 +55,13 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.language.recordarIdiomaEfectivo
 
 
+/** Pantalla de inicio de sesión conectada a su ViewModel. */
 @Composable
-fun PantallaLogin(
-    idiomaViewModel: IdiomaViewModel,
+fun PantallaLogin(idiomaViewModel: IdiomaViewModel,
     viewModel: LoginViewModel = viewModel(),
     alNavegarHome: () -> Unit,
     alNavegarRegistro: () -> Unit,
-    alNavegarVerificacion: () -> Unit
-) {
-    val idiomaEfectivo = recordarIdiomaEfectivo(
-        idiomaViewModel.idiomaSeleccionado)
+    alNavegarVerificacion: () -> Unit) { val idiomaEfectivo = recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
     ContenidoLogin(correo = viewModel.correo,
         password = viewModel.password,
         errorRecurso = viewModel.errorRecurso,
@@ -75,16 +72,14 @@ fun PantallaLogin(
         alCambiarPassword = viewModel::actualizarPassword,
         alSeleccionarIdioma = idiomaViewModel::seleccionarIdioma,
         traducir = idiomaViewModel::traducir,
-        alIniciarSesion = { viewModel.iniciarSesion(
-            alTenerExito = alNavegarHome,
+        alIniciarSesion = { viewModel.iniciarSesion(alTenerExito = alNavegarHome,
                 alRequerirVerificacion = alNavegarVerificacion) },
-        alNavegarRegistro = alNavegarRegistro)
-}
+        alNavegarRegistro = alNavegarRegistro) }
 
 
+/** Contenido visual del inicio de sesión, sin estado propio (se puede previsualizar). */
 @Composable
-fun ContenidoLogin(
-    correo: String, password: String,
+fun ContenidoLogin(correo: String, password: String,
     @StringRes errorRecurso: Int?,
     cargando: Boolean,traducir: TraducirTexto,
     idiomaSeleccionado: String?, idiomaEfectivo: String,
@@ -92,46 +87,29 @@ fun ContenidoLogin(
     alCambiarPassword: (String) -> Unit,
     alSeleccionarIdioma: (String?) -> Unit,
     alIniciarSesion: () -> Unit,
-    alNavegarRegistro: () -> Unit
-) {
-    val textos = recordarTextosApp(idiomaEfectivo =
+    alNavegarRegistro: () -> Unit) { val textos = recordarTextosApp(idiomaEfectivo =
         idiomaEfectivo, traducir = traducir)
     Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()
-        .imePadding()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        .imePadding()) { Column(modifier = Modifier.fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                ControlIdiomaCompacto(
+            verticalArrangement = Arrangement.Center) { Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End) { ControlIdiomaCompacto(
                     idiomaSeleccionado = idiomaSeleccionado,
                     idiomaEfectivo = idiomaEfectivo,
                     traducir = traducir,
-                    alSeleccionarIdioma = alSeleccionarIdioma)
-            }
+                    alSeleccionarIdioma = alSeleccionarIdioma) }
             Spacer(modifier = Modifier.height(20.dp))
 
 
-            // Logo
             Surface(modifier = Modifier.size(72.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Box(contentAlignment = Alignment.Center
-                ) {
+                color = MaterialTheme.colorScheme.primaryContainer) { Box(contentAlignment = Alignment.Center) {
                     Icon(imageVector = Icons.Filled.Forum,
                         contentDescription = null,
                         modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
+                        tint = MaterialTheme.colorScheme.primary) } }
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = textos.texto(R.string.brand_name),
@@ -146,16 +124,11 @@ fun ContenidoLogin(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(28.dp))
-            // Formulario
             Card(modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor =
+                colors = CardDefaults.cardColors(containerColor =
                         MaterialTheme.colorScheme
-                            .surfaceContainer)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)
-                ) {
+                            .surfaceContainer)) { Column(modifier = Modifier.padding(20.dp)) {
                     Text(text = textos.texto(R.string.login_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold)
@@ -169,8 +142,7 @@ fun ContenidoLogin(
                         etiqueta = textos.texto(R.string.auth_email_label),
                         habilitado = !cargando)
                     Spacer(modifier = Modifier.height(16.dp))
-                    CampoPassword(
-                        valor = password,
+                    CampoPassword(valor = password,
                         alCambiarValor = alCambiarPassword,
                         etiqueta = textos.texto(R.string.auth_password_label),
                         descripcionMostrar = textos.texto(R.string.auth_show_password),
@@ -179,68 +151,44 @@ fun ContenidoLogin(
                     MensajeError(mensaje = errorRecurso?.let { recurso ->
                         textos.texto(recurso) })
                     Spacer(modifier = Modifier.height(16.dp))
-                    BotonAuth(
-                        texto = textos.texto(R.string.login_button),
+                    BotonAuth(texto = textos.texto(R.string.login_button),
                         cargando = cargando,
                         onClick = alIniciarSesion)
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(imageVector = Icons.Filled.Lock,
+                        verticalAlignment = Alignment.CenterVertically) { Icon(imageVector = Icons.Filled.Lock,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(text = textos.texto(R.string.login_secure),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+                            color = MaterialTheme.colorScheme.onSurfaceVariant) } } }
             Spacer(modifier = Modifier.height(20.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = textos.texto(R.string.login_no_account),
+            Row(verticalAlignment = Alignment.CenterVertically) { Text(text = textos.texto(R.string.login_no_account),
                     style = MaterialTheme.typography.bodyMedium)
                 TextButton(onClick = alNavegarRegistro,
-                    enabled = !cargando
-                ) {
-                    Text(text = textos.texto(R.string.login_register),
-                        fontWeight = FontWeight.SemiBold)
-                }
-            }
-        }
-    }
-}
+                    enabled = !cargando) { Text(text = textos.texto(R.string.login_register),
+                        fontWeight = FontWeight.SemiBold) } } } } }
 
 
+/** Botón compacto que muestra el idioma actual y abre el selector. */
 @Composable
-private fun SelectorIdiomaCompacto(
-    idiomaSeleccionado: String?,
+private fun SelectorIdiomaCompacto(idiomaSeleccionado: String?,
     descripcionSeleccionar: String,
-    onClick: () -> Unit
-) {
-    val codigoVisible =
-        when (idiomaSeleccionado) {
-            IdiomaRepository.ESPANOL -> { "ES" }
+    onClick: () -> Unit) { val codigoVisible =
+        when (idiomaSeleccionado) { IdiomaRepository.ESPANOL -> { "ES" }
             IdiomaRepository.INGLES -> { "EN" }
             IdiomaRepository.ITALIANO -> { "IT" }
             IdiomaRepository.FRANCES -> {"FR"}
-            else -> { "AUTO" }
-        }
+            else -> { "AUTO" } }
 
-    Surface(
-        modifier = Modifier.clickable(onClick = onClick),
+    Surface(modifier = Modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(50),
         color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 2.dp
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(imageVector = Icons.Filled.Language,
+        tonalElevation = 2.dp) { Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+            verticalAlignment = Alignment.CenterVertically) { Icon(imageVector = Icons.Filled.Language,
                 contentDescription = descripcionSeleccionar,
                 modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.primary)
@@ -248,22 +196,13 @@ private fun SelectorIdiomaCompacto(
             Text(text = codigoVisible,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
+                color = MaterialTheme.colorScheme.primary) } } }
 
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true,
+    showSystemUi = true)
 @Composable
-private fun PantallaLoginPreview() {
-    MaterialTheme {
-        ContenidoLogin(
-            correo = "familia@correo.com",
+private fun PantallaLoginPreview() { MaterialTheme { ContenidoLogin(correo = "familia@correo.com",
             password = "12345678",
             errorRecurso = null,
             cargando = false,
@@ -273,10 +212,6 @@ private fun PantallaLoginPreview() {
             alCambiarPassword = {},
             alSeleccionarIdioma = {},
             traducir = { texto, _, alCompletar ->
-                alCompletar(Result.success(texto))
-            },
+                alCompletar(Result.success(texto)) },
             alIniciarSesion = {},
-            alNavegarRegistro = {}
-        )
-    }
-}
+            alNavegarRegistro = {}) } }

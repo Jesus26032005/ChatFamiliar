@@ -12,15 +12,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** Idioma de la aplicación y traducción automática de los textos con ML Kit. */
 class IdiomaViewModel(
-    application: Application
-) : AndroidViewModel(application) {
+    application: Application) : AndroidViewModel(application) {
     private val idiomaRepository = IdiomaRepository(application
         .applicationContext)
     private val translationRepository =
         TranslationRepository()
-    var idiomaSeleccionado by mutableStateOf(
-        idiomaRepository.obtenerIdiomaSeleccionado())
+    var idiomaSeleccionado by mutableStateOf(idiomaRepository.obtenerIdiomaSeleccionado())
         private set
     private var traduccionesPendientes by mutableStateOf(0)
     private var preparandoIdioma by mutableStateOf(false)
@@ -28,10 +27,8 @@ class IdiomaViewModel(
     private var ocultarIndicadorJob: Job? = null
     val traduciendo: Boolean
         get() = preparandoIdioma || traduccionesPendientes > 0
-    fun seleccionarIdioma(
-        codigoIdioma: String?
-    ) {
-        if (idiomaSeleccionado == codigoIdioma) { return }
+    /** Cambia el idioma; null vuelve al idioma del sistema. */
+    fun seleccionarIdioma(codigoIdioma: String?) { if (idiomaSeleccionado == codigoIdioma) { return }
         generacionTraduccion++
         traduccionesPendientes = 0
         ocultarIndicadorJob?.cancel()
@@ -40,40 +37,23 @@ class IdiomaViewModel(
                 codigoIdioma != IdiomaRepository.ESPANOL &&
                 codigoIdioma != IdiomaRepository.INGLES
         idiomaSeleccionado = codigoIdioma
-        idiomaRepository.cambiarIdioma(codigoIdioma)
-    }
+        idiomaRepository.cambiarIdioma(codigoIdioma) }
 
+    /** Traduce un texto y lleva la cuenta de traducciones pendientes para el indicador. */
     fun traducir(texto: String, codigoDestino: String,
-        alCompletar: (Result<String>) -> Unit
-    ) {
-        val generacionActual = generacionTraduccion
+        alCompletar: (Result<String>) -> Unit) { val generacionActual = generacionTraduccion
         ocultarIndicadorJob?.cancel()
         traduccionesPendientes++
-        translationRepository.traducir(
-            texto = texto,
-            codigoDestino = codigoDestino
-        ) { resultado ->
-            if (generacionActual == generacionTraduccion) {
-                traduccionesPendientes = (
-                        traduccionesPendientes - 1)
+        translationRepository.traducir(texto = texto,
+            codigoDestino = codigoDestino) { resultado ->
+            if (generacionActual == generacionTraduccion) { traduccionesPendientes = (traduccionesPendientes - 1)
                     .coerceAtLeast(0)
-                if (traduccionesPendientes == 0
-                ) { ocultarIndicadorJob =
-                        viewModelScope.launch {
-                            delay(180)
+                if (traduccionesPendientes == 0) { ocultarIndicadorJob =
+                        viewModelScope.launch { delay(180)
                             if (traduccionesPendientes == 0 &&
                                 generacionActual
-                                == generacionTraduccion
-                            ) { preparandoIdioma = false }
-                        }
-                }
-            }
-            alCompletar(resultado)
-        }
-    }
-    override fun onCleared() {
-        ocultarIndicadorJob?.cancel()
+                                == generacionTraduccion) { preparandoIdioma = false } } } }
+            alCompletar(resultado) } }
+    override fun onCleared() { ocultarIndicadorJob?.cancel()
         translationRepository.cerrar()
-        super.onCleared()
-    }
-}
+        super.onCleared() } }

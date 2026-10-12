@@ -72,24 +72,18 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.comun.AvatarIdentidad
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Pantalla de gestión de una familia o, si no hay familia, de crear o unirse a una. */
 @Composable
-fun PantallaFamilia(
-    familiaIdInicial: String?,
+fun PantallaFamilia(familiaIdInicial: String?,
     idiomaViewModel: IdiomaViewModel,
     viewModel: FamiliaViewModel,
-    alVolver: (String?) -> Unit
-) {
-    LaunchedEffect(familiaIdInicial) {
-        viewModel.cargarPantalla(
-            familiaIdInicial = familiaIdInicial
-        )
-    }
+    alVolver: (String?) -> Unit) { LaunchedEffect(familiaIdInicial) { viewModel.cargarPantalla(
+            familiaIdInicial = familiaIdInicial) }
     val idiomaEfectivo =
         recordarIdiomaEfectivo(idiomaViewModel.idiomaSeleccionado)
     val volver = { alVolver(viewModel.familiaActiva?.id) }
     BackHandler { volver() }
-    ContenidoFamilia(
-        uidUsuarioActual = viewModel.uidUsuarioActual, familiaActiva = viewModel.familiaActiva,
+    ContenidoFamilia(uidUsuarioActual = viewModel.uidUsuarioActual, familiaActiva = viewModel.familiaActiva,
         membresiaActiva = viewModel.membresiaActiva, miembrosFamilia = viewModel.miembrosFamilia,
         nombreFamiliaNueva = viewModel.nombreFamiliaNueva, idiomaEfectivo = idiomaEfectivo,
         codigoInvitacion = viewModel.codigoInvitacion,
@@ -112,21 +106,19 @@ fun PantallaFamilia(
         alLimpiarErrorFamilia = viewModel::limpiarErrorFamilia,
         alPrepararEdicionFamilia = viewModel::prepararEdicionFamilia,
         alCambiarNombreFamiliaEdicion = viewModel::actualizarNombreFamiliaEdicion,
-        alEditarFamilia = { alTenerExito -> viewModel.editarFamilia(
-            alTenerExito = alTenerExito) },
+        alEditarFamilia = { alTenerExito -> viewModel.editarFamilia(alTenerExito = alTenerExito) },
         alAbandonarFamilia = { alTenerExito ->
             viewModel.abandonarFamilia(alTenerExito = alTenerExito) },
         alEliminarFamilia = { alTenerExito ->
-            viewModel.eliminarFamilia(
-                alTenerExito = alTenerExito) },
+            viewModel.eliminarFamilia(alTenerExito = alTenerExito) },
         alHacerAdministrador = viewModel::hacerAdministrador,
         alQuitarAdministrador = viewModel::quitarAdministrador,
         alExpulsarMiembro = { miembro, alTenerExito ->
             viewModel.expulsarMiembro(miembro = miembro, alTenerExito = alTenerExito) },
         alLimpiarErrorMiembros = viewModel::limpiarErrorMiembros) }
+/** Contenido de la gestión: datos de la familia, código, integrantes, acciones y diálogos. */
 @Composable
-private fun ContenidoFamilia(
-    uidUsuarioActual: String, familiaActiva: Familia?,
+private fun ContenidoFamilia(uidUsuarioActual: String, familiaActiva: Familia?,
     membresiaActiva: MiembroFamilia?, miembrosFamilia: List<MiembroFamiliaDetalle>,
     nombreFamiliaNueva: String, codigoInvitacion: String, nombreFamiliaEdicion: String,
     cargando: Boolean, cargandoMiembros: Boolean, creandoFamilia: Boolean,
@@ -143,8 +135,7 @@ private fun ContenidoFamilia(
     alHacerAdministrador: (MiembroFamiliaDetalle) -> Unit,
     alQuitarAdministrador: (MiembroFamiliaDetalle) -> Unit,
     alExpulsarMiembro: (MiembroFamiliaDetalle, () -> Unit) -> Unit,
-    alLimpiarErrorMiembros: () -> Unit
-) { val textos = recordarTextosApp(
+    alLimpiarErrorMiembros: () -> Unit) { val textos = recordarTextosApp(
     idiomaEfectivo = idiomaEfectivo, traducir = traducir)
     val mensajeErrorFamilia =
         errorFamiliaRecurso?.let { recurso -> textos.texto(recurso) }
@@ -171,10 +162,8 @@ private fun ContenidoFamilia(
     Column(modifier = Modifier.fillMaxSize()
         .safeDrawingPadding()
         .verticalScroll(rememberScrollState())
-        .padding(horizontal = 24.dp, vertical = 20.dp)) {
-        Row(modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = alVolver) {
+        .padding(horizontal = 24.dp, vertical = 20.dp)) { Row(modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically) { IconButton(onClick = alVolver) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null) }
             Spacer(modifier = Modifier.width(8.dp))
@@ -182,92 +171,61 @@ private fun ContenidoFamilia(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.funcional.encabezado)
-                Text(text = textos.texto(
-                    R.string.family_management_description),
+                Text(text = textos.texto(R.string.family_management_description),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+                    color = MaterialTheme.colorScheme.onSurfaceVariant) } }
         Spacer(modifier = Modifier.height(24.dp))
-        if (cargando) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(32.dp).align(Alignment.CenterHorizontally))
-            Spacer(modifier = Modifier.height(16.dp))
-        } else if (familiaActiva == null) {
-            EstadoSinFamilia(
+        if (cargando) { CircularProgressIndicator(modifier = Modifier.size(32.dp).align(Alignment.CenterHorizontally))
+            Spacer(modifier = Modifier.height(16.dp)) } else if (familiaActiva == null) { EstadoSinFamilia(
                 titulo = textos.texto(R.string.home_no_family_title),
-                descripcion = textos.texto(
-                    R.string.home_no_family_description),
+                descripcion = textos.texto(R.string.home_no_family_description),
                 textoCrear = textos.texto(R.string.home_family_create),
                 textoUnirse = textos.texto(R.string.home_family_join),
-                alCrearFamilia = {
-                    alLimpiarErrorFamilia()
+                alCrearFamilia = { alLimpiarErrorFamilia()
                     mostrarCrearFamilia = true },
-                alUnirseFamilia = {
-                    alLimpiarErrorFamilia()
-                    mostrarUnirseFamilia = true }
-            )
-        } else {
+                alUnirseFamilia = { alLimpiarErrorFamilia()
+                    mostrarUnirseFamilia = true }) } else {
             val tonoFamilia = MaterialTheme.funcional.tonoPara(familiaActiva.id)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
+            Card(modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.funcional.tarjeta
-                )
-            ) {
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.funcional.tarjeta)) {
                 Row(modifier = Modifier.fillMaxWidth()
                     .background(tonoFamilia.suave)
                     .padding(18.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    AvatarIdentidad(semilla = familiaActiva.id,
+                    verticalAlignment = Alignment.CenterVertically) { AvatarIdentidad(semilla = familiaActiva.id,
                         icono = Icons.Filled.Groups, esGrupo = true,
                         tamano = 52.dp)
                     Spacer(modifier = Modifier.width(14.dp))
-                    Column {
-                        Text(text = textos.texto(R.string.home_family_active),
+                    Column { Text(text = textos.texto(R.string.home_family_active),
                             style = MaterialTheme.typography.labelMedium,
                             color = tonoFamilia.texto)
                         Text(text = familiaActiva.nombre,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface)
-                    }
-                }
+                            color = MaterialTheme.colorScheme.onSurface) } }
                 val esAdministradorActivo =
                     membresiaActiva?.rol == MiembroFamilia.ROL_ADMINISTRADOR
                 Row(modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = 18.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    EtiquetaRol(
-                        texto = textos.texto(
+                    verticalAlignment = Alignment.CenterVertically) { EtiquetaRol(texto = textos.texto(
                             if (esAdministradorActivo) R.string.home_role_admin
                             else R.string.home_role_member),
                         esAdministrador = esAdministradorActivo) } }
             Spacer(modifier = Modifier.height(20.dp))
-            PanelMiembrosFamilia(
-                miembros = miembrosFamilia,
+            PanelMiembrosFamilia(miembros = miembrosFamilia,
                 uidUsuarioActual = uidUsuarioActual,
                 uidAdministradorPrincipal = familiaActiva.creadoPor,
                 esAdministradorActual =
                     membresiaActiva?.rol == MiembroFamilia.ROL_ADMINISTRADOR,
-                titulo = textos.texto(
-                    R.string.home_members_title),
-                textoRolAdministrador = textos.texto(
-                    R.string.home_role_admin),
+                titulo = textos.texto(R.string.home_members_title),
+                textoRolAdministrador = textos.texto(R.string.home_role_admin),
                 textoRolMiembro = textos.texto(R.string.home_role_member),
-                textoAdministradorPrincipal = textos.texto(
-                    R.string.home_member_owner),
+                textoAdministradorPrincipal = textos.texto(R.string.home_member_owner),
                 textoTu = textos.texto(R.string.home_member_you),
-                textoHacerAdministrador = textos.texto(
-                    R.string.home_member_make_admin),
-                textoQuitarAdministrador = textos.texto(
-                    R.string.home_member_remove_admin),
-                textoExpulsar = textos.texto(
-                    R.string.home_member_remove),
-                textoVacio = textos.texto(
-                    R.string.home_members_empty),
+                textoHacerAdministrador = textos.texto(R.string.home_member_make_admin),
+                textoQuitarAdministrador = textos.texto(R.string.home_member_remove_admin),
+                textoExpulsar = textos.texto(R.string.home_member_remove),
+                textoVacio = textos.texto(R.string.home_members_empty),
                 cargando = cargandoMiembros,
                 actualizandoRolUid = actualizandoRolUid,
                 expulsandoMiembroUid = expulsandoMiembroUid,
@@ -280,66 +238,46 @@ private fun ContenidoFamilia(
                     alLimpiarErrorMiembros()
                     uidExpulsarMiembro = miembro.uid })
             Spacer(modifier = Modifier.height(20.dp))
-            TarjetaCodigoInvitacion(
-                codigo = familiaActiva.codigoInvitacion,
+            TarjetaCodigoInvitacion(codigo = familiaActiva.codigoInvitacion,
                 idiomaEfectivo = idiomaEfectivo,
                 traducir = traducir)
             Spacer(modifier = Modifier.height(20.dp))
-            PanelGestionFamilia(
-                esAdministrador = membresiaActiva?.rol ==
+            PanelGestionFamilia(esAdministrador = membresiaActiva?.rol ==
                         MiembroFamilia.ROL_ADMINISTRADOR,
                 esAdministradorPrincipal =
                     uidUsuarioActual == familiaActiva.creadoPor,
-                titulo = textos.texto(
-                    R.string.home_family_settings),
-                textoEditar = textos.texto(
-                    R.string.home_family_edit),
-                textoAbandonar = textos.texto(
-                    R.string.home_family_leave),
-                textoEliminar = textos.texto(
-                    R.string.home_family_delete),
+                titulo = textos.texto(R.string.home_family_settings),
+                textoEditar = textos.texto(R.string.home_family_edit),
+                textoAbandonar = textos.texto(R.string.home_family_leave),
+                textoEliminar = textos.texto(R.string.home_family_delete),
                 alEditar = { alPrepararEdicionFamilia()
                     alLimpiarErrorFamilia()
                     mostrarEditarFamilia = true },
-                alAbandonar = {
-                    alLimpiarErrorFamilia()
+                alAbandonar = { alLimpiarErrorFamilia()
                     mostrarAbandonarFamilia = true },
-                alEliminar = {
-                    alLimpiarErrorFamilia()
-                    mostrarEliminarFamilia = true })
-        }
+                alEliminar = { alLimpiarErrorFamilia()
+                    mostrarEliminarFamilia = true }) }
         Spacer(modifier = Modifier.height(20.dp))
         AccionesFamilia(textoCrear =
             textos.texto(R.string
                 .home_family_create_another),
-            textoUnirse = textos.texto(
-                R.string.home_family_join_another),
-            alCrearFamilia = {
-                alLimpiarErrorFamilia()
+            textoUnirse = textos.texto(R.string.home_family_join_another),
+            alCrearFamilia = { alLimpiarErrorFamilia()
                 mostrarCrearFamilia = true },
-            alUnirseFamilia = {
-                alLimpiarErrorFamilia()
+            alUnirseFamilia = { alLimpiarErrorFamilia()
                 mostrarUnirseFamilia = true })
-        if (mensajeErrorFamilia != null) {
-            Spacer(modifier = Modifier.height(16.dp))
+        if (mensajeErrorFamilia != null) { Spacer(modifier = Modifier.height(16.dp))
             Surface(modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.errorContainer
-            ) {
-                Text(text = mensajeErrorFamilia,
+                color = MaterialTheme.colorScheme.errorContainer) { Text(text = mensajeErrorFamilia,
                     modifier = Modifier.padding(14.dp),
                     color = MaterialTheme.colorScheme.onErrorContainer,
-                    textAlign = TextAlign.Center)
-            }
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-    DialogoCrearFamilia(
-        visible = mostrarCrearFamilia,
+                    textAlign = TextAlign.Center) } }
+        Spacer(modifier = Modifier.height(24.dp)) }
+    DialogoCrearFamilia(visible = mostrarCrearFamilia,
         nombre = nombreFamiliaNueva,
         titulo = textos.texto(R.string.home_create_family_title),
-        descripcion = textos.texto(
-            R.string.home_create_family_description),
+        descripcion = textos.texto(R.string.home_create_family_description),
         etiqueta = textos.texto(R.string.home_family_name_label),
         textoConfirmar = textos.texto(R.string.home_family_create),
         textoCancelar = textos.texto(R.string.home_family_cancel),
@@ -348,11 +286,8 @@ private fun ContenidoFamilia(
         alCambiarNombre = alCambiarNombreFamilia,
         alConfirmar = { alCrearFamilia { mostrarCrearFamilia = false } },
         alCancelar = { mostrarCrearFamilia = false
-            alLimpiarErrorFamilia()
-        }
-    )
-    DialogoUnirseFamilia(
-        visible = mostrarUnirseFamilia,
+            alLimpiarErrorFamilia() })
+    DialogoUnirseFamilia(visible = mostrarUnirseFamilia,
         codigo = codigoInvitacion,
         titulo = textos.texto(R.string.home_join_family_title),
         descripcion = textos.texto(R.string.home_join_family_description),
@@ -365,8 +300,7 @@ private fun ContenidoFamilia(
         alConfirmar = { alUnirseFamilia { mostrarUnirseFamilia = false } },
         alCancelar = { mostrarUnirseFamilia = false
             alLimpiarErrorFamilia() })
-    DialogoEditarFamilia(
-        visible = mostrarEditarFamilia,
+    DialogoEditarFamilia(visible = mostrarEditarFamilia,
         nombre = nombreFamiliaEdicion,
         titulo = textos.texto(R.string.home_edit_family_title),
         descripcion = textos.texto(R.string.home_edit_family_description),
@@ -379,8 +313,7 @@ private fun ContenidoFamilia(
         alConfirmar = { alEditarFamilia { mostrarEditarFamilia = false } },
         alCancelar = { mostrarEditarFamilia = false
             alLimpiarErrorFamilia() })
-    DialogoAbandonarFamilia(
-        visible = mostrarAbandonarFamilia,
+    DialogoAbandonarFamilia(visible = mostrarAbandonarFamilia,
         nombreFamilia = familiaActiva?.nombre.orEmpty(),
         titulo = textos.texto(R.string.home_leave_family_title),
         descripcion = textos.texto(R.string.home_leave_family_description),
@@ -391,8 +324,7 @@ private fun ContenidoFamilia(
         alConfirmar = { alAbandonarFamilia { mostrarAbandonarFamilia = false } },
         alCancelar = { mostrarAbandonarFamilia = false
             alLimpiarErrorFamilia() })
-    DialogoQuitarAdministrador(
-        visible = miembroQuitarAdministrador != null,
+    DialogoQuitarAdministrador(visible = miembroQuitarAdministrador != null,
         nombreMiembro = nombreVisible(miembroQuitarAdministrador),
         titulo = textos.texto(R.string.home_remove_admin_title),
         descripcion = textos.texto(R.string.home_remove_admin_description),
@@ -406,8 +338,7 @@ private fun ContenidoFamilia(
             uidQuitarAdministrador = null } },
         alCancelar = { uidQuitarAdministrador = null
             alLimpiarErrorMiembros() })
-    DialogoExpulsarMiembro(
-        visible = miembroExpulsar != null,
+    DialogoExpulsarMiembro(visible = miembroExpulsar != null,
         nombreMiembro = nombreVisible(miembroExpulsar),
         titulo = textos.texto(R.string.home_remove_member_title),
         descripcion = textos.texto(R.string.home_remove_member_description),
@@ -416,13 +347,11 @@ private fun ContenidoFamilia(
         mensajeError = mensajeErrorMiembros,
         cargando = miembroExpulsar != null &&
                 expulsandoMiembroUid == miembroExpulsar.uid,
-        alConfirmar = {
-            miembroExpulsar?.let { miembro ->
+        alConfirmar = { miembroExpulsar?.let { miembro ->
                 alExpulsarMiembro(miembro) { uidExpulsarMiembro = null } } },
         alCancelar = { uidExpulsarMiembro = null
             alLimpiarErrorMiembros() })
-    DialogoEliminarFamilia(
-        visible = mostrarEliminarFamilia,
+    DialogoEliminarFamilia(visible = mostrarEliminarFamilia,
         nombreFamilia = familiaActiva?.nombre.orEmpty(),
         titulo = textos.texto(R.string.home_delete_family_title),
         descripcion = textos.texto(R.string.home_delete_family_description),
@@ -432,15 +361,14 @@ private fun ContenidoFamilia(
         cargando = eliminandoFamilia,
         alConfirmar = { alEliminarFamilia { mostrarEliminarFamilia = false } },
         alCancelar = { mostrarEliminarFamilia = false
-            alLimpiarErrorFamilia() })
-}
+            alLimpiarErrorFamilia() }) }
 
-private fun nombreVisible(miembro: MiembroFamiliaDetalle?): String {
-    if (miembro == null) return ""
-    return miembro.nombre.ifBlank { miembro.correo }
-}
+/** Nombre del integrante o, si aún no tiene, su correo. */
+private fun nombreVisible(miembro: MiembroFamiliaDetalle?): String { if (miembro == null) return ""
+    return miembro.nombre.ifBlank { miembro.correo } }
 
 
+/** Tarjeta con el código de invitación y botón para copiarlo. */
 @Composable
 private fun TarjetaCodigoInvitacion(codigo: String, idiomaEfectivo: String,
                                     traducir: TraducirTexto) {
@@ -450,10 +378,8 @@ private fun TarjetaCodigoInvitacion(codigo: String, idiomaEfectivo: String,
     val confirmacion = textos.texto(R.string.family_invitation_copied)
     Card(modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.funcional.tarjeta)) {
-        Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
-            Text(text = titulo,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.funcional.tarjeta)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) { Text(text = titulo,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
@@ -461,18 +387,14 @@ private fun TarjetaCodigoInvitacion(codigo: String, idiomaEfectivo: String,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(16.dp))
-            if (codigo.isBlank()) {
-                Text(text = textos.texto(R.string.family_invitation_unavailable),
+            if (codigo.isBlank()) { Text(text = textos.texto(R.string.family_invitation_unavailable),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            } else {
+                    color = MaterialTheme.colorScheme.onSurfaceVariant) } else {
                 Surface(modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.funcional.tarjetaInterior,
                     border = BorderStroke(1.dp,
-                        MaterialTheme.colorScheme.outlineVariant)) {
-                    SelectionContainer {
-                        Text(text = codigo,
+                        MaterialTheme.colorScheme.outlineVariant)) { SelectionContainer { Text(text = codigo,
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             style = MaterialTheme.typography.headlineSmall,
                             fontFamily = FontFamily.Monospace,
@@ -480,20 +402,13 @@ private fun TarjetaCodigoInvitacion(codigo: String, idiomaEfectivo: String,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.funcional.encabezado) } }
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        val portapapeles = contexto.getSystemService(
+                OutlinedButton(modifier = Modifier.fillMaxWidth(),
+                    onClick = { val portapapeles = contexto.getSystemService(
                             Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        portapapeles.setPrimaryClip(
-                            ClipData.newPlainText(titulo, codigo))
+                        portapapeles.setPrimaryClip(ClipData.newPlainText(titulo, codigo))
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                             Toast.makeText(contexto, confirmacion,
-                                Toast.LENGTH_SHORT).show() } }) {
-                    Icon(imageVector = Icons.Filled.ContentCopy,
+                                Toast.LENGTH_SHORT).show() } }) { Icon(imageVector = Icons.Filled.ContentCopy,
                         contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = textos.texto(R.string.family_invitation_copy)) } }
-        }
-    }
-}
+                    Text(text = textos.texto(R.string.family_invitation_copy)) } } } } }

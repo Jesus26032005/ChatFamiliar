@@ -27,27 +27,25 @@ import com.example.chatfamiliar.ui.language.recordarTextosApp
 import com.example.chatfamiliar.ui.llamada.BotonVideollamada
 import com.example.chatfamiliar.ui.llamada.LlamadaViewModel
 
+/** Chat privado entre dos integrantes, con botón de videollamada 1 a 1. */
 @Composable
 fun PantallaChatPrivado(conversacionId: String,
                         idiomaViewModel: IdiomaViewModel, llamadaViewModel: LlamadaViewModel,
                         alVolver: () -> Unit,
                         chatViewModel: ChatPrivadoViewModel = viewModel(),
-                        lecturaViewModel: LecturaChatViewModel = viewModel()) {
-    val idioma = recordarIdiomaEfectivo(
+                        lecturaViewModel: LecturaChatViewModel = viewModel()) { val idioma = recordarIdiomaEfectivo(
         idiomaViewModel.idiomaSeleccionado)
     val textos = recordarTextosApp(idiomaEfectivo = idioma,
         traducir = idiomaViewModel::traducir)
     val ciclo = LocalView.current.findViewTreeLifecycleOwner()
         ?.lifecycle
     DisposableEffect(conversacionId, chatViewModel,
-        lecturaViewModel) {
-        chatViewModel.iniciar(conversacionId)
+        lecturaViewModel) { chatViewModel.iniciar(conversacionId)
         lecturaViewModel.iniciar(tipo = ConversacionResumen.TIPO_PRIVADO,
             id = conversacionId)
         onDispose { chatViewModel.detener()
             lecturaViewModel.detener() } }
-    DisposableEffect(ciclo, chatViewModel) {
-        val observador = LifecycleEventObserver { _, evento ->
+    DisposableEffect(ciclo, chatViewModel) { val observador = LifecycleEventObserver { _, evento ->
             if (evento == Lifecycle.Event.ON_RESUME) { chatViewModel.comprobarPermiso() } }
         ciclo?.addObserver(observador)
         onDispose { ciclo?.removeObserver(observador) } }
@@ -58,30 +56,23 @@ fun PantallaChatPrivado(conversacionId: String,
         chatViewModel.mensajes.firstOrNull()?.id,
         chatViewModel.cargandoAnteriores,
         chatViewModel.historialCompleto,
-        chatViewModel.errorHistorialRecurso) {
-        if (lecturaViewModel.necesitaHistorialAnterior &&
+        chatViewModel.errorHistorialRecurso) { if (lecturaViewModel.necesitaHistorialAnterior &&
             chatViewModel.puedeCargarAnteriores &&
-            chatViewModel.errorHistorialRecurso == null) {
-            chatViewModel.cargarAnteriores() } }
-    val motivoBloqueo = when {
-        chatViewModel.puedeEnviar -> null
+            chatViewModel.errorHistorialRecurso == null) { chatViewModel.cargarAnteriores() } }
+    val motivoBloqueo = when { chatViewModel.puedeEnviar -> null
         chatViewModel.errorConversacionRecurso != null -> chatViewModel.errorConversacionRecurso
         chatViewModel.errorPermisoRecurso != null -> chatViewModel.errorPermisoRecurso
         chatViewModel.verificandoPermiso || !chatViewModel.permisoConsultado ->
             R.string.chat_private_checking_permission
-        else -> R.string.chat_private_no_shared_family
-    }
+        else -> R.string.chat_private_no_shared_family }
     val mostrarActualizarDisponibilidad =
         !chatViewModel.puedeEnviar && !chatViewModel.enviando &&
                 !chatViewModel.verificandoPermiso && (chatViewModel.permisoConsultado ||
                 chatViewModel.errorPermisoRecurso != null ||
                 chatViewModel.errorConversacionRecurso != null)
     Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()
-        .imePadding()) {
-        ContenidoChat(
-            claveConversacion = "privado:$conversacionId",
-            titulo = chatViewModel.nombreContacto.ifBlank { textos.texto(
-                R.string.chat_item_unknown_user) },
+        .imePadding()) { ContenidoChat(claveConversacion = "privado:$conversacionId",
+            titulo = chatViewModel.nombreContacto.ifBlank { textos.texto(R.string.chat_item_unknown_user) },
             uidActual = chatViewModel.uidActual, mensajes = chatViewModel.mensajes,
             mostrarRemitentes = false, borrador = chatViewModel.borrador,
             cargandoMensajes = chatViewModel.cargandoMensajes,
@@ -105,26 +96,17 @@ fun PantallaChatPrivado(conversacionId: String,
             modifier = Modifier.weight(1f),
             motivoBloqueoRecurso = motivoBloqueo,
             semillaAvatar = chatViewModel.otroUsuarioId.ifBlank { conversacionId },
-            accionesCabecera = {
-                val familiaCompartidaId = chatViewModel.familiaCompartidaId
+            accionesCabecera = { val familiaCompartidaId = chatViewModel.familiaCompartidaId
                 BotonVideollamada(textos = textos,
                     habilitado = chatViewModel.puedeEnviar &&
                             chatViewModel.otroUsuarioId.isNotBlank() &&
                             familiaCompartidaId != null,
                     iniciando = llamadaViewModel.iniciando,
-                    alLlamar = {
-                        if (familiaCompartidaId != null) {
-                            llamadaViewModel.llamar(DestinoLlamada.Privado(
+                    alLlamar = { if (familiaCompartidaId != null) { llamadaViewModel.llamar(DestinoLlamada.Privado(
                                 conversacionId = conversacionId,
                                 familiaCompartidaId = familiaCompartidaId,
-                                otroUid = chatViewModel.otroUsuarioId))
-                        }
-                    },
-                    modifier = Modifier.padding(end = 6.dp))
-            })
+                                otroUid = chatViewModel.otroUsuarioId)) } },
+                    modifier = Modifier.padding(end = 6.dp)) })
         if (mostrarActualizarDisponibilidad) {
             TextButton(onClick = chatViewModel::reintentar, modifier = Modifier.fillMaxWidth()) {
-                Text(text = textos.texto(R.string.chat_private_refresh_permission)) }
-        }
-    }
-}
+                Text(text = textos.texto(R.string.chat_private_refresh_permission)) } } } }

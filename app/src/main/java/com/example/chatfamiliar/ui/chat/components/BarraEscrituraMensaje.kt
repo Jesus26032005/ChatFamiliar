@@ -38,9 +38,9 @@ import com.example.chatfamiliar.ui.theme.funcional
 import java.text.NumberFormat
 import java.util.Locale
 
+/** Barra inferior para escribir y enviar mensajes, con contador y estado de envío. */
 @Composable
-fun BarraEscrituraMensaje(
-    texto: String,
+fun BarraEscrituraMensaje(texto: String,
     puedeEnviar: Boolean,
     enviando: Boolean,
     idiomaEfectivo: String,
@@ -50,14 +50,10 @@ fun BarraEscrituraMensaje(
     modifier: Modifier = Modifier,
     @StringRes errorRecurso: Int? = null,
     @StringRes motivoBloqueoRecurso: Int? = null,
-    maximoCaracteres: Int = 2000
-) {
-    require(maximoCaracteres > 0)
+    maximoCaracteres: Int = 2000) { require(maximoCaracteres > 0)
 
-    val textos = recordarTextosApp(
-        idiomaEfectivo = idiomaEfectivo,
-        traducir = traducir
-    )
+    val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
+        traducir = traducir)
 
     val contenidoLimpio = texto.trim()
     val longitud = contenidoLimpio.length
@@ -70,55 +66,32 @@ fun BarraEscrituraMensaje(
                 contenidoLimpio.isNotEmpty() &&
                 !excedeLimite
 
-    val descripcionBoton = textos.texto(
-        if (enviando) {
-            R.string.chat_composer_sending
-        } else {
-            R.string.chat_composer_send
-        }
-    )
+    val descripcionBoton = textos.texto(if (enviando) { R.string.chat_composer_sending } else {
+            R.string.chat_composer_send })
 
-    val formatoNumero = NumberFormat.getIntegerInstance(
-        Locale.forLanguageTag(idiomaEfectivo)
-    )
+    val formatoNumero = NumberFormat.getIntegerInstance(Locale.forLanguageTag(idiomaEfectivo))
     val etiquetaCampo = textos.texto(R.string.chat_composer_label)
     val colores = MaterialTheme.colorScheme
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = colores.surface
-    ) {
-        Column {
+    Surface(modifier = modifier.fillMaxWidth(),
+        color = colores.surface) { Column {
             // Línea fina que separa la barra de los mensajes
             HorizontalDivider(color = colores.outlineVariant)
 
-            Column(
-                modifier = Modifier.padding(
-                    horizontal = 12.dp,
-                    vertical = 10.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (!puedeEnviar) {
-                    Text(
-                        text = textos.texto(
+            Column(modifier = Modifier.padding(horizontal = 12.dp,
+                    vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) { if (!puedeEnviar) { Text(text = textos.texto(
                             motivoBloqueoRecurso
-                                ?: R.string.chat_composer_unavailable
-                        ),
+                                ?: R.string.chat_composer_unavailable),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = colores.onSurfaceVariant
-                    )
-                }
+                        color = colores.onSurfaceVariant) }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
+                Row(modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // Campo relleno, sin contorno ni etiqueta flotante:
                     // el texto guía desaparece al escribir, como en las apps de chat.
-                    TextField(
-                        value = texto,
+                    TextField(value = texto,
                         onValueChange = alCambiarTexto,
                         modifier = Modifier
                             .weight(1f)
@@ -129,89 +102,46 @@ fun BarraEscrituraMensaje(
                         singleLine = false,
                         isError = excedeLimite,
                         shape = RoundedCornerShape(26.dp),
-                        placeholder = {
-                            Text(text = etiquetaCampo)
-                        },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = colores.surfaceContainerHigh,
+                        placeholder = { Text(text = etiquetaCampo) },
+                        colors = TextFieldDefaults.colors(focusedContainerColor = colores.surfaceContainerHigh,
                             unfocusedContainerColor = colores.surfaceContainerHigh,
                             disabledContainerColor = colores.surfaceContainer,
                             errorContainerColor = colores.errorContainer,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            capitalization =
+                            errorIndicatorColor = Color.Transparent),
+                        keyboardOptions = KeyboardOptions(capitalization =
                                 KeyboardCapitalization.Sentences,
-                            imeAction = ImeAction.Default
-                        )
-                    )
+                            imeAction = ImeAction.Default))
 
-                    FilledIconButton(
-                        onClick = alEnviar,
+                    FilledIconButton(onClick = alEnviar,
                         enabled = envioHabilitado,
                         shape = CircleShape,
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.funcional.accionPrincipal,
-                            contentColor = MaterialTheme.funcional.sobreAccionPrincipal
-                        ),
+                            contentColor = MaterialTheme.funcional.sobreAccionPrincipal),
                         modifier = Modifier
                             .padding(bottom = 2.dp)
                             .size(52.dp)
-                            .semantics {
-                                contentDescription = descripcionBoton
-                            }
-                    ) {
-                        if (enviando) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
+                            .semantics { contentDescription = descripcionBoton }) { if (enviando) {
+                            CircularProgressIndicator(modifier = Modifier.size(22.dp),
                                 strokeWidth = 2.dp,
-                                color = colores.onSurfaceVariant
-                            )
-                        } else {
-                            Icon(
+                                color = colores.onSurfaceVariant) } else { Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                }
+                                contentDescription = null) } } }
 
-                if (mostrarConteo) {
-                    Text(
-                        text =
+                if (mostrarConteo) { Text(text =
                             "${formatoNumero.format(longitud)} / " +
                                     formatoNumero.format(maximoCaracteres),
                         modifier = Modifier.align(Alignment.End),
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (excedeLimite) {
-                            colores.error
-                        } else {
-                            colores.onSurfaceVariant
-                        }
-                    )
-                }
+                        color = if (excedeLimite) { colores.error } else { colores.onSurfaceVariant }) }
 
-                if (excedeLimite) {
-                    Text(
-                        text = textos.texto(
-                            R.string.chat_composer_too_long
-                        ),
+                if (excedeLimite) { Text(text = textos.texto(R.string.chat_composer_too_long),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colores.error
-                    )
-                }
+                        color = colores.error) }
 
-                if (errorRecurso != null) {
-                    Text(
-                        text = textos.texto(errorRecurso),
+                if (errorRecurso != null) { Text(text = textos.texto(errorRecurso),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colores.error
-                    )
-                }
-            }
-        }
-    }
-}
+                        color = colores.error) } } } } }

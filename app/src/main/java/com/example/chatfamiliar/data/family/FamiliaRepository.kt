@@ -8,27 +8,25 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log
 
+/** Operaciones sobre las familias en Firestore: crear, unirse, editar, abandonar y eliminar. */
 class FamiliaRepository {
     private val firestore = FirebaseFirestore
         .getInstance()
-    private val familias = firestore.collection(
-            COLECCION_FAMILIAS)
+    private val familias = firestore.collection(COLECCION_FAMILIAS)
     private val codigosFamilia = firestore
         .collection(COLECCION_CODIGOS)
 
-    // Crear familia
+    /**
+     * Crea la familia, registra al creador como administrador principal y
+     * reserva su código de invitación, todo en un mismo lote de escritura.
+     */
     fun crearFamilia(nombre: String, uidCreador: String,
-        alCompletar: (Result<Familia>) -> Unit) {
-        val nombreLimpio = nombre.trim()
-        if (nombreLimpio.isBlank()) {
-            alCompletar(
-                Result.failure(
-                    IllegalArgumentException(
+        alCompletar: (Result<Familia>) -> Unit) { val nombreLimpio = nombre.trim()
+        if (nombreLimpio.isBlank()) { alCompletar(Result.failure(IllegalArgumentException(
                         "El nombre de la familia no " +
                                 "puede estar vacío.")))
             return }
-        if (uidCreador.isBlank()) { alCompletar(
-                Result.failure(IllegalArgumentException(
+        if (uidCreador.isBlank()) { alCompletar(Result.failure(IllegalArgumentException(
                         "No se encontró el " +
                                 "usuario creador.")))
             return }
@@ -44,132 +42,99 @@ class FamiliaRepository {
         val miembroRef = familiaRef
                 .collection(SUBCOLECCION_MIEMBROS)
                 .document(uidCreador)
-        val codigoRef = codigosFamilia.document(
-            codigoInvitacion)
+        val codigoRef = codigosFamilia.document(codigoInvitacion)
         val batch = firestore.batch()
         batch.set(familiaRef, familia)
         batch.set(miembroRef, miembroAdministrador)
         batch.set(codigoRef, mapOf(CAMPO_FAMILIA_ID to familiaId))
         batch.commit()
-            .addOnSuccessListener {
-                alCompletar(Result.success(familia)) }
+            .addOnSuccessListener { alCompletar(Result.success(familia)) }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
 
-    // Unirse a familia
+    /**
+     * Une al usuario a la familia del código de invitación con rol de miembro.
+     * Si ya pertenecía, solo devuelve la familia.
+     */
     fun unirseAFamilia(codigoInvitacion: String,
                        uidUsuario: String,
-        alCompletar: (Result<Familia>) -> Unit) {
-        val codigoLimpio = codigoInvitacion.trim().uppercase()
-        if (codigoLimpio.isBlank()) {
-            alCompletar(Result.failure(
-                    IllegalArgumentException(
+        alCompletar: (Result<Familia>) -> Unit) { val codigoLimpio = codigoInvitacion.trim().uppercase()
+        if (codigoLimpio.isBlank()) { alCompletar(Result.failure(IllegalArgumentException(
                         "Ingresa un código de invitación.")))
             return }
-        if (uidUsuario.isBlank()) {
-            alCompletar(Result.failure(
-                    IllegalArgumentException(
+        if (uidUsuario.isBlank()) { alCompletar(Result.failure(IllegalArgumentException(
                         "No se encontró el usuario actual.")))
             return }
         codigosFamilia
             .document(codigoLimpio).get()
             .addOnSuccessListener { documentoCodigo ->
-                if (!documentoCodigo.exists()) {
-                    alCompletar(Result.failure(
-                            IllegalArgumentException(
+                if (!documentoCodigo.exists()) { alCompletar(Result.failure(IllegalArgumentException(
                                 "El código de invitación no existe.")))
                     return@addOnSuccessListener }
-                val familiaId = documentoCodigo.getString(
-                    CAMPO_FAMILIA_ID)
-                if (familiaId.isNullOrBlank()) {
-                    alCompletar(Result.failure(
-                            IllegalStateException(
+                val familiaId = documentoCodigo.getString(CAMPO_FAMILIA_ID)
+                if (familiaId.isNullOrBlank()) { alCompletar(Result.failure(IllegalStateException(
                                 "El código no está asociado a una familia.")))
                     return@addOnSuccessListener }
                 val familiaRef = familias.document(familiaId)
-                val miembroRef = familiaRef.collection(
-                    SUBCOLECCION_MIEMBROS)
+                val miembroRef = familiaRef.collection(SUBCOLECCION_MIEMBROS)
                     .document(uidUsuario)
                 miembroRef.get()
                     .addOnSuccessListener { documentoMiembro ->
-                        if (documentoMiembro.exists()) {
-                            familiaRef.get()
+                        if (documentoMiembro.exists()) { familiaRef.get()
                                 .addOnSuccessListener { documentoFamilia ->
-                                    val familia = documentoFamilia.toObject(
-                                        Familia::class.java)
-                                    if (familia != null) { alCompletar(Result.success(
-                                        familia)) } else {
-                                        alCompletar(Result.failure(
-                                                IllegalStateException(
+                                    val familia = documentoFamilia.toObject(Familia::class.java)
+                                    if (familia != null) { alCompletar(Result.success(familia)) } else {
+                                        alCompletar(Result.failure(IllegalStateException(
                                                     "La familia ya no existe."))) } }
                                 .addOnFailureListener { excepcion ->
                                     alCompletar(Result.failure(excepcion)) }
-                            return@addOnSuccessListener
-                        }
+                            return@addOnSuccessListener }
                         val nuevoMiembro =
-                            MiembroFamilia(
-                                uid = uidUsuario,
+                            MiembroFamilia(uid = uidUsuario,
                                 rol = MiembroFamilia.ROL_MIEMBRO,
                                 codigoUnion = codigoLimpio)
                         miembroRef
                             .set(nuevoMiembro)
-                            .addOnSuccessListener {
-                                familiaRef.get()
+                            .addOnSuccessListener { familiaRef.get()
                                     .addOnSuccessListener { documentoFamilia ->
-                                        val familia = documentoFamilia.toObject(
-                                                Familia::class.java)
-                                        if (familia != null) {
-                                            alCompletar(Result.success(familia))
-                                        } else {
-                                            alCompletar(Result.failure(
-                                                    IllegalStateException(
+                                        val familia = documentoFamilia.toObject(Familia::class.java)
+                                        if (familia != null) { alCompletar(Result.success(familia)) } else {
+                                            alCompletar(Result.failure(IllegalStateException(
                                                         "La familia ya no existe."))) } }
                                     .addOnFailureListener { excepcion ->
-                                        alCompletar(Result.failure(excepcion)) }
-                            }
+                                        alCompletar(Result.failure(excepcion)) } }
                             .addOnFailureListener { excepcion ->
                                 alCompletar(Result.failure(excepcion)) } }
                     .addOnFailureListener { excepcion ->
-                        alCompletar(Result.failure(excepcion))
-                    } }
+                        alCompletar(Result.failure(excepcion)) } }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion))
-            }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
 
-    // Obtener famila
+    /** Lee los datos de una familia; devuelve null si no existe. */
     fun obtenerFamilia(familiaId: String,
-                       alCompletar: (Result<Familia?>) -> Unit) {
-        familias
+                       alCompletar: (Result<Familia?>) -> Unit) { familias
             .document(familiaId).get()
             .addOnSuccessListener { documento ->
-                val familia = documento.toObject(
-                    Familia::class.java)
+                val familia = documento.toObject(Familia::class.java)
                 alCompletar(Result.success(familia)) }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
-    fun obtenerMembresia(
-        familiaId: String, uidUsuario: String,
-        alCompletar: (Result<MiembroFamilia?>) -> Unit) {
-        familias
+                alCompletar(Result.failure(excepcion)) } }
+    /** Lee la membresía (rol) del usuario en la familia; null si no es miembro. */
+    fun obtenerMembresia(familiaId: String, uidUsuario: String,
+        alCompletar: (Result<MiembroFamilia?>) -> Unit) { familias
             .document(familiaId)
             .collection(SUBCOLECCION_MIEMBROS)
             .document(uidUsuario).get()
             .addOnSuccessListener { documento ->
-                val miembro = documento.toObject(
-                    MiembroFamilia::class.java)
+                val miembro = documento.toObject(MiembroFamilia::class.java)
                 alCompletar(Result.success(miembro)) }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
+    /** Busca con una consulta collectionGroup todas las familias donde el usuario es miembro. */
     fun obtenerFamiliasDelUsuario(uidUsuario: String,
-        alCompletar: (Result<List<Familia>>) -> Unit
-    ) {
-        firestore.collectionGroup(SUBCOLECCION_MIEMBROS)
+        alCompletar: (Result<List<Familia>>) -> Unit) { firestore.collectionGroup(SUBCOLECCION_MIEMBROS)
             .whereEqualTo(CAMPO_UID, uidUsuario)
             .get()
             .addOnSuccessListener { resultadoMiembros ->
@@ -177,68 +142,55 @@ class FamiliaRepository {
                     resultadoMiembros.documents
                         .mapNotNull { documentoMiembro ->
                             documentoMiembro.reference
-                                .parent.parent?.get()
-                        }
-                if (tareasFamilias.isEmpty()) {
-                    alCompletar(Result.success(emptyList()))
+                                .parent.parent?.get() }
+                if (tareasFamilias.isEmpty()) { alCompletar(Result.success(emptyList()))
                     return@addOnSuccessListener }
                 Tasks
                     .whenAllSuccess<DocumentSnapshot>(tareasFamilias)
                     .addOnSuccessListener { documentosFamilia ->
                         val familiasUsuario = documentosFamilia
-                            .mapNotNull { documento -> documento.toObject(
-                                        Familia::class.java) }
-                        alCompletar(Result.success(
-                            familiasUsuario)) }
+                            .mapNotNull { documento -> documento.toObject(Familia::class.java) }
+                        alCompletar(Result.success(familiasUsuario)) }
                     .addOnFailureListener { excepcion ->
                         alCompletar(Result
                             .failure(excepcion)) } }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
+    /** Cambia el nombre de la familia. */
     fun editarFamilia(familiaId: String, nuevoNombre: String,
-        alCompletar: (Result<Unit>) -> Unit) {
-        val nombreLimpio = nuevoNombre.trim()
-        if (nombreLimpio.isBlank()) {
-            alCompletar(Result.failure(
-                    IllegalArgumentException(
+        alCompletar: (Result<Unit>) -> Unit) { val nombreLimpio = nuevoNombre.trim()
+        if (nombreLimpio.isBlank()) { alCompletar(Result.failure(IllegalArgumentException(
                         "El nombre no puede estar vacío.")))
             return }
         familias.document(familiaId)
             .update(CAMPO_NOMBRE, nombreLimpio)
-            .addOnSuccessListener {
-                alCompletar(Result.success(Unit)) }
+            .addOnSuccessListener { alCompletar(Result.success(Unit)) }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
 
-    // Un usuario puede abandonar, pero un ultimo administrador no
+    /**
+     * Elimina la membresía del usuario. Un administrador solo puede salir si
+     * queda al menos otro administrador.
+     */
     fun abandonarFamilia(familiaId: String, uidUsuario: String,
-        alCompletar: (Result<Unit>) -> Unit) {
-        val miembros = familias.document(familiaId)
+        alCompletar: (Result<Unit>) -> Unit) { val miembros = familias.document(familiaId)
                 .collection(SUBCOLECCION_MIEMBROS)
         val miembroRef = miembros.document(uidUsuario)
         miembroRef.get()
             .addOnSuccessListener { documentoMiembro ->
                 val miembro = documentoMiembro
                         .toObject(MiembroFamilia::class.java)
-                if (miembro == null) {
-                    alCompletar(
-                        Result.failure(IllegalStateException(
+                if (miembro == null) { alCompletar(Result.failure(IllegalStateException(
                                 "El usuario no pertenece a esta familia.")))
                     return@addOnSuccessListener }
-                if (miembro.rol != MiembroFamilia.ROL_ADMINISTRADOR
-                ) { eliminarMembresia(miembroRef = miembroRef,
+                if (miembro.rol != MiembroFamilia.ROL_ADMINISTRADOR) { eliminarMembresia(miembroRef = miembroRef,
                         alCompletar = alCompletar)
-                    return@addOnSuccessListener
-                }
+                    return@addOnSuccessListener }
                 miembros.whereEqualTo(CAMPO_ROL,
                         MiembroFamilia.ROL_ADMINISTRADOR).get()
                     .addOnSuccessListener { administradores ->
-                        if (administradores.size() <= 1) {
-                            alCompletar(Result.failure(
-                                    IllegalStateException(
+                        if (administradores.size() <= 1) { alCompletar(Result.failure(IllegalStateException(
                                         "Debes asignar otro administrador" +
                                                 " antes de abandonar la familia.")))
                             return@addOnSuccessListener }
@@ -247,29 +199,28 @@ class FamiliaRepository {
                     .addOnFailureListener { excepcion ->
                         alCompletar(Result.failure(excepcion)) } }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
+    /** Borra el documento de membresía indicado. */
     private fun eliminarMembresia(miembroRef: DocumentReference,
-        alCompletar: (Result<Unit>) -> Unit) {
-        miembroRef.delete()
-            .addOnSuccessListener {
-                alCompletar(Result.success(Unit)) }
+        alCompletar: (Result<Unit>) -> Unit) { miembroRef.delete()
+            .addOnSuccessListener { alCompletar(Result.success(Unit)) }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
+                alCompletar(Result.failure(excepcion)) } }
+
+
+    /** Código de invitación legible: "FAM-" seguido de los primeros 6 caracteres del id. */
+    private fun generarCodigoInvitacion(familiaId: String): String { return "FAM-${familiaId.take(6).uppercase()}"
     }
 
-
-    private fun generarCodigoInvitacion(familiaId: String): String {
-        return "FAM-${familiaId.take(6).uppercase()}"
-    }
-
+    /**
+     * El administrador principal cede la familia a otro integrante y sale de
+     * ella. Se hace en una transacción para no dejar la familia sin dueño.
+     */
     fun transferirAdministracionYAbandonar(familiaId: String,
         uidAdministradorActual: String,
         uidNuevoAdministrador: String,
-        alCompletar: (Result<Unit>) -> Unit
-    ) {
-        val familiaRef = familias.document(familiaId)
+        alCompletar: (Result<Unit>) -> Unit) { val familiaRef = familias.document(familiaId)
         val miembroActualRef =
             familiaRef.collection(SUBCOLECCION_MIEMBROS)
                 .document(uidAdministradorActual)
@@ -280,81 +231,65 @@ class FamiliaRepository {
                 val documentoFamilia = transaction.get(familiaRef)
                 val documentoActual = transaction.get(miembroActualRef)
                 val documentoNuevo = transaction.get(nuevoAdministradorRef)
-                val familia = documentoFamilia.toObject(
-                    Familia::class.java)
+                val familia = documentoFamilia.toObject(Familia::class.java)
                         ?: throw IllegalStateException("La familia no existe.")
                 val miembroActual =
-                    documentoActual.toObject(MiembroFamilia::class.java
-                    ) ?: throw IllegalStateException(
+                    documentoActual.toObject(MiembroFamilia::class.java) ?: throw IllegalStateException(
                         "El administrador actual no pertenece a la familia.")
                 val nuevoAdministrador =
                     documentoNuevo.toObject(MiembroFamilia::class.java)
                         ?: throw IllegalStateException(
                             "El nuevo administrador no pertenece a la familia.")
-                if (familia.creadoPor != uidAdministradorActual) {
-                    throw IllegalStateException(
-                        "El usuario no es el administrador principal.")
-                }
-                if (miembroActual.rol != MiembroFamilia.ROL_ADMINISTRADOR) {
-                    throw IllegalStateException(
-                        "El administrador principal no tiene un rol válido.")
-                }
-                if (uidAdministradorActual == uidNuevoAdministrador) {
-                    throw IllegalStateException(
+                if (familia.creadoPor != uidAdministradorActual) { throw IllegalStateException(
+                        "El usuario no es el administrador principal.") }
+                if (miembroActual.rol != MiembroFamilia.ROL_ADMINISTRADOR) { throw IllegalStateException(
+                        "El administrador principal no tiene un rol válido.") }
+                if (uidAdministradorActual == uidNuevoAdministrador) { throw IllegalStateException(
                         "El nuevo administrador debe ser otro integrante."
-                    )
-                }
+                    ) }
                 if (nuevoAdministrador.rol != MiembroFamilia.ROL_ADMINISTRADOR
                 ) { transaction.update(nuevoAdministradorRef,
-                        CAMPO_ROL, MiembroFamilia.ROL_ADMINISTRADOR)
-                }
+                        CAMPO_ROL, MiembroFamilia.ROL_ADMINISTRADOR) }
 
                 transaction.update(familiaRef,
                     CAMPO_CREADO_POR, uidNuevoAdministrador)
                 transaction.delete(miembroActualRef)
-            Unit
-            }
-            .addOnSuccessListener {
-                alCompletar(Result.success(Unit)) }
+            Unit }
+            .addOnSuccessListener { alCompletar(Result.success(Unit)) }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion))
-            }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
 
+    /**
+     * Elimina la familia, sus membresías y su código de invitación.
+     * Solo la puede ejecutar el administrador principal.
+     */
     fun eliminarFamiliaCompleta(familiaId: String,
     uidAdministradorPrincipal: String,
-    alCompletar: (Result<Unit>) -> Unit) {
-        val familiaRef = familias.document(familiaId)
+    alCompletar: (Result<Unit>) -> Unit) { val familiaRef = familias.document(familiaId)
         familiaRef.get()
             .addOnSuccessListener { documentoFamilia ->
                 val familia = documentoFamilia.toObject(Familia::class.java)
-                if (familia == null) { alCompletar(Result.failure(
-                            IllegalStateException("La familia no existe.")))
+                if (familia == null) { alCompletar(Result.failure(IllegalStateException("La familia no existe.")))
                     return@addOnSuccessListener }
-                if (familia.creadoPor != uidAdministradorPrincipal) {
-                    alCompletar(Result.failure(IllegalStateException(
+                if (familia.creadoPor != uidAdministradorPrincipal) { alCompletar(Result.failure(IllegalStateException(
                             "Solo el administrador principal puede eliminar la familia.")))
                     return@addOnSuccessListener }
                 familiaRef.collection(SUBCOLECCION_MIEMBROS).get()
                     .addOnSuccessListener { resultadoMiembros ->
-                        if (resultadoMiembros.size() > 498) { alCompletar(Result.failure(
-                                    IllegalStateException(
+                        if (resultadoMiembros.size() > 498) { alCompletar(Result.failure(IllegalStateException(
                                         "La familia contiene demasiados miembros para" +
                                                 " eliminarse desde esta operación.")))
                             return@addOnSuccessListener }
                         val batch = firestore.batch()
                         resultadoMiembros.documents.forEach { documento ->
                                 batch.delete(documento.reference) }
-                        val codigoRef = codigosFamilia.document(
-                            familia.codigoInvitacion)
+                        val codigoRef = codigosFamilia.document(familia.codigoInvitacion)
                         batch.delete(codigoRef)
                         batch.delete(familiaRef)
-                        batch.commit().addOnSuccessListener {
-                                alCompletar(Result.success(Unit)) }
+                        batch.commit().addOnSuccessListener { alCompletar(Result.success(Unit)) }
                             .addOnFailureListener { excepcion ->
-                                alCompletar(Result.failure(
-                                    excepcion)) } }
+                                alCompletar(Result.failure(excepcion)) } }
                     .addOnFailureListener { excepcion ->
                         alCompletar(Result.failure(excepcion)) } }
             .addOnFailureListener { excepcion ->
@@ -367,5 +302,4 @@ companion object {
     private const val CAMPO_UID = "uid"
     private const val CAMPO_NOMBRE = "nombre"
     private const val CAMPO_ROL = "rol"
-    private const val CAMPO_CREADO_POR = "creadoPor" }
-}
+    private const val CAMPO_CREADO_POR = "creadoPor" } }

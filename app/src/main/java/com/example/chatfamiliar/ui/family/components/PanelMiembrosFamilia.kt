@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import com.example.chatfamiliar.model.MiembroFamiliaDetalle
 import com.example.chatfamiliar.ui.theme.funcional
 
+/** Lista de integrantes de la familia con sus acciones disponibles. */
 @Composable
-fun PanelMiembrosFamilia(
-    miembros: List<MiembroFamiliaDetalle>, uidUsuarioActual: String,
+fun PanelMiembrosFamilia(miembros: List<MiembroFamiliaDetalle>, uidUsuarioActual: String,
     uidAdministradorPrincipal: String, esAdministradorActual: Boolean,
     titulo: String, textoRolAdministrador: String,
     textoRolMiembro: String, textoAdministradorPrincipal: String,
@@ -33,31 +33,24 @@ fun PanelMiembrosFamilia(
     mensajeError: String?, modifier: Modifier = Modifier,
     alHacerAdministrador: (MiembroFamiliaDetalle) -> Unit,
     alQuitarAdministrador: (MiembroFamiliaDetalle) -> Unit,
-    alExpulsar: (MiembroFamiliaDetalle) -> Unit, ) {
-    Card(modifier = modifier.fillMaxWidth(),
+    alExpulsar: (MiembroFamiliaDetalle) -> Unit, ) { Card(modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme
-            .funcional.tarjeta)
-    ) { Column(modifier = Modifier.padding(18.dp)
+            .funcional.tarjeta)) { Column(modifier = Modifier.padding(18.dp)
     ) { Text(text = "$titulo (${miembros.size})",
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(14.dp))
-        if (cargando) { CircularProgressIndicator(
-            modifier = Modifier.size(26.dp)
+        if (cargando) { CircularProgressIndicator(modifier = Modifier.size(26.dp)
                 .align(Alignment.CenterHorizontally),
-            strokeWidth = 2.dp)
-        } else if (miembros.isEmpty()) {
-            Text(text = textoVacio,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        } else {
+            strokeWidth = 2.dp) } else if (miembros.isEmpty()) { Text(text = textoVacio,
+                color = MaterialTheme.colorScheme.onSurfaceVariant) } else {
             miembros.forEachIndexed { indice, miembro ->
                 val esPrincipal = miembro.uid == uidAdministradorPrincipal
                 val esActual = miembro.uid == uidUsuarioActual
                 ItemMiembroFamilia(uid = miembro.uid,
                     nombre = miembro.nombre, correo = miembro.correo,
-                    textoRol = if (miembro.esAdministrador) {
-                        textoRolAdministrador } else { textoRolMiembro },
+                    textoRol = if (miembro.esAdministrador) { textoRolAdministrador } else { textoRolMiembro },
                     textoAdministradorPrincipal = textoAdministradorPrincipal,
                     textoTu = textoTu, esAdministrador = miembro.esAdministrador,
                     esAdministradorPrincipal = esPrincipal, esUsuarioActual = esActual,
@@ -70,11 +63,8 @@ fun PanelMiembrosFamilia(
                     alHacerAdministrador = { alHacerAdministrador(miembro) },
                     alQuitarAdministrador = { alQuitarAdministrador(miembro) },
                     alExpulsar = { alExpulsar(miembro) })
-                if (indice != miembros.lastIndex) {
-                    Spacer(modifier = Modifier.height(10.dp)) } } }
-        if (mensajeError != null) {
-            Spacer(modifier = Modifier.height(12.dp))
+                if (indice != miembros.lastIndex) { Spacer(modifier = Modifier.height(10.dp)) } } }
+        if (mensajeError != null) { Spacer(modifier = Modifier.height(12.dp))
             Text(text = mensajeError,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error) } } }
-}
+                color = MaterialTheme.colorScheme.error) } } } }

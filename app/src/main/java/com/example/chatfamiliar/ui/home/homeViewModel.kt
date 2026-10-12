@@ -15,6 +15,10 @@ import com.example.chatfamiliar.model.MiembroFamilia
 import com.example.chatfamiliar.model.Usuario
 import com.example.chatfamiliar.util.TimeoutSolicitud
 
+/**
+ * Estado compartido de la pantalla principal: perfil del usuario, sus
+ * familias, la familia activa y la edición del nombre.
+ */
 class HomeViewModel : ViewModel() {
     private val authRepository = AuthRepository()
     private val usuarioRepository = UsuarioRepository()
@@ -61,222 +65,182 @@ class HomeViewModel : ViewModel() {
     val familiasConfirmadas: List<Familia>?
         get() = if (familiasConsultadas) familias else null
 
-    fun cargarUsuario() {
-        if (cargando) return
+    /** Carga el perfil (o lo crea si falta) y después las familias del usuario. */
+    fun cargarUsuario() { if (cargando) return
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
 
-        if (usuarioFirebase == null) {
-            errorRecurso = R.string.home_error_no_session
+        if (usuarioFirebase == null) { errorRecurso = R.string.home_error_no_session
             return }
         cargando = true
         errorRecurso = null
 
-        val solicitud = timeoutUsuario.iniciar(scope = viewModelScope) {
-            cargando = false
+        val solicitud = timeoutUsuario.iniciar(scope = viewModelScope) { cargando = false
             errorRecurso = R.string.error_network }
         usuarioRepository.obtenerUsuario(usuarioFirebase.uid) { resultado ->
-            if (!timeoutUsuario.completar(solicitud)) {
-                return@obtenerUsuario }
+            if (!timeoutUsuario.completar(solicitud)) { return@obtenerUsuario }
             resultado.onSuccess { perfil ->
-                if (perfil != null) {
-                    usuario = perfil
+                if (perfil != null) { usuario = perfil
                     cargarFamilias(uidUsuario = usuarioFirebase.uid,
                         finalizarCargaInicial = true,
-                        familiaPreferidaId = familiaActiva?.id)
-                } else {
-                    crearPerfilFaltante(uid = usuarioFirebase.uid,
-                        correo = usuarioFirebase.email.orEmpty()) }
-            }
+                        familiaPreferidaId = familiaActiva?.id) } else { crearPerfilFaltante(uid = usuarioFirebase.uid,
+                        correo = usuarioFirebase.email.orEmpty()) } }
                 .onFailure { cargando = false
-                    errorRecurso = R.string.home_error_load_profile } }
-    }
+                    errorRecurso = R.string.home_error_load_profile } } }
 
-    fun recargarHome() {
-        if (cargando || cargandoFamilia) return
+    /** Reintenta la carga completa después de un error. */
+    fun recargarHome() { if (cargando || cargandoFamilia) return
         errorRecurso = null
         cargarUsuario() }
 
-    fun recargarFamilias() {
-        if (cargando || cargandoFamilia) return
+    /** Vuelve a consultar las familias conservando la familia activa. */
+    fun recargarFamilias() { if (cargando || cargandoFamilia) return
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
-        if (usuarioFirebase == null) {
-            errorFamiliasRecurso = R.string.home_error_no_session
+        if (usuarioFirebase == null) { errorFamiliasRecurso = R.string.home_error_no_session
             errorRecurso = R.string.home_error_no_session
             return }
         errorRecurso = null
         cargarFamilias(uidUsuario = usuarioFirebase.uid,
             finalizarCargaInicial = false,
-            familiaPreferidaId = familiaActiva?.id)
-    }
+            familiaPreferidaId = familiaActiva?.id) }
 
+    /** Recarga las familias al volver de la gestión y selecciona la indicada. */
     fun sincronizarFamiliasDesdeGestion(familiaPreferidaId: String?) {
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
-        if (usuarioFirebase == null) {
-            errorFamiliasRecurso = R.string.home_error_no_session
+        if (usuarioFirebase == null) { errorFamiliasRecurso = R.string.home_error_no_session
             errorRecurso = R.string.home_error_no_session
             return }
         errorRecurso = null
 
-        if (familiaPreferidaId == null) {
-            familiaActiva = null
+        if (familiaPreferidaId == null) { familiaActiva = null
             membresiaActiva = null }
         cargarFamilias(uidUsuario = usuarioFirebase.uid,
             finalizarCargaInicial = false,
-            familiaPreferidaId = familiaPreferidaId)
-    }
+            familiaPreferidaId = familiaPreferidaId) }
 
+    /** Consulta las familias, elige la activa y carga la membresía en ella. */
     private fun cargarFamilias(uidUsuario: String,
                                finalizarCargaInicial: Boolean,
-                               familiaPreferidaId: String? = null
-    ) { cargandoFamilia = true
+                               familiaPreferidaId: String? = null) { cargandoFamilia = true
         cargandoListadoFamilias = true
         errorFamiliasRecurso = null
 
-        val solicitud = timeoutFamilias.iniciar(scope = viewModelScope) {
-            cargandoFamilia = false
+        val solicitud = timeoutFamilias.iniciar(scope = viewModelScope) { cargandoFamilia = false
             cargandoListadoFamilias = false
             if (finalizarCargaInicial) { cargando = false }
             errorFamiliasRecurso = R.string.error_network
-            errorRecurso = R.string.error_network
-        }
+            errorRecurso = R.string.error_network }
 
         familiaRepository.obtenerFamiliasDelUsuario(uidUsuario) { resultado ->
-            if (!timeoutFamilias.completar(solicitud)) {
-                return@obtenerFamiliasDelUsuario }
+            if (!timeoutFamilias.completar(solicitud)) { return@obtenerFamiliasDelUsuario }
             resultado
                 .onSuccess { familiasUsuario ->
-                    val familiasOrdenadas = familiasUsuario.sortedBy {
-                        it.nombre.lowercase() }
+                    val familiasOrdenadas = familiasUsuario.sortedBy { it.nombre.lowercase() }
                     familias = familiasOrdenadas
                     familiasConsultadas = true
                     cargandoListadoFamilias = false
                     errorFamiliasRecurso = null
-                    if (familiasOrdenadas.isEmpty()) {
-                        familiaActiva = null
+                    if (familiasOrdenadas.isEmpty()) { familiaActiva = null
                         membresiaActiva = null
                         cargandoFamilia = false
                         if (finalizarCargaInicial) { cargando = false }
                         return@onSuccess }
                     val seleccionada = familiaPreferidaId?.let { id ->
-                        familiasOrdenadas.firstOrNull { it.id == id }
-                    } ?: familiaActiva?.let { anterior ->
-                        familiasOrdenadas.firstOrNull {
-                            it.id == anterior.id }
-                    } ?: familiasOrdenadas.first()
+                        familiasOrdenadas.firstOrNull { it.id == id } } ?: familiaActiva?.let { anterior ->
+                        familiasOrdenadas.firstOrNull { it.id == anterior.id } } ?: familiasOrdenadas.first()
                     familiaActiva = seleccionada
                     cargarMembresia(familia = seleccionada, uidUsuario = uidUsuario,
                         finalizarCargaInicial = finalizarCargaInicial) }
-                .onFailure {
-                    cargandoFamilia = false
+                .onFailure { cargandoFamilia = false
                     cargandoListadoFamilias = false
                     if (finalizarCargaInicial) { cargando = false }
                     errorFamiliasRecurso = R.string.home_error_load_families
-                    errorRecurso = R.string.home_error_load_families
-                }
-        }
-    }
+                    errorRecurso = R.string.home_error_load_families } } }
 
+    /** Lee el rol del usuario en la familia activa. */
     private fun cargarMembresia(familia: Familia, uidUsuario: String,
-                                finalizarCargaInicial: Boolean) {
-        cargandoFamilia = true
-        val solicitud = timeoutMembresia.iniciar(scope = viewModelScope) {
-            membresiaActiva = null
+                                finalizarCargaInicial: Boolean) { cargandoFamilia = true
+        val solicitud = timeoutMembresia.iniciar(scope = viewModelScope) { membresiaActiva = null
             cargandoFamilia = false
             if (finalizarCargaInicial) { cargando = false }
-            errorRecurso = R.string.error_network
-        }
+            errorRecurso = R.string.error_network }
 
         familiaRepository.obtenerMembresia(familiaId = familia.id,
             uidUsuario = uidUsuario) { resultado ->
-            if (!timeoutMembresia.completar(solicitud)) {
-                return@obtenerMembresia
-            }
+            if (!timeoutMembresia.completar(solicitud)) { return@obtenerMembresia }
             resultado
                 .onSuccess { membresia ->
                     membresiaActiva = membresia
                     cargandoFamilia = false
                     if (finalizarCargaInicial) { cargando = false }
-                    if (membresia == null) {
-                        errorRecurso = R.string.home_error_load_membership } }
+                    if (membresia == null) { errorRecurso = R.string.home_error_load_membership } }
                 .onFailure { membresiaActiva = null
                     cargandoFamilia = false
                     if (finalizarCargaInicial) { cargando = false }
-                    errorRecurso = R.string.home_error_load_membership }
-        }
-    }
+                    errorRecurso = R.string.home_error_load_membership } } }
 
-    fun seleccionarFamilia(familia: Familia) {
-        if (familiaActiva?.id == familia.id && membresiaActiva != null) {
+    /** Cambia la familia activa y carga el rol del usuario en ella. */
+    fun seleccionarFamilia(familia: Familia) { if (familiaActiva?.id == familia.id && membresiaActiva != null) {
             return }
         val usuarioFirebase = authRepository.obtenerUsuarioActual()
-        if (usuarioFirebase == null) {
-            errorRecurso = R.string.home_error_no_session
+        if (usuarioFirebase == null) { errorRecurso = R.string.home_error_no_session
             return }
         familiaActiva = familia
         membresiaActiva = null
         errorRecurso = null
         cargarMembresia(familia = familia,
             uidUsuario = usuarioFirebase.uid,
-            finalizarCargaInicial = false)
-    }
+            finalizarCargaInicial = false) }
 
+    /** Actualiza el nombre escrito en el diálogo. */
     fun actualizarNombre(nuevoNombre: String) { nombreNuevo = nuevoNombre
         errorRecurso = null }
 
     /** Abre el diálogo de edición con el nombre actual ya escrito. */
-    fun empezarEdicionNombre() {
-        if (guardandoNombre) return
+    fun empezarEdicionNombre() { if (guardandoNombre) return
         nombreNuevo = usuario?.nombre.orEmpty()
         errorRecurso = null
-        editandoNombre = true
-    }
+        editandoNombre = true }
 
+    /** Cierra el diálogo de nombre sin guardar. */
     fun cancelarEdicionNombre() {
         // Mientras se guarda no se cierra, para no perder el resultado.
         if (guardandoNombre) return
         editandoNombre = false
         nombreNuevo = ""
-        errorRecurso = null
-    }
+        errorRecurso = null }
 
-    fun guardarNombre() {
-        if (guardandoNombre) return
+    /** Guarda el nombre visible en el perfil. */
+    fun guardarNombre() { if (guardandoNombre) return
         val perfilActual = usuario ?: return
         val nombreLimpio = nombreNuevo.trim()
-        if (nombreLimpio.isBlank()) {
-            errorRecurso = R.string.home_error_empty_name
+        if (nombreLimpio.isBlank()) { errorRecurso = R.string.home_error_empty_name
             return }
         // Si no cambió nada, solo cerramos el diálogo.
-        if (nombreLimpio == perfilActual.nombre.trim()) {
-            editandoNombre = false
+        if (nombreLimpio == perfilActual.nombre.trim()) { editandoNombre = false
             nombreNuevo = ""
             return }
         guardandoNombre = true
         errorRecurso = null
         // El nombre de la videollamada (Stream) se actualiza solo:
         // ObservadorSesionVideo escucha este mismo documento.
-        usuarioRepository.actualizarNombre(uid = perfilActual.uid, nombre = nombreLimpio) {
-                resultado ->
+        usuarioRepository.actualizarNombre(uid = perfilActual.uid, nombre = nombreLimpio) { resultado ->
             guardandoNombre = false
-            resultado.onSuccess {
-                usuario = perfilActual.copy(nombre = nombreLimpio)
+            resultado.onSuccess { usuario = perfilActual.copy(nombre = nombreLimpio)
                 nombreNuevo = ""
                 editandoNombre = false }
-                .onFailure { errorRecurso = R.string.home_error_save_name }
-        }
-    }
+                .onFailure { errorRecurso = R.string.home_error_save_name } } }
 
+    /** Crea el perfil si la cuenta existe pero aún no tiene documento en Firestore. */
     private fun crearPerfilFaltante(uid: String, correo: String) {
         usuarioRepository.crearUsuario(uid = uid, correo = correo) { resultado ->
             resultado
                 .onSuccess { usuario = Usuario(uid = uid, nombre = "", correo = correo)
                     cargarFamilias(uidUsuario = uid, finalizarCargaInicial = true) }
                 .onFailure { cargando = false
-                    errorRecurso = R.string.home_error_load_profile } }
-    }
+                    errorRecurso = R.string.home_error_load_profile } } }
 
-    fun cerrarSesion(alCerrarSesion: () -> Unit) {
-        cancelarEsperas()
+    /** Cierra la sesión y limpia todo el estado de la pantalla. */
+    fun cerrarSesion(alCerrarSesion: () -> Unit) { cancelarEsperas()
         authRepository.cerrarSesion()
         usuario = null
         familias = emptyList()
@@ -291,17 +255,12 @@ class HomeViewModel : ViewModel() {
         familiasConsultadas = false
         errorRecurso = null
         errorFamiliasRecurso = null
-        alCerrarSesion()
-    }
+        alCerrarSesion() }
 
-    private fun cancelarEsperas() {
-        timeoutUsuario.cancelar()
+    /** Cancela los tiempos límite pendientes. */
+    private fun cancelarEsperas() { timeoutUsuario.cancelar()
         timeoutFamilias.cancelar()
-        timeoutMembresia.cancelar()
-    }
+        timeoutMembresia.cancelar() }
 
-    override fun onCleared() {
-        cancelarEsperas()
-        super.onCleared()
-    }
-}
+    override fun onCleared() { cancelarEsperas()
+        super.onCleared() } }

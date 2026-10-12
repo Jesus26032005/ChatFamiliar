@@ -7,23 +7,22 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 
+/** Consulta y administración de los integrantes de una familia. */
 class MiembroFamiliaRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val familias = firestore.collection(COLECCION_FAMILIAS)
     private val usuarios = firestore.collection(COLECCION_USUARIOS)
+    /** Devuelve los integrantes con nombre y correo de su perfil; primero los administradores. */
     fun obtenerMiembrosFamilia(familiaId: String, alCompletar:
-            (Result<List<MiembroFamiliaDetalle>>) -> Unit) {
-        familias
+            (Result<List<MiembroFamiliaDetalle>>) -> Unit) { familias
             .document(familiaId)
             .collection(SUBCOLECCION_MIEMBROS)
             .get()
             .addOnSuccessListener { resultadoMiembros ->
                 val membresias = resultadoMiembros.documents
                         .mapNotNull { documento ->
-                            documento.toObject(
-                                MiembroFamilia::class.java) }
-                if (membresias.isEmpty()) {
-                    alCompletar(Result.success(emptyList()))
+                            documento.toObject(MiembroFamilia::class.java) }
+                if (membresias.isEmpty()) { alCompletar(Result.success(emptyList()))
                     return@addOnSuccessListener }
                 val tareasUsuarios = membresias.map { membresia ->
                         usuarios.document(membresia.uid).get() }
@@ -31,8 +30,7 @@ class MiembroFamiliaRepository {
                     .addOnSuccessListener { documentos ->
                         val usuariosPorUid = documentos
                                 .mapNotNull { documento ->
-                                    documento.toObject(
-                                        Usuario::class.java) }
+                                    documento.toObject(Usuario::class.java) }
                                 .associateBy { it.uid }
                         val miembros = membresias
                                 .map { membresia ->
@@ -42,31 +40,27 @@ class MiembroFamiliaRepository {
                                         correo = usuario?.correo.orEmpty(),
                                         rol = membresia.rol) }
                                 .sortedWith(compareByDescending
-                                    <MiembroFamiliaDetalle> {
-                                        it.esAdministrador }.thenBy {
-                                        it.nombre.lowercase() })
+                                    <MiembroFamiliaDetalle> { it.esAdministrador }.thenBy { it.nombre.lowercase() })
                         alCompletar(Result.success(miembros)) }
                     .addOnFailureListener { excepcion ->
                         alCompletar(Result.failure(excepcion)) } }
             .addOnFailureListener { excepcion ->
-                alCompletar(Result.failure(excepcion)) }
-    }
+                alCompletar(Result.failure(excepcion)) } }
 
 
+    /** Asigna el rol de administrador a un integrante. */
     fun hacerAdministrador(familiaId: String, uidMiembro: String,
-        alCompletar: (Result<Unit>) -> Unit) {
-        actualizarRol(familiaId = familiaId,
+        alCompletar: (Result<Unit>) -> Unit) { actualizarRol(familiaId = familiaId,
             uidMiembro = uidMiembro, nuevoRol = MiembroFamilia.ROL_ADMINISTRADOR,
             alCompletar = alCompletar) }
+    /** Regresa a un administrador al rol de miembro. */
     fun quitarAdministrador(familiaId: String, uidMiembro: String,
-        alCompletar: (Result<Unit>) -> Unit
-    ) {
-        actualizarRol(familiaId = familiaId, uidMiembro = uidMiembro,
+        alCompletar: (Result<Unit>) -> Unit) { actualizarRol(familiaId = familiaId, uidMiembro = uidMiembro,
             nuevoRol = MiembroFamilia.ROL_MIEMBRO,
             alCompletar = alCompletar) }
+    /** Actualiza el campo rol de la membresía. */
     private fun actualizarRol(familiaId: String, uidMiembro: String,
-        nuevoRol: String, alCompletar: (Result<Unit>) -> Unit) {
-        familias
+        nuevoRol: String, alCompletar: (Result<Unit>) -> Unit) { familias
             .document(familiaId)
             .collection(SUBCOLECCION_MIEMBROS)
             .document(uidMiembro)
@@ -74,18 +68,16 @@ class MiembroFamiliaRepository {
             .addOnSuccessListener { alCompletar(Result.success(Unit)) }
             .addOnFailureListener { excepcion ->
                 alCompletar(Result.failure(excepcion)) } }
+    /** Saca a un integrante de la familia borrando su membresía. */
     fun expulsarMiembro(familiaId: String, uidMiembro: String,
-        alCompletar: (Result<Unit>) -> Unit) {
-        familias
+        alCompletar: (Result<Unit>) -> Unit) { familias
             .document(familiaId)
             .collection(SUBCOLECCION_MIEMBROS)
             .document(uidMiembro)
-            .delete().addOnSuccessListener {
-                alCompletar(Result.success(Unit)) }
+            .delete().addOnSuccessListener { alCompletar(Result.success(Unit)) }
             .addOnFailureListener { excepcion ->
                 alCompletar(Result.failure(excepcion)) } }
     companion object { private const val COLECCION_FAMILIAS = "familias"
         private const val COLECCION_USUARIOS = "usuarios"
         private const val SUBCOLECCION_MIEMBROS = "miembros"
-        private const val CAMPO_ROL = "rol" }
-}
+        private const val CAMPO_ROL = "rol" } }

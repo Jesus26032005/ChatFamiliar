@@ -24,57 +24,48 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/** Estado de carga con indicador de progreso. */
 @Composable
 fun EstadoCargaConversaciones(titulo: String, descripcion: String,
-    modifier: Modifier = Modifier) {
-    ContenidoEstadoConversaciones(titulo = titulo, descripcion = descripcion,
-        cargando = true, modifier = modifier)
-}
+    modifier: Modifier = Modifier) { ContenidoEstadoConversaciones(titulo = titulo, descripcion = descripcion,
+        cargando = true, modifier = modifier) }
 
+/** Estado vacío con acción opcional. */
 @Composable
 fun EstadoVacioConversaciones(titulo: String, descripcion: String,
     modifier: Modifier = Modifier, textoAccion: String? = null,
-    alAccion: (() -> Unit)? = null){
-    ContenidoEstadoConversaciones(titulo = titulo, descripcion = descripcion,
+    alAccion: (() -> Unit)? = null){ ContenidoEstadoConversaciones(titulo = titulo, descripcion = descripcion,
         icono = Icons.Filled.Forum, textoAccion = textoAccion,
-        alAccion = alAccion, modifier = modifier)
-}
+        alAccion = alAccion, modifier = modifier) }
 
+/** Estado de error con botón para reintentar. */
 @Composable
 fun EstadoErrorConversaciones(titulo: String, mensaje: String,
     textoReintentar: String, alReintentar: () -> Unit,
-    modifier: Modifier = Modifier) {
-    ContenidoEstadoConversaciones(titulo = titulo,
+    modifier: Modifier = Modifier) { ContenidoEstadoConversaciones(titulo = titulo,
         descripcion = mensaje, icono = Icons.Filled.ErrorOutline,
         esError = true, textoAccion = textoReintentar,
-        alAccion = alReintentar, modifier = modifier)
-}
+        alAccion = alReintentar, modifier = modifier) }
 
+/** Diseño común de los estados de carga, vacío y error. */
 @Composable
-private fun ContenidoEstadoConversaciones(
-    titulo: String, descripcion: String,
+private fun ContenidoEstadoConversaciones(titulo: String, descripcion: String,
     modifier: Modifier = Modifier, icono: ImageVector? = null,
     cargando: Boolean = false, esError: Boolean = false,
-    textoAccion: String? = null, alAccion: (() -> Unit)? = null) {
-    Column(modifier = modifier.fillMaxWidth()
+    textoAccion: String? = null, alAccion: (() -> Unit)? = null) { Column(modifier = modifier.fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        if (cargando) {
+        verticalArrangement = Arrangement.spacedBy(14.dp)) { if (cargando) {
             CircularProgressIndicator(modifier = Modifier.padding(vertical = 12.dp)
-                    .size(32.dp), strokeWidth = 3.dp)
-        } else if (icono != null) {
+                    .size(32.dp), strokeWidth = 3.dp) } else if (icono != null) {
             Surface(modifier = Modifier.size(64.dp),
                 shape = RoundedCornerShape(20.dp),
                 color = if (esError) { MaterialTheme.colorScheme.errorContainer
                 } else { MaterialTheme.colorScheme.primaryContainer },
                 contentColor = if (esError) { MaterialTheme.colorScheme.onErrorContainer
-                } else { MaterialTheme.colorScheme.onPrimaryContainer }
-            ) {
-                Box(contentAlignment = Alignment.Center) {
+                } else { MaterialTheme.colorScheme.onPrimaryContainer }) { Box(contentAlignment = Alignment.Center) {
                     Icon(imageVector = icono, contentDescription = null,
-                        modifier = Modifier.size(30.dp)) } }
-        }
+                        modifier = Modifier.size(30.dp)) } } }
         Text(text = titulo,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
@@ -86,8 +77,4 @@ private fun ContenidoEstadoConversaciones(
             textAlign = TextAlign.Center)
         if (!textoAccion.isNullOrBlank() && alAccion != null) {
             Button(onClick = alAccion, shape = RoundedCornerShape(14.dp)) {
-                Text( text = textoAccion, textAlign = TextAlign.Center)
-            }
-        }
-    }
-}
+                Text( text = textoAccion, textAlign = TextAlign.Center) } } } }

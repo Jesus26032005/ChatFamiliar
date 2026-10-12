@@ -2,6 +2,7 @@ package com.example.chatfamiliar.data.chat
 
 import com.google.firebase.firestore.FirebaseFirestoreException
 
+/** Errores posibles de las operaciones de chat; la interfaz traduce cada uno a un texto. */
 enum class CodigoErrorChat {
     SESION_REQUERIDA,
     IDENTIFICADOR_INVALIDO,
@@ -17,33 +18,27 @@ enum class CodigoErrorChat {
     DATOS_INVALIDOS,
     SERVICIO_NO_DISPONIBLE,
     TIEMPO_AGOTADO,
-    DESCONOCIDO
-}
+    DESCONOCIDO }
 
+/** Excepción propia del chat con su código de error. */
 class ExcepcionChat(
     val codigo: CodigoErrorChat,
-    causa: Throwable? = null
-) : Exception(codigo.name, causa) {
+    causa: Throwable? = null) : Exception(codigo.name, causa) {
 
     companion object {
 
+        /** Convierte cualquier error (propio o de Firestore) en una ExcepcionChat con su código. */
         fun desde(error: Throwable): ExcepcionChat {
-            // funcion auxlar borrar para produccion
-            val errorFirestoreDiagnostico = generateSequence(error) {
-                it.cause
-            }
+            // Registra en Logcat el código de Firestore para diagnosticar fallos.
+            val errorFirestoreDiagnostico = generateSequence(error) { it.cause }
                 .take(12)
                 .filterIsInstance<FirebaseFirestoreException>()
                 .firstOrNull()
 
-            if (errorFirestoreDiagnostico != null) {
-                android.util.Log.w(
+            if (errorFirestoreDiagnostico != null) { android.util.Log.w(
                     "ChatFirestore",
                     "${errorFirestoreDiagnostico.code}: " +
-                            errorFirestoreDiagnostico.message.orEmpty()
-                )
-            }
-            ///xdfdf
+                            errorFirestoreDiagnostico.message.orEmpty()) }
 
             val causas = generateSequence(error) { it.cause }
                 .take(12)
@@ -54,16 +49,13 @@ class ExcepcionChat(
                 .filterIsInstance<ExcepcionChat>()
                 .firstOrNull()
 
-            if (errorChat != null) {
-                return errorChat
-            }
+            if (errorChat != null) { return errorChat }
 
             val errorFirestore = causas
                 .filterIsInstance<FirebaseFirestoreException>()
                 .firstOrNull()
 
-            val codigo = when (errorFirestore?.code) {
-                FirebaseFirestoreException.Code.UNAUTHENTICATED ->
+            val codigo = when (errorFirestore?.code) { FirebaseFirestoreException.Code.UNAUTHENTICATED ->
                     CodigoErrorChat.SESION_REQUERIDA
 
                 FirebaseFirestoreException.Code.PERMISSION_DENIED ->
@@ -76,13 +68,7 @@ class ExcepcionChat(
                     CodigoErrorChat.TIEMPO_AGOTADO
 
                 else ->
-                    CodigoErrorChat.DESCONOCIDO
-            }
+                    CodigoErrorChat.DESCONOCIDO }
 
-            return ExcepcionChat(
-                codigo = codigo,
-                causa = error
-            )
-        }
-    }
-}
+            return ExcepcionChat(codigo = codigo,
+                causa = error) } } }

@@ -19,62 +19,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import com.example.chatfamiliar.ui.comun.BotonConfirmarDestructivo
 
+/** Confirmación para quitar el rol de administrador a un integrante. */
 @Composable
-fun DialogoQuitarAdministrador(
-    visible: Boolean, nombreMiembro: String, titulo: String,
+fun DialogoQuitarAdministrador(visible: Boolean, nombreMiembro: String, titulo: String,
     descripcion: String, textoConfirmar: String, textoCancelar: String,
     mensajeError: String?, cargando: Boolean, alConfirmar: () -> Unit,
-    alCancelar: () -> Unit) {
-    if (!visible) { return }
-    DialogoConfirmacionMiembro(
-        nombreMiembro = nombreMiembro, titulo = titulo,
+    alCancelar: () -> Unit) { if (!visible) { return }
+    DialogoConfirmacionMiembro(nombreMiembro = nombreMiembro, titulo = titulo,
         descripcion = descripcion, textoConfirmar = textoConfirmar,
         textoCancelar = textoCancelar, mensajeError = mensajeError,
         cargando = cargando, alConfirmar = alConfirmar, alCancelar = alCancelar) }
+/** Confirmación para expulsar a un integrante. */
 @Composable
-fun DialogoExpulsarMiembro(
-    visible: Boolean, nombreMiembro: String, titulo: String,
+fun DialogoExpulsarMiembro(visible: Boolean, nombreMiembro: String, titulo: String,
     descripcion: String, textoConfirmar: String, textoCancelar: String,
     mensajeError: String?, cargando: Boolean, alConfirmar: () -> Unit,
-    alCancelar: () -> Unit) {
-    if (!visible) { return }
-    DialogoConfirmacionMiembro(
-        nombreMiembro = nombreMiembro, titulo = titulo,
+    alCancelar: () -> Unit) { if (!visible) { return }
+    DialogoConfirmacionMiembro(nombreMiembro = nombreMiembro, titulo = titulo,
         descripcion = descripcion, textoConfirmar = textoConfirmar,
         textoCancelar = textoCancelar, mensajeError = mensajeError,
         cargando = cargando, alConfirmar = alConfirmar, alCancelar = alCancelar,
         destructivo = true) }
+/** Diálogo de confirmación común para las acciones sobre un integrante. */
 @Composable
-private fun DialogoConfirmacionMiembro(
-    nombreMiembro: String, titulo: String, descripcion: String,
+private fun DialogoConfirmacionMiembro(nombreMiembro: String, titulo: String, descripcion: String,
     textoConfirmar: String, textoCancelar: String, mensajeError: String?,
     cargando: Boolean, alConfirmar: () -> Unit, alCancelar: () -> Unit,
-    destructivo: Boolean = false) {
-    AlertDialog(onDismissRequest = { if (!cargando) { alCancelar() } },
+    destructivo: Boolean = false) { AlertDialog(onDismissRequest = { if (!cargando) { alCancelar() } },
         title = { Text(text = titulo, fontWeight = FontWeight.Bold) },
         text = { Column { Text(text = descripcion,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = nombreMiembro, fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary)
-            if (mensajeError != null) {
-                Spacer(modifier = Modifier.height(12.dp))
+            if (mensajeError != null) { Spacer(modifier = Modifier.height(12.dp))
                 Text(text = mensajeError, style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error) } } },
-        confirmButton = {
-            val contenido: @Composable RowScope.() -> Unit = {
-                if (cargando) { CircularProgressIndicator(
+        confirmButton = { val contenido: @Composable RowScope.() -> Unit = { if (cargando) { CircularProgressIndicator(
                     modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.width(8.dp)) }
                 Text(text = textoConfirmar) }
             // Expulsar usa rojo; quitar administrador conserva el color principal
-            if (destructivo) {
-                BotonConfirmarDestructivo(onClick = alConfirmar,
-                    enabled = !cargando, content = contenido)
-            } else {
+            if (destructivo) { BotonConfirmarDestructivo(onClick = alConfirmar,
+                    enabled = !cargando, content = contenido) } else {
                 Button(onClick = alConfirmar, enabled = !cargando,
-                    content = contenido)
-            } },
-        dismissButton = { OutlinedButton(onClick = alCancelar, enabled = !cargando) {
-            Text(text = textoCancelar) } },
+                    content = contenido) } },
+        dismissButton = { OutlinedButton(onClick = alCancelar, enabled = !cargando) { Text(text = textoCancelar) } },
         shape = RoundedCornerShape(28.dp)) }

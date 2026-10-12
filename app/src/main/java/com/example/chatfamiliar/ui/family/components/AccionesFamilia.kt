@@ -15,38 +15,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 
+/** Botones para crear una familia o unirse a otra. */
 @Composable
-fun AccionesFamilia(
-    textoCrear: String, textoUnirse: String,
+fun AccionesFamilia(textoCrear: String, textoUnirse: String,
     alCrearFamilia: () -> Unit, alUnirseFamilia: () -> Unit,
-    modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth())
-    { OutlinedButton(
-        onClick = alCrearFamilia,
+    modifier: Modifier = Modifier) { Column(modifier = modifier.fillMaxWidth())
+    { OutlinedButton(onClick = alCrearFamilia,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp)
-        ) { Text(text = textoCrear,
+            shape = RoundedCornerShape(16.dp)) { Text(text = textoCrear,
                 fontWeight = FontWeight.SemiBold) }
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(onClick = alUnirseFamilia,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp)) {
-            Text(text = textoUnirse, fontWeight = FontWeight.SemiBold) } }
-}
+            shape = RoundedCornerShape(16.dp)) { Text(text = textoUnirse, fontWeight = FontWeight.SemiBold) } } }
 
-@Preview(
-    showBackground = true,
+@Preview(showBackground = true,
     name = "Acciones de familia"
 )
 @Composable
-private fun AccionesFamiliaPreview() {
-    MaterialTheme {
-        AccionesFamilia(
-            textoCrear = "Crear otra familia",
+private fun AccionesFamiliaPreview() { MaterialTheme { AccionesFamilia(textoCrear = "Crear otra familia",
             textoUnirse = "Unirme a otra familia",
             alCrearFamilia = {},
             alUnirseFamilia = {},
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
+            modifier = Modifier.padding(16.dp)) } }

@@ -8,9 +8,9 @@ import com.example.chatfamiliar.model.ConversacionResumen
 import java.text.Normalizer
 import java.util.Locale
 
+/** Une los chats familiares y privados y aplica la búsqueda y el filtro elegido. */
 class InicioConversacionesViewModel : ViewModel() {
-    var conversaciones by mutableStateOf<List<EstadoConversacionInicio>>(
-        emptyList())
+    var conversaciones by mutableStateOf<List<EstadoConversacionInicio>>(emptyList())
         private set
     var busqueda by mutableStateOf("")
         private set
@@ -22,21 +22,17 @@ class InicioConversacionesViewModel : ViewModel() {
             return conversaciones.filter { estado ->
                 coincideConFiltro(estado) &&
                         (consulta.isEmpty() || normalizar(estado.resumen.titulo)
-                            .contains(consulta)) }
-        }
+                            .contains(consulta)) } }
 
     val hayConteosPendientes: Boolean
         get() = conversaciones.any { estado -> !estado.conteoConfirmado ||
                 estado.actualizandoConteo || estado.errorConteoRecurso != null }
+    /** Combina ambas listas, quita duplicados y ordena por el mensaje más reciente. */
     fun actualizarConversaciones(familiares: List<EstadoConversacionInicio>,
-        privadas: List<EstadoConversacionInicio>) {
-        conversaciones = (familiares + privadas)
+        privadas: List<EstadoConversacionInicio>) { conversaciones = (familiares + privadas)
             .distinctBy { it.clave }
-            .sortedWith(compareByDescending<EstadoConversacionInicio> {
-                    it.resumen.fechaUltimoMensaje
-                }.thenBy { normalizar(it.resumen.titulo)
-                }.thenBy { it.clave })
-    }
+            .sortedWith(compareByDescending<EstadoConversacionInicio> { it.resumen.fechaUltimoMensaje
+                }.thenBy { normalizar(it.resumen.titulo) }.thenBy { it.clave }) }
     fun actualizarBusqueda(texto: String) { busqueda = texto }
     fun seleccionarFiltro(filtro: FiltroConversaciones) { filtroSeleccionado = filtro }
     fun limpiarBusqueda() { busqueda = "" }
@@ -44,24 +40,20 @@ class InicioConversacionesViewModel : ViewModel() {
         busqueda = ""
         filtroSeleccionado = FiltroConversaciones.TODOS }
 
-    private fun coincideConFiltro(estado: EstadoConversacionInicio): Boolean {
-        return when (filtroSeleccionado) {
+    /** true si la conversación pasa el filtro seleccionado. */
+    private fun coincideConFiltro(estado: EstadoConversacionInicio): Boolean { return when (filtroSeleccionado) {
             FiltroConversaciones.TODOS -> true
             FiltroConversaciones.NO_LEIDOS ->
                 (estado.mensajesNoLeidosVisibles ?: 0) > 0
             FiltroConversaciones.FAMILIAS ->
                 estado.resumen.tipo == ConversacionResumen.TIPO_FAMILIA
             FiltroConversaciones.PRIVADOS ->
-                estado.resumen.tipo == ConversacionResumen.TIPO_PRIVADO }
-    }
-    private fun normalizar(texto: String): String {
-        return Normalizer
+                estado.resumen.tipo == ConversacionResumen.TIPO_PRIVADO } }
+    /** Quita acentos y mayúsculas para que la búsqueda no dependa de ellos. */
+    private fun normalizar(texto: String): String { return Normalizer
             .normalize(texto, Normalizer.Form.NFD)
             .replace(MARCAS_DIACRITICAS, "")
             .lowercase(Locale.ROOT)
-            .trim()
-    }
+            .trim() }
     companion object {
-        private val MARCAS_DIACRITICAS = Regex("\\p{M}+")
-    }
-}
+        private val MARCAS_DIACRITICAS = Regex("\\p{M}+") } }

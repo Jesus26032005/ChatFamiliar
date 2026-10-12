@@ -1,5 +1,6 @@
 package com.example.chatfamiliar.model
 
+/** Membresía de un usuario en una familia y su rol. */
 data class MiembroFamilia(
     val uid: String = "",
     val rol: String = ROL_MIEMBRO,
@@ -8,5 +9,4 @@ data class MiembroFamilia(
     companion object {
         const val ROL_MIEMBRO = "miembro"
         const val ROL_ADMINISTRADOR = "administrador"
-    }
-}
+    } }

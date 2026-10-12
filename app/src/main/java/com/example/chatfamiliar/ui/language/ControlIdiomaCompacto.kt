@@ -26,48 +26,33 @@ import com.example.chatfamiliar.R
 import com.example.chatfamiliar.data.language.IdiomaRepository
 
 
+/** Botón de idioma para las cabeceras; abre el selector de idioma. */
 @Composable
 fun ControlIdiomaCompacto(idiomaSeleccionado: String?,
     idiomaEfectivo: String, traducir: TraducirTexto,
-    alSeleccionarIdioma: (String?) -> Unit) {
-    var mostrarSelector by rememberSaveable {
-        mutableStateOf(false) }
+    alSeleccionarIdioma: (String?) -> Unit) { var mostrarSelector by rememberSaveable { mutableStateOf(false) }
     val textos = recordarTextosApp(idiomaEfectivo = idiomaEfectivo,
         traducir = traducir)
-    val codigoVisible = when (idiomaSeleccionado) {
-            IdiomaRepository.ESPANOL -> { "ES" }
+    val codigoVisible = when (idiomaSeleccionado) { IdiomaRepository.ESPANOL -> { "ES" }
             IdiomaRepository.INGLES -> { "EN" }
             IdiomaRepository.ITALIANO -> { "IT" }
             IdiomaRepository.FRANCES -> {"FR"}
             else -> { "AUTO" } }
     Surface(modifier = Modifier.clickable { mostrarSelector = true },
         shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 14.dp,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,) { Row(modifier = Modifier.padding(horizontal = 14.dp,
             vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Icon(imageVector = Icons.Filled.Language,
-                contentDescription = textos.texto(
-                    R.string.language_select),
+            verticalAlignment = Alignment.CenterVertically) { Icon(imageVector = Icons.Filled.Language,
+                contentDescription = textos.texto(R.string.language_select),
                 modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+                tint = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.width(7.dp))
             Text(text = codigoVisible,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-    if (mostrarSelector) {
-        SelectorIdioma(idiomaSeleccionado = idiomaSeleccionado,
+                color = MaterialTheme.colorScheme.primary) } }
+    if (mostrarSelector) { SelectorIdioma(idiomaSeleccionado = idiomaSeleccionado,
             idiomaEfectivo = idiomaEfectivo,
             traducir = traducir,
             alSeleccionarIdioma = alSeleccionarIdioma,
-            alCerrar = { mostrarSelector = false
-            }
-        )
-    }
-}
+            alCerrar = { mostrarSelector = false }) } }
